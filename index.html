@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reserva tu Turno - Alma Estética</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin: 50px; background-color: #fbe9f0; }
     input, select, button { margin: 10px; padding: 10px; width: 250px; border-radius: 8px; }
@@ -17,27 +19,59 @@
 
   <h1>Alma Estética</h1>
   <h3>Belleza y bienestar a tu medida</h3>
-  <p>Sarmiento 407, Concepción, Tucumán</p>
+  <p>Dirección: Sarmiento 407, Concepción, Tucumán, Argentina</p>
 
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required><br>
-    <input type="text" id="telefono" placeholder="Teléfono (sin +54)" required><br>
+    <input type="text" id="telefono" placeholder="Tu número (solo números)" required><br>
 
     <select id="profesional" required>
       <option value="">Seleccioná un profesional</option>
       <option value="Melanie">Melanie</option>
       <option value="Fátima">Fátima</option>
       <option value="Maga">Maga</option>
+      <option value="Profesional 4">Profesional 4</option>
+      <option value="Profesional 5">Profesional 5</option>
     </select><br>
 
     <select id="servicio" required>
       <option value="">Seleccioná un servicio</option>
-      <option value="Hifu">Hifu</option>
-      <option value="Láser para eliminar tatuajes">Láser para eliminar tatuajes</option>
-      <option value="Pestañas">Pestañas</option>
-      <option value="Uñas">Uñas</option>
-      <option value="Corte de pelo">Corte de pelo</option>
-      <option value="Tinturas">Tinturas</option>
+      <optgroup label="Faciales">
+        <option value="Hifu">Hifu</option>
+        <option value="Limpieza Facial">Limpieza Facial</option>
+        <option value="BB Glow">BB Glow</option>
+        <option value="Radiofrecuencia Facial">Radiofrecuencia Facial</option>
+      </optgroup>
+      <optgroup label="Corporales">
+        <option value="Cavitación">Cavitación</option>
+        <option value="Criolipólisis">Criolipólisis</option>
+        <option value="Radiofrecuencia Corporal">Radiofrecuencia Corporal</option>
+        <option value="Presoterapia">Presoterapia</option>
+        <option value="Crioterapia">Crioterapia</option>
+        <option value="Ultrasonido Corporal">Ultrasonido Corporal</option>
+      </optgroup>
+      <optgroup label="Depilación Láser">
+        <option value="Láser para eliminar tatuajes">Láser para eliminar tatuajes</option>
+        <option value="Depilación definitiva">Depilación definitiva</option>
+      </optgroup>
+      <optgroup label="Manos y Pies">
+        <option value="Uñas">Uñas</option>
+        <option value="Manicuría">Manicuría</option>
+        <option value="Pedicuría">Pedicuría</option>
+        <option value="Belleza de manos y pies">Belleza de manos y pies</option>
+      </optgroup>
+      <optgroup label="Cejas y Pestañas">
+        <option value="Pestañas">Pestañas</option>
+        <option value="Lifting de pestañas">Lifting de pestañas</option>
+        <option value="Laminado de cejas">Laminado de cejas</option>
+      </optgroup>
+      <optgroup label="Peluquería">
+        <option value="Corte de pelo">Corte de pelo</option>
+        <option value="Tinturas">Tinturas</option>
+        <option value="Coloraciones">Coloraciones</option>
+        <option value="Mechas">Mechas</option>
+        <option value="Peinados">Peinados</option>
+      </optgroup>
     </select><br>
 
     <input type="date" id="fecha" required><br>
@@ -47,6 +81,19 @@
   </form>
 
   <script>
+    // 🔥 Conexión a Firebase
+    const firebaseConfig = {
+      apiKey: "AQUI_TU_API_KEY",
+      authDomain: "alma-estetica-turnos.firebaseapp.com",
+      projectId: "alma-estetica-turnos",
+      storageBucket: "alma-estetica-turnos.appspot.com",
+      messagingSenderId: "AQUI_SENDER_ID",
+      appId: "AQUI_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     document.getElementById('reservaForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -57,14 +104,22 @@
       const fecha = document.getElementById('fecha').value;
       const hora = document.getElementById('hora').value;
 
-      const mensaje = `Hola, soy ${nombre}. Quiero reservar un turno con ${profesional} para el servicio de ${servicio} el día ${fecha} a las ${hora}.`;
-
-      // Aquí iría la integración real a una API de WhatsApp (ejemplo Twilio/360Dialog)
-      // Por ahora redirige al WhatsApp Web estándar (para evitar problemas)
-      const link = `https://wa.me/549${telefono}?text=${encodeURIComponent(mensaje)}`;
-      window.location.href = link;
-
-      alert("¡Reserva realizada exitosamente!");
+      try {
+        await db.collection("turnos").add({
+          nombre,
+          telefono,
+          profesional,
+          servicio,
+          fecha,
+          hora,
+          timestamp: new Date()
+        });
+        alert("¡Reserva realizada exitosamente!");
+        document.getElementById('reservaForm').reset();
+      } catch (error) {
+        console.error("Error al guardar turno:", error);
+        alert("Hubo un error. Intenta nuevamente.");
+      }
     });
   </script>
 
