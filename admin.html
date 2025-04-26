@@ -3,10 +3,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Admin - Alma Estética</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Alma Estética</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; background-color: #fbe9f0; }
+        input, button { margin: 10px; padding: 10px; width: 250px; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-    <h1>Panel de Administración</h1>
-    <p>Accedé a la gestión de turnos.</p>
+
+    <h1>Ingreso al Panel</h1>
+
+    <div id="login">
+        <input type="text" id="usuario" placeholder="Usuario"><br>
+        <input type="password" id="clave" placeholder="Contraseña"><br>
+        <button onclick="login()">Ingresar</button>
+    </div>
+
+    <div id="panel" class="hidden">
+        <h2>Bienvenido Hugo</h2>
+        <p>Acá vas a ver y administrar tus turnos.</p>
+        <!-- Aquí después podemos agregar más funcionalidades como ver turnos, exportar, etc. -->
+    </div>
+
+    <script>
+        function login() {
+            var usuario = document.getElementById('usuario').value;
+            var clave = document.getElementById('clave').value;
+            if (usuario === 'Hugo' && clave === 'Alma1234') {
+                document.getElementById('login').classList.add('hidden');
+                document.getElementById('panel').classList.remove('hidden');
+            } else {
+                alert('Usuario o contraseña incorrectos');
+            }
+        }
+    </script>
+
 </body>
 </html>
