@@ -13,22 +13,20 @@
 </head>
 <body>
 
-<img src="logo.jpg" alt="Alma Estética" style="width: 180px; margin: 20px auto; display: block;">
+  <img src="logo.jpg" alt="Logo Alma Estética">
 
   <h1>Alma Estética</h1>
-  <h3>Belleza y Bienestar a tu medida</h3>
+  <h3>Belleza y bienestar a tu medida</h3>
   <p>Sarmiento 407, Concepción, Tucumán</p>
 
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required><br>
-    <input type="text" id="telefono" placeholder="Teléfono (solo número, sin +54)" required><br>
+    <input type="text" id="telefono" placeholder="Teléfono (sin +54)" required><br>
 
     <select id="profesional" required>
       <option value="">Seleccioná un profesional</option>
       <option value="Melanie">Melanie</option>
       <option value="Fátima">Fátima</option>
-      <option value="Maria">Maria</option>
-      <option value="Cris">Cris</option>
       <option value="Maga">Maga</option>
     </select><br>
 
@@ -49,7 +47,7 @@
   </form>
 
   <script>
-    document.getElementById('reservaForm').addEventListener('submit', function(e) {
+    document.getElementById('reservaForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const nombre = document.getElementById('nombre').value;
@@ -60,9 +58,10 @@
       const hora = document.getElementById('hora').value;
 
       const mensaje = `Hola, soy ${nombre}. Quiero reservar un turno con ${profesional} para el servicio de ${servicio} el día ${fecha} a las ${hora}.`;
-      const link = `https://wa.me/549${telefono}?text=${encodeURIComponent(mensaje)}`;
 
-      // Se abre automáticamente el WhatsApp y envía el mensaje
+      // Aquí iría la integración real a una API de WhatsApp (ejemplo Twilio/360Dialog)
+      // Por ahora redirige al WhatsApp Web estándar (para evitar problemas)
+      const link = `https://wa.me/549${telefono}?text=${encodeURIComponent(mensaje)}`;
       window.location.href = link;
 
       alert("¡Reserva realizada exitosamente!");
