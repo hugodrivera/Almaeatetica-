@@ -45,21 +45,20 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Acá se cargan los turnos dinámicamente -->
+        <!-- Se cargan los turnos acá -->
       </tbody>
     </table>
   </div>
 
   <script>
     const firebaseConfig = {
-  apiKey: "AIzaSyALjaXn5s2FvPAAqWnXc4Gttsp7X-vLhbk",
-  authDomain: "alma-estetica-turnos.firebaseapp.com",
-  projectId: "alma-estetica-turnos",
-  storageBucket: "alma-estetica-turnos.appspot.com",
-  messagingSenderId: "285664296118",
-  appId: "1:285664296118:web:0c48ae9df4f2a87830bc6d"
-};
-  
+      apiKey: "AIzaSyALjaXn5s2FvPAAqWnXc4Gttsp7X-vLhbk",
+      authDomain: "alma-estetica-turnos.firebaseapp.com",
+      projectId: "alma-estetica-turnos",
+      storageBucket: "alma-estetica-turnos.appspot.com",
+      messagingSenderId: "285664296118",
+      appId: "1:285664296118:web:0c48ae9df4f2a87830bc6d"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
