@@ -8,11 +8,12 @@
     body { font-family: Arial, sans-serif; text-align: center; margin: 50px; background-color: #fbe9f0; }
     input, select, button { margin: 10px; padding: 10px; width: 250px; border-radius: 8px; }
     form { background: white; padding: 20px; border-radius: 10px; display: inline-block; }
+    img { width: 180px; margin-bottom: 20px; }
   </style>
 </head>
 <body>
 
-  <img src="https://i.imgur.com/QArlYjz.png" alt="Logo" style="max-width: 250px; margin-bottom: 20px;">
+  <img src="https://i.imgur.com/6Jt7VvP.png" alt="Logo Alma Estética">
 
   <h1>Alma Estética</h1>
   <h3>Belleza y bienestar a tu medida</h3>
@@ -20,7 +21,7 @@
 
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required><br>
-    <input type="text" id="telefono" placeholder="Teléfono (sin +54)" required><br>
+    <input type="text" id="telefono" placeholder="Teléfono (solo número, sin +54)" required><br>
 
     <select id="profesional" required>
       <option value="">Seleccioná un profesional</option>
@@ -48,7 +49,7 @@
   <script>
     document.getElementById('reservaForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      
+
       const nombre = document.getElementById('nombre').value;
       const telefono = document.getElementById('telefono').value;
       const profesional = document.getElementById('profesional').value;
@@ -56,10 +57,12 @@
       const fecha = document.getElementById('fecha').value;
       const hora = document.getElementById('hora').value;
 
-      const mensaje = Hola, soy ${nombre}. Quiero reservar un turno con ${profesional} para el servicio de ${servicio} el día ${fecha} a las ${hora}.;
-      const link = https://wa.me/549${telefono}?text=${encodeURIComponent(mensaje)};
-      
-      window.open(link, '_blank');
+      const mensaje = `Hola, soy ${nombre}. Quiero reservar un turno con ${profesional} para el servicio de ${servicio} el día ${fecha} a las ${hora}.`;
+      const link = `https://wa.me/549${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+      // Se abre automáticamente el WhatsApp y envía el mensaje
+      window.location.href = link;
+
       alert("¡Reserva realizada exitosamente!");
     });
   </script>
