@@ -4,93 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alma Estética - Turnos Online</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to bottom right, #e8c5dd, #b2f1f0);
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        header img {
-            width: 150px;
-            margin-top: 20px;
-        }
-        h1 {
-            font-size: 24px;
-            margin: 20px 0 10px;
-        }
-        form {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
-        button {
-            margin-top: 20px;
-            background: #e8a3cd;
-            color: white;
-            padding: 12px;
-            border: none;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-    </style>
+    <title>Alma Estética - Reservas</title>
 </head>
 <body>
-    <header>
-        <img src="logo.jpg" alt="Logo Alma Estética">
-    </header>
-    <h1>Reservá tu turno</h1>
-    <form>
-        <label>Nombre:</label>
-        <input type="text" placeholder="Tu nombre" required>
-
-        <label>WhatsApp:</label>
-        <input type="tel" placeholder="+54 9 ..." required>
-
-        <label>Profesional:</label>
-        <select>
-            <option>Elegí un profesional</option>
-            <option>Belén</option>
-            <option>Flor</option>
-            <option>Luz</option>
-            <option>Paula</option>
-        </select>
-
-        <label>Servicio:</label>
-        <select>
-            <option>Elegí un servicio</option>
-            <option>Depilación</option>
-            <option>Manos</option>
-            <option>Masajes</option>
-        </select>
-
-        <label>Fecha:</label>
-        <input type="date" required>
-
-        <label>Hora:</label>
-        <input type="time" required>
-
-        <button type="submit">Reservar turno</button>
+    <h1>Bienvenidos a Alma Estética</h1>
+    <p>Hacé clic abajo para reservar un turno:</p>
+    <form action="https://wa.me/5493865506946" target="_blank">
+        <label for="name">Nombre:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="service">Servicio:</label><br>
+        <input type="text" id="service" name="service" required><br><br>
+        <label for="phone">Teléfono (sin +54):</label><br>
+        <input type="tel" id="phone" name="phone" required><br><br>
+        <input type="submit" value="Reservar por WhatsApp">
     </form>
 </body>
 </html>
