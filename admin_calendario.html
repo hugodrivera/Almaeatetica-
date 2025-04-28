@@ -3,124 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <title>Calendario de Turnos - Alma Estética</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
-    body { background-color: #fce4ec; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
-    img { width: 150px; margin: 20px 0; }
-    h1 { color: #c2185b; margin-top: 5px; }
-    #filtros { margin: 20px 0; }
-    #calendar { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; }
-    select, input[type="text"] {
-      padding: 8px;
-      margin: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      width: 200px;
+    body { background-color: #fce4ec; font-family: Arial, sans-serif; text-align: center; }
+    img { width: 180px; margin-top: 20px; }
+    h1 { color: #c2185b; margin-top: 10px; }
+    #calendar { max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; }
+
+    /* Estilos para el Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
     }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+    }
+    .modal-content input {
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 8px;
+    }
+    .modal-content button {
+      margin: 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .editar { background-color: #4caf50; color: white; }
+    .cancelar { background-color: #ff9800; color: white; }
+    .eliminar { background-color: #f44336; color: white; }
   </style>
 </head>
+
 <body>
 
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Calendario de Turnos</h1>
 
-  <div id="filtros">
-    <select id="filtroProfesional">
-      <option value="">Todos los Profesionales</option>
-      <option value="Melanie">Melanie</option>
-      <option value="Fátima">Fátima</option>
-      <option value="Dr. Maria">Dr. Maria</option>
-      <option value="Maria">Maria</option>
-      <option value="Cris">Cris</option>
-      <option value="Alis">Alis</option>
-    </select>
-    <input type="text" id="buscarTurno" placeholder="Buscar nombre o servicio...">
-  </div>
-
   <div id="calendar"></div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var calendarEl = document.getElementById('calendar');
-      var allEvents = [];
+  <!-- Modal -->
+  <div id="modalTurno" class="modal">
+    <div class="modal-content">
+      <h2>Detalle del Turno</h2>
+      <input type="text" id="modalNombre" placeholder="Nombre" readonly>
+      <input type="text" id="modalTelefono" placeholder="Teléfono" readonly>
+      <input type="text" id="modalProfesional" placeholder="Profesional" readonly>
+      <input type="text" id="modalServicio" placeholder="Servicio" readonly>
+      <input type="text" id="modalFecha" placeholder="Fecha" readonly>
+      <input type="text" id="modalHora" placeholder="Hora" readonly>
+      <br>
+      <button class="editar" onclick="editarTurno()">Editar Turno</button>
+      <button class="cancelar" onclick="cancelarTurno()">Cancelar Turno</button>
+      <button class="eliminar" onclick="eliminarTurno()">Eliminar Turno</button>
+      <br><br>
+      <button onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
 
-      var colores = {
-        'Melanie': '#f48fb1',
-        'Fátima': '#81d4fa',
-        'Dr. Maria': '#ce93d8',
-        'Maria': '#ffe082',
-        'Cris': '#80cbc4',
-        'Alis': '#ffab91'
-      };
+<script>
+  let turnoActual = null;
 
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'es',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: [],
-        eventClick: function(info) {
-          alert('Turno:\n' +
-                'Nombre: ' + (info.event.title || '') + '\n' +
-                'Profesional: ' + (info.event.extendedProps.profesional || '') + '\n' +
-                'Servicio: ' + (info.event.extendedProps.servicio || '') + '\n' +
-                'Teléfono: ' + (info.event.extendedProps.telefono || ''));
-        }
-      });
-
-      calendar.render();
-
-      fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja%201')
-        .then(response => response.json())
-        .then(data => {
-          if (!Array.isArray(data)) throw new Error('Datos no válidos');
-
-          allEvents = data
-            .filter(turno => turno.nombre && turno.fecha && turno.hora)
-            .map(turno => ({
-              title: turno.nombre,
-              start: `${turno.fecha}T${turno.hora}`,
-              backgroundColor: colores[turno.profesional] || '#b0bec5',
-              borderColor: colores[turno.profesional] || '#b0bec5',
-              extendedProps: {
-                profesional: turno.profesional || '',
-                servicio: turno.servicio || '',
-                telefono: turno.telefono || ''
-              }
-            }));
-
-          calendar.addEventSource(allEvents);
-        })
-        .catch(error => {
-          console.error('Error cargando turnos:', error);
-          alert("⚠️ Hubo un problema cargando los turnos.");
-        });
-
-      // Filtros
-      document.getElementById('filtroProfesional').addEventListener('change', aplicarFiltros);
-      document.getElementById('buscarTurno').addEventListener('input', aplicarFiltros);
-
-      function aplicarFiltros() {
-        var profesional = document.getElementById('filtroProfesional').value.toLowerCase();
-        var busqueda = document.getElementById('buscarTurno').value.toLowerCase();
-
-        var filtrados = allEvents.filter(evento => {
-          var matchProfesional = profesional ? evento.extendedProps.profesional.toLowerCase() === profesional : true;
-          var matchBusqueda = busqueda ? 
-            (evento.title.toLowerCase().includes(busqueda) || evento.extendedProps.servicio.toLowerCase().includes(busqueda)) : true;
-          return matchProfesional && matchBusqueda;
-        });
-
-        calendar.getEventSources().forEach(source => source.remove());
-        calendar.addEventSource(filtrados);
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'es',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      events: [],
+      eventClick: function(info) {
+        turnoActual = info.event;
+        document.getElementById('modalNombre').value = turnoActual.title || '';
+        document.getElementById('modalTelefono').value = turnoActual.extendedProps.telefono || '';
+        document.getElementById('modalProfesional').value = turnoActual.extendedProps.profesional || '';
+        document.getElementById('modalServicio').value = turnoActual.extendedProps.servicio || '';
+        document.getElementById('modalFecha').value = turnoActual.startStr.split('T')[0] || '';
+        document.getElementById('modalHora').value = turnoActual.startStr.split('T')[1] || '';
+        document.getElementById('modalTurno').style.display = 'block';
       }
     });
-  </script>
+
+    calendar.render();
+
+    // Cargar turnos desde la hoja
+    fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
+      .then(response => response.json())
+      .then(data => {
+        const eventos = data.filter(turno => turno.nombre && turno.fecha && turno.hora)
+          .map(turno => ({
+            title: turno.nombre,
+            start: `${turno.fecha}T${turno.hora}`,
+            extendedProps: {
+              profesional: turno.profesional || '',
+              servicio: turno.servicio || '',
+              telefono: turno.telefono || ''
+            }
+          }));
+        calendar.addEventSource(eventos);
+      })
+      .catch(error => {
+        console.error('Error cargando turnos:', error);
+        alert("⚠️ Hubo un problema al cargar los turnos. Revisá la hoja de Google.");
+      });
+  });
+
+  function cerrarModal() {
+    document.getElementById('modalTurno').style.display = 'none';
+  }
+
+  function editarTurno() {
+    alert('Funcionalidad de editar turno (próximo paso)');
+  }
+
+  function cancelarTurno() {
+    alert('Funcionalidad de cancelar turno (próximo paso)');
+  }
+
+  function eliminarTurno() {
+    alert('Funcionalidad de eliminar turno (próximo paso)');
+  }
+</script>
 
 </body>
 </html>
