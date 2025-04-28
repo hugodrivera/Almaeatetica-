@@ -2,20 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendario de Turnos - Alma Estética</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background-color: #fce4ec; margin: 0; padding: 20px; }
+    body { background-color: #fce4ec; font-family: Arial, sans-serif; text-align: center; }
     img { width: 180px; margin-top: 20px; }
-    #calendar { max-width: 900px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; }
+    h1 { color: #c2185b; margin-top: 10px; }
+    #calendar { max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; }
   </style>
 </head>
 <body>
 
   <img src="logo.jpg" alt="Logo Alma Estética">
-  <h1 style="color: #d81b60;">Calendario de Turnos</h1>
+  <h1>Calendario de Turnos</h1>
 
   <div id="calendar"></div>
 
@@ -43,34 +44,28 @@
 
       calendar.render();
 
-      // CONFIGURACIÓN
-      const SHEET_ID = '15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g';
-      const API_KEY = 'AIzaSyDyj35ZSUZ725RcA3Paztod2tlUdcAvqnA';
-      const SHEET_NAME = 'Hoja1';
-      const URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-
-      fetch(URL)
+      fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja1')
         .then(response => response.json())
         .then(data => {
-          if (!data.values || !Array.isArray(data.values)) throw new Error('Datos no válidos');
+          if (!Array.isArray(data)) throw new Error('Datos no válidos');
 
-          const filas = data.values.slice(1); // Ignorar cabeceras
-
-          const eventos = filas.map(fila => ({
-            title: fila[0] || '',      // Nombre
-            start: `${fila[4]}T${fila[5]}`,  // Fecha + Hora
-            extendedProps: {
-              telefono: fila[1] || '',
-              profesional: fila[2] || '',
-              servicio: fila[3] || ''
-            }
-          }));
+          const eventos = data
+            .filter(turno => turno.nombre && turno.fecha && turno.hora)
+            .map(turno => ({
+              title: turno.nombre,
+              start: `${turno.fecha}T${turno.hora}`,
+              extendedProps: {
+                profesional: turno.profesional || '',
+                servicio: turno.servicio || '',
+                telefono: turno.telefono || ''
+              }
+            }));
 
           calendar.addEventSource(eventos);
         })
         .catch(error => {
           console.error('Error cargando turnos:', error);
-          alert("⚠️ Hubo un problema cargando los turnos. Verificá la hoja de Google.");
+          alert("⚠️ Hubo un problema al cargar los turnos. Revisá la hoja de Google.");
         });
     });
   </script>
