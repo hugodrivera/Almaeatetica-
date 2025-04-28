@@ -11,6 +11,7 @@
     table { margin: 20px auto; width: 95%; border-collapse: collapse; }
     th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
     th { background-color: #f8bbd0; }
+    #refreshButton { margin: 20px; padding: 10px 20px; font-size: 16px; background-color: #f48fb1; border: none; color: white; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -18,6 +19,9 @@
   <img src="logo.jpg" alt="Logo Alma Estética">
 
   <h1>Panel de Administración</h1>
+
+  <button id="refreshButton" onclick="drawTable()">Actualizar Turnos</button>
+
   <div id="tablaTurnos"></div>
 
   <script type="text/javascript">
@@ -26,8 +30,7 @@
 
     function drawTable() {
       var queryString = encodeURIComponent('SELECT A, B, C, D, E, F, G');
-
-      var dataSourceUrl = 'https://docs.google.com/spreadsheets/d/AKfycbx0FDh7lh4dxbeWmI6OTpL9emVFCwYKUiDDhTym7gz2HbQj09ZJ1oJsZj7NEg20u-o1tw/gviz/tq?sheet=Sheet1&tq=' + queryString;
+      var dataSourceUrl = 'https://docs.google.com/spreadsheets/d/AKfycbx0FDh7lh4dxbeWmI6OTpL9emVFCwYKUiDDhTym7gz2HbQj09ZJ1oJsZj7NEg20u-o1tw' + queryString;
 
       var query = new google.visualization.Query(dataSourceUrl);
       query.send(function(response) {
