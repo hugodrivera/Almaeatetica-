@@ -36,7 +36,7 @@
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Calendario de Turnos</h1>
 
-  <div id="calendar"></div>
+  <div id="calendar">Cargando turnos...</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -52,11 +52,13 @@
         },
         events: [],
         eventClick: function(info) {
-          alert('Turno:\n' +
-                'Nombre: ' + info.event.title + '\n' +
-                'Profesional: ' + info.event.extendedProps.profesional + '\n' +
-                'Servicio: ' + info.event.extendedProps.servicio + '\n' +
-                'Teléfono: ' + info.event.extendedProps.telefono);
+          alert(
+            '📋 Detalle del Turno:\n\n' +
+            '👤 Nombre: ' + (info.event.title || '') + '\n' +
+            '👩‍⚕ Profesional: ' + (info.event.extendedProps.profesional || '') + '\n' +
+            '💆 Servicio: ' + (info.event.extendedProps.servicio || '') + '\n' +
+            '📞 Teléfono: ' + (info.event.extendedProps.telefono || '')
+          );
         }
       });
 
@@ -65,15 +67,17 @@
       fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja1')
         .then(response => response.json())
         .then(data => {
+          if (!Array.isArray(data)) throw new Error('Datos no válidos');
+
           const eventos = data
             .filter(turno => turno.nombre && turno.fecha && turno.hora)
             .map(turno => ({
               title: turno.nombre,
-              start: `${turno.fecha}T${turno.hora}`,
+              start: ${turno.fecha}T${turno.hora},
               extendedProps: {
-                profesional: turno.profesional || '',
-                servicio: turno.servicio || '',
-                telefono: turno.telefono || ''
+                profesional: turno.profesional || 'No definido',
+                servicio: turno.servicio || 'No definido',
+                telefono: turno.telefono || 'No definido'
               }
             }));
 
@@ -81,7 +85,7 @@
         })
         .catch(error => {
           console.error('Error cargando turnos:', error);
-          alert("Hubo un problema al cargar los turnos.");
+          alert('⚠ Hubo un problema al cargar los turnos.\nRevisá la hoja de Google.');
         });
     });
   </script>
