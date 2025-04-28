@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reserva tu Turno - Alma Estética</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin: 50px; background-color: #fbe9f0; }
     input, select, button { margin: 10px; padding: 10px; width: 250px; border-radius: 8px; }
@@ -81,19 +79,7 @@
   </form>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyALjaXn5s2FvPAAqWnXc4Gttsp7X-vLhbk",
-      authDomain: "alma-estetica-turnos.firebaseapp.com",
-      projectId: "alma-estetica-turnos",
-      storageBucket: "alma-estetica-turnos.appspot.com",
-      messagingSenderId: "285664296118",
-      appId: "1:285664296118:web:0c48ae9df4f2a87830bc6d"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    document.getElementById('reservaForm').addEventListener('submit', async function(e) {
+    document.getElementById('reservaForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const nombre = document.getElementById('nombre').value;
@@ -103,22 +89,32 @@
       const fecha = document.getElementById('fecha').value;
       const hora = document.getElementById('hora').value;
 
-      try {
-        await db.collection("turnos").add({
-          nombre,
-          telefono,
-          profesional,
-          servicio,
-          fecha,
-          hora,
-          timestamp: new Date()
-        });
-        alert("¡Reserva realizada exitosamente!");
-        document.getElementById('reservaForm').reset();
-      } catch (error) {
-        console.error("Error al guardar turno:", error);
-        alert("Hubo un error. Intenta nuevamente.");
-      }
+      const data = {
+        nombre,
+        telefono,
+        profesional,
+        servicio,
+        fecha,
+        hora
+      };
+
+      // 🚨 Acá ponés el LINK de tu Web App de Google Script
+      fetch('https://script.google.com/macros/library/d/1Q4v5PHOAu6VsbpbXzroB3tCD6JZ7J7KhKLMNp20uDlGOCdyXCSt5iTtm/1', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("¡Reserva enviada exitosamente!");
+          document.getElementById('reservaForm').reset();
+        } else {
+          alert("Hubo un problema enviando la reserva.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("Hubo un problema enviando la reserva.");
+      });
     });
   </script>
 
