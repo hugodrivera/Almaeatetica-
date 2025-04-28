@@ -43,10 +43,10 @@
 
       calendar.render();
 
-      // --- CONFIGURACIÓN ---
+      // CONFIGURACIÓN
       const SHEET_ID = '15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g';
       const API_KEY = 'AIzaSyBsFyZoGAtB6zuYY6A9TTXifpS2w6jy0oc';
-      const SHEET_NAME = 'Hoja1'; // O el nombre exacto de la pestaña
+      const SHEET_NAME = 'Hoja1';
       const URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
 
       fetch(URL)
@@ -54,25 +54,17 @@
         .then(data => {
           if (!data.values || !Array.isArray(data.values)) throw new Error('Datos no válidos');
 
-          const encabezados = data.values[0];
-          const filas = data.values.slice(1);
+          const filas = data.values.slice(1); // Ignorar cabeceras
 
-          const eventos = filas.map(fila => {
-            const registro = {};
-            encabezados.forEach((titulo, index) => {
-              registro[titulo.toLowerCase()] = fila[index] || '';
-            });
-
-            return {
-              title: registro.nombre || '',
-              start: `${registro.fecha}T${registro.hora}`,
-              extendedProps: {
-                profesional: registro.profesional || '',
-                servicio: registro.servicio || '',
-                telefono: registro.telefono || ''
-              }
-            };
-          });
+          const eventos = filas.map(fila => ({
+            title: fila[0] || '',      // Nombre
+            start: `${fila[4]}T${fila[5]}`,  // Fecha + Hora
+            extendedProps: {
+              telefono: fila[1] || '',
+              profesional: fila[2] || '',
+              servicio: fila[3] || ''
+            }
+          }));
 
           calendar.addEventSource(eventos);
         })
