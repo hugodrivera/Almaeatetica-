@@ -25,15 +25,22 @@
   <div id="tablaTurnos"></div>
 
   <script type="text/javascript">
-    google.charts.load('current', {packages:['table']});
+    google.charts.load('current', {'packages':['table']});
     google.charts.setOnLoadCallback(drawTable);
 
     function drawTable() {
       var queryString = encodeURIComponent('SELECT A, B, C, D, E, F, G');
-      var dataSourceUrl = 'https://docs.google.com/spreadsheets/d/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/edit?usp=sharing' + queryString;
+
+      var dataSourceUrl = 'https://docs.google.com/spreadsheets/d/AKfycbx0FDh7lh4dxbeWmI6OTpL9emVFCwYKUiDDhTym7gz2HbQj09ZJ1oJsZj7NEg20u-o1tw' + queryString;
 
       var query = new google.visualization.Query(dataSourceUrl);
       query.send(function(response) {
+        if (response.isError()) {
+          console.error('Error en la consulta:', response.getMessage(), response.getDetailedMessage());
+          alert("Hubo un problema al cargar los turnos.");
+          return;
+        }
+
         var data = response.getDataTable();
         var table = new google.visualization.Table(document.getElementById('tablaTurnos'));
         table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
