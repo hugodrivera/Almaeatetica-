@@ -17,7 +17,7 @@
 
   <h1>Alma Estética</h1>
   <h3>Belleza y bienestar a tu medida</h3>
-  <p>Dirección: Sarmiento 407, Concepción, Tucumán, Argentina</p>
+  <p>Dirección: Sarmiento 407, Concepción, Tucumán</p>
 
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required><br>
@@ -98,7 +98,6 @@
         hora
       };
 
-      // 🚨 Acá ponés el LINK de tu Web App de Google Script
       fetch('https://script.google.com/macros/s/AKfycbx0FDh7lh4dxbeWmI6OTpL9emVFCwYKUiDDhTym7gz2HbQj09ZJ1oJsZj7NEg20u-o1tw/exec', {
         method: 'POST',
         body: JSON.stringify(data)
