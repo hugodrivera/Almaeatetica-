@@ -31,9 +31,10 @@
       <option value="">Todos los Profesionales</option>
       <option value="Melanie">Melanie</option>
       <option value="Fátima">Fátima</option>
-      <option value="Maga">Maga</option>
-      <option value="Profesional 4">Profesional 4</option>
-      <option value="Profesional 5">Profesional 5</option>
+      <option value="Dr. Maria">Dr. Maria</option>
+      <option value="Maria">Maria</option>
+      <option value="Cris">Cris</option>
+      <option value="Alis">Alis</option>
     </select>
     <input type="text" id="buscarTurno" placeholder="Buscar nombre o servicio...">
   </div>
@@ -48,9 +49,10 @@
       var colores = {
         'Melanie': '#f48fb1',
         'Fátima': '#81d4fa',
-        'Maga': '#a5d6a7',
-        'Profesional 4': '#ce93d8',
-        'Profesional 5': '#fff59d'
+        'Dr. Maria': '#ce93d8',
+        'Maria': '#ffe082',
+        'Cris': '#80cbc4',
+        'Alis': '#ffab91'
       };
 
       var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -73,7 +75,6 @@
 
       calendar.render();
 
-      // CONFIGURACIÓN
       fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja%201')
         .then(response => response.json())
         .then(data => {
