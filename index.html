@@ -1,36 +1,122 @@
-document.getElementById('reservaForm').addEventListener('submit', function(e) {
-  e.preventDefault();
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva tu Turno - Alma Estética</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 50px; background-color: #fbe9f0; }
+    input, select, button { margin: 10px; padding: 10px; width: 250px; border-radius: 8px; }
+    form { background: white; padding: 20px; border-radius: 10px; display: inline-block; }
+    img { width: 180px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
 
-  const nombre = document.getElementById('nombre').value;
-  const telefono = document.getElementById('telefono').value;
-  const profesional = document.getElementById('profesional').value;
-  const servicio = document.getElementById('servicio').value;
-  const fecha = document.getElementById('fecha').value;
-  const hora = document.getElementById('hora').value;
+  <img src="logo.jpg" alt="Logo Alma Estética">
 
-  const data = {
-    nombre,
-    telefono,
-    profesional,
-    servicio,
-    fecha,
-    hora
-  };
+  <h1>Alma Estética</h1>
+  <h3>Belleza y Bienestar a tu medida</h3>
+  <p>Dirección: Sarmiento 407, Concepción, Tucumán</p>
 
-  fetch('https://script.google.com/macros/s/AKfycbzqzHp0LSlpAfaYKjKeD86lQM2trJv-Oz6ByvixhyLqvIJGoojO8sgt_14G9hNBaBUS/exec', {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    alert("¡Reserva enviada exitosamente!");
-    document.getElementById('reservaForm').reset();
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert("⚠️ Hubo un problema enviando la reserva.");
-  });
-});
+  <form id="reservaForm">
+    <input type="text" id="nombre" placeholder="Tu nombre" required><br>
+    <input type="text" id="telefono" placeholder="Tu número (sin +54)" required><br>
+
+    <select id="profesional" required>
+      <option value="">Seleccioná un profesional</option>
+      <option value="Melanie">Melanie</option>
+      <option value="Fátima">Fátima</option>
+      <option value="Dr. Maria">Dr. Maria</option>
+      <option value="Maria">Maria</option>
+      <option value="Cris">Cris</option>
+      <option value="Alis">Alis</option>
+    </select><br>
+
+    <select id="servicio" required>
+      <option value="">Seleccioná un servicio</option>
+      <optgroup label="Faciales">
+        <option value="Hifu">Hifu</option>
+        <option value="Limpieza Facial">Limpieza Facial</option>
+        <option value="BB Glow">BB Glow</option>
+        <option value="Radiofrecuencia Facial">Radiofrecuencia Facial</option>
+      </optgroup>
+      <optgroup label="Corporales">
+        <option value="Cavitación">Cavitación</option>
+        <option value="Criolipólisis">Criolipólisis</option>
+        <option value="Radiofrecuencia Corporal">Radiofrecuencia Corporal</option>
+        <option value="Presoterapia">Presoterapia</option>
+        <option value="Crioterapia">Crioterapia</option>
+        <option value="Ultrasonido Corporal">Ultrasonido Corporal</option>
+      </optgroup>
+      <optgroup label="Depilación Láser">
+        <option value="Láser para eliminar tatuajes">Láser para eliminar tatuajes</option>
+        <option value="Depilación definitiva">Depilación definitiva</option>
+      </optgroup>
+      <optgroup label="Manos y Pies">
+        <option value="Uñas">Uñas</option>
+        <option value="Manicuría">Manicuría</option>
+        <option value="Pedicuría">Pedicuría</option>
+        <option value="Belleza de manos y pies">Belleza de manos y pies</option>
+      </optgroup>
+      <optgroup label="Cejas y Pestañas">
+        <option value="Pestañas">Pestañas</option>
+        <option value="Lifting de pestañas">Lifting de pestañas</option>
+        <option value="Laminado de cejas">Laminado de cejas</option>
+      </optgroup>
+      <optgroup label="Peluquería">
+        <option value="Corte de pelo">Corte de pelo</option>
+        <option value="Tinturas">Tinturas</option>
+        <option value="Coloraciones">Coloraciones</option>
+        <option value="Mechas">Mechas</option>
+        <option value="Peinados">Peinados</option>
+      </optgroup>
+    </select><br>
+
+    <input type="date" id="fecha" required><br>
+    <input type="time" id="hora" required><br>
+
+    <button type="submit">Reservar Turno</button>
+  </form>
+
+  <script>
+    document.getElementById('reservaForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value;
+      const telefono = document.getElementById('telefono').value;
+      const profesional = document.getElementById('profesional').value;
+      const servicio = document.getElementById('servicio').value;
+      const fecha = document.getElementById('fecha').value;
+      const hora = document.getElementById('hora').value;
+
+      const data = {
+        nombre,
+        telefono,
+        profesional,
+        servicio,
+        fecha,
+        hora
+      };
+
+      fetch('https://script.google.com/macros/s/AKfycbzqzHp0LSlpAfaYKjKeD86lQM2trJv-Oz6ByvixhyLqvIJGoojO8sgt_14G9hNBaBUS/exec', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("¡Reserva enviada exitosamente!");
+          document.getElementById('reservaForm').reset();
+        } else {
+          alert("Hubo un problema enviando la reserva.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("Hubo un problema enviando la reserva.");
+      });
+    });
+  </script>
+
+</body>
+</html>
