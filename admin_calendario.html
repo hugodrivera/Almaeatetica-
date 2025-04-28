@@ -2,41 +2,22 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendario de Turnos - Alma Estética</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fde4ec;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-    img {
-      width: 120px;
-      margin: 20px 0;
-    }
-    h1 {
-      color: #c2185b;
-    }
-    #calendar {
-      max-width: 900px;
-      margin: 40px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+    body { font-family: Arial, sans-serif; text-align: center; background-color: #fce4ec; margin: 0; padding: 20px; }
+    img { width: 180px; margin-top: 20px; }
+    #calendar { max-width: 900px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; }
   </style>
 </head>
 <body>
 
   <img src="logo.jpg" alt="Logo Alma Estética">
-  <h1>Calendario de Turnos</h1>
+  <h1 style="color: #d81b60;">Calendario de Turnos</h1>
 
-  <div id="calendar">Cargando turnos...</div>
+  <div id="calendar"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -52,53 +33,52 @@
         },
         events: [],
         eventClick: function(info) {
-          alert(
-            '📋 Detalle del Turno:\n\n' +
-            '👤 Nombre: ' + (info.event.title || '') + '\n' +
-            '👩‍⚕️ Profesional: ' + (info.event.extendedProps.profesional || '') + '\n' +
-            '💆 Servicio: ' + (info.event.extendedProps.servicio || '') + '\n' +
-            '📞 Teléfono: ' + (info.event.extendedProps.telefono || '')
-          );
+          alert('Turno:\n' +
+                'Nombre: ' + (info.event.title || '') + '\n' +
+                'Profesional: ' + (info.event.extendedProps.profesional || '') + '\n' +
+                'Servicio: ' + (info.event.extendedProps.servicio || '') + '\n' +
+                'Teléfono: ' + (info.event.extendedProps.telefono || ''));
         }
       });
 
       calendar.render();
 
-      // Acá usamos directamente la API de Google Sheets
-      fetch('https://sheets.googleapis.com/v4/spreadsheets/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/values/Hoja1?key=AIzaSyBsFyZoGAtB6zuYY6A9TTXifpS2w6jy0oc')
+      // --- CONFIGURACIÓN ---
+      const SHEET_ID = '15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g';
+      const API_KEY = 'AIzaSyBsFyZoGAtB6zuYY6A9TTXifpS2w6jy0oc';
+      const SHEET_NAME = 'Hoja1'; // O el nombre exacto de la pestaña
+      const URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+
+      fetch(URL)
         .then(response => response.json())
         .then(data => {
-          if (!data.values || data.values.length < 2) {
-            throw new Error('No hay datos disponibles.');
-          }
+          if (!data.values || !Array.isArray(data.values)) throw new Error('Datos no válidos');
 
           const encabezados = data.values[0];
-          const registros = data.values.slice(1);
+          const filas = data.values.slice(1);
 
-          const eventos = registros
-            .filter(row => row.length >= 6) // Verifica que haya al menos nombre, telefono, profesional, servicio, fecha, hora
-            .map(row => {
-              const obj = {};
-              encabezados.forEach((key, index) => {
-                obj[key.trim().toLowerCase()] = row[index] || '';
-              });
-
-              return {
-                title: obj.nombre,
-                start: obj.fecha + 'T' + obj.hora,
-                extendedProps: {
-                  profesional: obj.profesional,
-                  servicio: obj.servicio,
-                  telefono: obj.telefono
-                }
-              };
+          const eventos = filas.map(fila => {
+            const registro = {};
+            encabezados.forEach((titulo, index) => {
+              registro[titulo.toLowerCase()] = fila[index] || '';
             });
+
+            return {
+              title: registro.nombre || '',
+              start: `${registro.fecha}T${registro.hora}`,
+              extendedProps: {
+                profesional: registro.profesional || '',
+                servicio: registro.servicio || '',
+                telefono: registro.telefono || ''
+              }
+            };
+          });
 
           calendar.addEventSource(eventos);
         })
         .catch(error => {
           console.error('Error cargando turnos:', error);
-          alert('⚠️ Hubo un problema cargando los turnos. Verificá la hoja de Google.');
+          alert("⚠️ Hubo un problema cargando los turnos. Verificá la hoja de Google.");
         });
     });
   </script>
