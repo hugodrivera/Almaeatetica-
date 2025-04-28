@@ -17,20 +17,20 @@ document.getElementById('reservaForm').addEventListener('submit', function(e) {
     hora
   };
 
-  fetch('https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbzM5lnMo8Yjg0cqCnM-Au2P1pOBI4yx_ssV2nxeNImxghVsoK1waP51WiK-5Pj-Vdn-/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbzqzHp0LSlpAfaYKjKeD86lQM2trJv-Oz6ByvixhyLqvIJGoojO8sgt_14G9hNBaBUS/exec', {
     method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (response.ok) {
-      alert("¡Reserva enviada exitosamente!");
-      document.getElementById('reservaForm').reset();
-    } else {
-      alert("Hubo un problema enviando la reserva.");
-    }
+  .then(() => {
+    alert("¡Reserva enviada exitosamente!");
+    document.getElementById('reservaForm').reset();
   })
   .catch(error => {
     console.error('Error:', error);
-    alert("Hubo un problema enviando la reserva.");
+    alert("⚠️ Hubo un problema enviando la reserva.");
   });
 });
