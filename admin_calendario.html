@@ -2,14 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendario de Turnos - Alma Estética</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #fce4ec; text-align: center; margin: 0; padding: 20px; }
-    img { width: 120px; margin: 20px 0; }
-    #calendar { max-width: 900px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; }
-    h1 { color: #d81b60; }
+    body { font-family: Arial, sans-serif; background-color: #fde2e4; text-align: center; margin: 0; padding: 20px; }
+    img { width: 150px; margin: 20px 0; }
+    h1 { color: #d6336c; margin-bottom: 20px; }
+    #calendar { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
@@ -17,39 +18,48 @@
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Calendario de Turnos</h1>
 
-  <div id="calendar">Cargando turnos...</div>
+  <div id='calendar'></div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-      const calendarEl = document.getElementById('calendar');
-      const calendar = new FullCalendar.Calendar(calendarEl, {
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: []
+        locale: 'es',
+        events: [],
+        eventClick: function(info) {
+          alert('Turno:\n' +
+                'Nombre: ' + info.event.title + '\n' +
+                'Profesional: ' + info.event.extendedProps.profesional + '\n' +
+                'Servicio: ' + info.event.extendedProps.servicio);
+        }
       });
 
       calendar.render();
 
-      try {
-        const response = await fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja1');
-        const data = await response.json();
+      // Cargar los turnos desde la planilla
+      fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja1')
+        .then(response => response.json())
+        .then(data => {
+          const eventos = data.map(turno => {
+            return {
+              title: turno.nombre,
+              start: turno.fecha + 'T' + turno.hora,
+              extendedProps: {
+                profesional: turno.profesional,
+                servicio: turno.servicio,
+                telefono: turno.telefono
+              }
+            };
+          });
 
-        const eventos = data.map(turno => ({
-          title: `${turno.Nombre} - ${turno.Servicio}`,
-          start: `${turno.Fecha}T${turno.Hora}`,
-          description: `Profesional: ${turno.Profesional}`
-        }));
-
-        calendar.addEventSource(eventos);
-
-      } catch (error) {
-        console.error('Error al cargar los turnos:', error);
-        calendarEl.innerHTML = 'Error al cargar los turnos.';
-      }
+          calendar.addEventSource(eventos);
+        })
+        .catch(error => {
+          console.error('Error cargando turnos:', error);
+          alert('Hubo un problema al cargar los turnos.');
+        });
     });
   </script>
 
