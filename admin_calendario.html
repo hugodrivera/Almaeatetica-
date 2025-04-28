@@ -2,183 +2,188 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Calendario de Turnos - Alma Estética</title>
+  <title>Calendario de Turnos - Administración</title>
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
-    body { background-color: #fce4ec; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
-    img { width: 150px; margin: 20px 0; }
-    h1 { color: #c2185b; margin-top: 5px; }
-    #calendar { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; }
-    select, input[type="text"] { margin: 5px; padding: 8px; border-radius: 5px; width: 200px; }
-    .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-    .modal-content { background: #fff; margin: 10% auto; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; }
-    .modal-content input { margin-bottom: 10px; width: 100%; padding: 8px; }
-    .modal-content button { margin: 5px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
-    .editar { background-color: #4caf50; color: white; }
-    .cancelar { background-color: #ff9800; color: white; }
-    .eliminar { background-color: #f44336; color: white; }
+    body { background-color: #fce4ec; font-family: Arial, sans-serif; text-align: center; }
+    img { width: 180px; margin-top: 20px; }
+    h1 { color: #c2185b; margin-top: 10px; }
+    #calendar { max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; }
+    .fc-event { cursor: pointer; }
+    .modal { display: none; position: fixed; z-index: 999; padding-top: 60px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+    .modal-content { background-color: #fff; margin: auto; padding: 20px; border: 1px solid #888; width: 300px; border-radius: 10px; }
+    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+    .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+    input, button { margin: 5px 0; padding: 10px; width: 100%; }
+    button { border: none; border-radius: 5px; }
+    .edit-btn { background-color: #4caf50; color: white; }
+    .cancel-btn { background-color: #ff9800; color: white; }
+    .delete-btn { background-color: #f44336; color: white; }
   </style>
 </head>
 <body>
 
   <img src="logo.jpg" alt="Logo Alma Estética">
-  <h1>Calendario de Turnos</h1>
+  <h1>Calendario de Turnos - Administración</h1>
 
   <div id="calendar"></div>
 
-  <!-- Modal -->
-  <div id="modalTurno" class="modal">
+  <!-- Modal para editar, cancelar y eliminar -->
+  <div id="turnoModal" class="modal">
     <div class="modal-content">
+      <span class="close" onclick="cerrarModal()">&times;</span>
       <h2>Detalle del Turno</h2>
-      <input type="text" id="modalNombre" placeholder="Nombre" readonly>
-      <input type="text" id="modalTelefono" placeholder="Teléfono" readonly>
-      <input type="text" id="modalProfesional" placeholder="Profesional" readonly>
-      <input type="text" id="modalServicio" placeholder="Servicio" readonly>
-      <input type="text" id="modalFecha" placeholder="Fecha" readonly>
-      <input type="text" id="modalHora" placeholder="Hora" readonly>
-      <input type="hidden" id="modalId">
-      <br>
-      <button class="editar" onclick="editarTurno()">Editar Turno</button>
-      <button class="cancelar" onclick="cancelarTurno()">Cancelar Turno</button>
-      <button class="eliminar" onclick="eliminarTurno()">Eliminar Turno</button>
-      <br><br>
+      <input type="text" id="modalNombre" placeholder="Nombre">
+      <input type="text" id="modalTelefono" placeholder="Teléfono">
+      <input type="text" id="modalProfesional" placeholder="Profesional">
+      <input type="text" id="modalServicio" placeholder="Servicio">
+      <input type="date" id="modalFecha">
+      <input type="time" id="modalHora">
+      <button class="edit-btn" onclick="editarTurno()">Editar Turno</button>
+      <button class="cancel-btn" onclick="cancelarTurno()">Cancelar Turno</button>
+      <button class="delete-btn" onclick="eliminarTurno()">Eliminar Turno</button>
       <button onclick="cerrarModal()">Cerrar</button>
     </div>
   </div>
 
-<script>
-  let turnoActual = null;
-  let editando = false;
-  const webAppUrl = 'https://script.google.com/macros/s/AKfycbwEjxqKx51SMdMDbFYgqlB95kSdCRDzQF2SWoSoilVxtcsAJqfPpFerCAINZF5lQTM0iA/exec';
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwxgTalUfXed3ci5HXwJrGBlfZsnjYKPAFgZOEoQt5s9r3IbKowPxm8RzUfCnAtlMpTXQ/exec';
 
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      locale: 'es',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      },
-      events: [],
-      eventClick: function(info) {
-        turnoActual = info.event;
-        editando = false;
-        mostrarDatosTurno();
-        document.getElementById('modalTurno').style.display = 'block';
-      }
+    let calendar;
+    let turnoSeleccionado;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        eventClick: function(info) {
+          turnoSeleccionado = info.event.extendedProps;
+          turnoSeleccionado.id = info.event.id;
+
+          document.getElementById('modalNombre').value = info.event.title || '';
+          document.getElementById('modalTelefono').value = info.event.extendedProps.telefono || '';
+          document.getElementById('modalProfesional').value = info.event.extendedProps.profesional || '';
+          document.getElementById('modalServicio').value = info.event.extendedProps.servicio || '';
+          document.getElementById('modalFecha').value = info.event.startStr.split('T')[0];
+          document.getElementById('modalHora').value = info.event.startStr.split('T')[1].slice(0,5);
+
+          document.getElementById('turnoModal').style.display = 'block';
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+          fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
+            .then(response => response.json())
+            .then(data => {
+              const eventos = data
+                .filter(turno => turno.nombre && turno.fecha && turno.hora)
+                .map((turno, index) => ({
+                  id: index + 2,
+                  title: turno.nombre,
+                  start: `${turno.fecha}T${turno.hora}`,
+                  extendedProps: {
+                    telefono: turno.telefono || '',
+                    profesional: turno.profesional || '',
+                    servicio: turno.servicio || ''
+                  }
+                }));
+              successCallback(eventos);
+            })
+            .catch(error => {
+              console.error('Error cargando turnos:', error);
+              alert('⚠️ Hubo un problema cargando los turnos.');
+              failureCallback(error);
+            });
+        }
+      });
+
+      calendar.render();
     });
 
-    calendar.render();
+    function cerrarModal() {
+      document.getElementById('turnoModal').style.display = 'none';
+    }
 
-    fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja%201')
-      .then(response => response.json())
-      .then(data => {
-        const eventos = data.filter(turno => turno.nombre && turno.fecha && turno.hora)
-          .map(turno => ({
-            title: turno.nombre,
-            start: `${turno.fecha}T${turno.hora}`,
-            id: turno.id,
-            extendedProps: {
-              profesional: turno.profesional || '',
-              servicio: turno.servicio || '',
-              telefono: turno.telefono || ''
-            }
-          }));
-        calendar.addEventSource(eventos);
+    function editarTurno() {
+      const nuevoTurno = {
+        id: turnoSeleccionado.id,
+        nombre: document.getElementById('modalNombre').value,
+        telefono: document.getElementById('modalTelefono').value,
+        profesional: document.getElementById('modalProfesional').value,
+        servicio: document.getElementById('modalServicio').value,
+        fecha: document.getElementById('modalFecha').value,
+        hora: document.getElementById('modalHora').value
+      };
+
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'editar', turno: nuevoTurno }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.text())
+      .then(response => {
+        if (response === 'OK') {
+          alert('Turno editado exitosamente.');
+          location.reload();
+        } else {
+          alert('Error al editar turno.');
+        }
       })
       .catch(error => {
-        console.error('Error cargando turnos:', error);
-        alert("⚠️ Hubo un problema al cargar los turnos.");
+        console.error('Error:', error);
+        alert('Error al editar turno.');
       });
-  });
-
-  function mostrarDatosTurno() {
-    document.getElementById('modalNombre').value = turnoActual.title || '';
-    document.getElementById('modalTelefono').value = turnoActual.extendedProps.telefono || '';
-    document.getElementById('modalProfesional').value = turnoActual.extendedProps.profesional || '';
-    document.getElementById('modalServicio').value = turnoActual.extendedProps.servicio || '';
-    document.getElementById('modalFecha').value = turnoActual.startStr.split('T')[0] || '';
-    document.getElementById('modalHora').value = turnoActual.startStr.split('T')[1] || '';
-    document.getElementById('modalId').value = turnoActual.id || '';
-    
-    ['modalNombre', 'modalTelefono', 'modalProfesional', 'modalServicio', 'modalFecha', 'modalHora'].forEach(id => {
-      document.getElementById(id).readOnly = true;
-    });
-  }
-
-  function cerrarModal() {
-    document.getElementById('modalTurno').style.display = 'none';
-  }
-
-  function editarTurno() {
-    if (!editando) {
-      editando = true;
-      ['modalNombre', 'modalTelefono', 'modalProfesional', 'modalServicio', 'modalFecha', 'modalHora'].forEach(id => {
-        document.getElementById(id).readOnly = false;
-      });
-      document.querySelector('.editar').textContent = 'Guardar Cambios';
-    } else {
-      const params = new URLSearchParams();
-      params.append('action', 'editar');
-      params.append('id', document.getElementById('modalId').value);
-      params.append('nombre', document.getElementById('modalNombre').value);
-      params.append('telefono', document.getElementById('modalTelefono').value);
-      params.append('profesional', document.getElementById('modalProfesional').value);
-      params.append('servicio', document.getElementById('modalServicio').value);
-      params.append('fecha', document.getElementById('modalFecha').value);
-      params.append('hora', document.getElementById('modalHora').value);
-
-      fetch(webAppUrl, { method: 'POST', body: params })
-        .then(response => response.text())
-        .then(data => {
-          if (data === "OK") {
-            alert("¡Turno actualizado correctamente!");
-            location.reload();
-          } else {
-            alert("Error actualizando el turno.");
-          }
-        });
     }
-  }
 
-  function cancelarTurno() {
-    const params = new URLSearchParams();
-    params.append('action', 'cancelar');
-    params.append('id', document.getElementById('modalId').value);
-
-    fetch(webAppUrl, { method: 'POST', body: params })
+    function cancelarTurno() {
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'cancelar', id: turnoSeleccionado.id }),
+        headers: { 'Content-Type': 'application/json' }
+      })
       .then(response => response.text())
-      .then(data => {
-        if (data === "OK") {
-          alert("Turno cancelado.");
+      .then(response => {
+        if (response === 'OK') {
+          alert('Turno cancelado.');
           location.reload();
         } else {
-          alert("Error al cancelar turno.");
+          alert('Error al cancelar turno.');
         }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al cancelar turno.');
       });
-  }
+    }
 
-  function eliminarTurno() {
-    const params = new URLSearchParams();
-    params.append('action', 'eliminar');
-    params.append('id', document.getElementById('modalId').value);
-
-    fetch(webAppUrl, { method: 'POST', body: params })
+    function eliminarTurno() {
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'eliminar', id: turnoSeleccionado.id }),
+        headers: { 'Content-Type': 'application/json' }
+      })
       .then(response => response.text())
-      .then(data => {
-        if (data === "OK") {
-          alert("Turno eliminado.");
+      .then(response => {
+        if (response === 'OK') {
+          alert('Turno eliminado.');
           location.reload();
         } else {
-          alert("Error al eliminar turno.");
+          alert('Error al eliminar turno.');
         }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar turno.');
       });
-  }
-</script>
+    }
+  </script>
 
 </body>
 </html>
