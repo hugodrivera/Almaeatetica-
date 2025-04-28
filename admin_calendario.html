@@ -1,45 +1,90 @@
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendario de Turnos - Alma Estética</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      background-color: #fde4ec; 
+      margin: 0; 
+      padding: 20px; 
+    }
+    img { 
+      width: 120px; 
+      margin: 20px 0; 
+    }
+    #calendar { 
+      max-width: 900px; 
+      margin: 40px auto; 
+      background: white; 
+      padding: 20px; 
+      border-radius: 10px; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #c2185b;
+    }
+  </style>
+</head>
+<body>
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      locale: 'es',
-      events: [],
-      eventClick: function(info) {
-        alert('Turno:\n' +
-              'Nombre: ' + info.event.title + '\n' +
-              'Profesional: ' + info.event.extendedProps.profesional + '\n' +
-              'Servicio: ' + info.event.extendedProps.servicio);
-      }
-    });
+  <img src="logo.jpg" alt="Logo Alma Estética">
+  <h1>Calendario de Turnos</h1>
 
-    calendar.render();
+  <div id="calendar"></div>
 
-    fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja1')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error en la conexión');
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: [],
+        eventClick: function(info) {
+          alert('Turno:\n' +
+                'Nombre: ' + info.event.title + '\n' +
+                'Profesional: ' + info.event.extendedProps.profesional + '\n' +
+                'Servicio: ' + info.event.extendedProps.servicio + '\n' +
+                'Teléfono: ' + info.event.extendedProps.telefono);
         }
-        return response.json();
-      })
-      .then(data => {
-        const eventos = data
-          .filter(turno => turno.nombre && turno.fecha && turno.hora) // <-- validamos que haya datos
-          .map(turno => ({
-            title: turno.nombre,
-            start: turno.fecha + 'T' + turno.hora,
-            extendedProps: {
-              profesional: turno.profesional || '',
-              servicio: turno.servicio || '',
-              telefono: turno.telefono || ''
-            }
-          }));
-
-        calendar.addEventSource(eventos);
-      })
-      .catch(error => {
-        console.error('Error cargando turnos:', error);
       });
-  });
-</script>
+
+      calendar.render();
+
+      fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja1')
+        .then(response => response.json())
+        .then(data => {
+          const eventos = data
+            .filter(turno => turno.nombre && turno.fecha && turno.hora)
+            .map(turno => ({
+              title: turno.nombre,
+              start: `${turno.fecha}T${turno.hora}`,
+              extendedProps: {
+                profesional: turno.profesional || '',
+                servicio: turno.servicio || '',
+                telefono: turno.telefono || ''
+              }
+            }));
+
+          calendar.addEventSource(eventos);
+        })
+        .catch(error => {
+          console.error('Error cargando turnos:', error);
+          alert("Hubo un problema al cargar los turnos.");
+        });
+    });
+  </script>
+
+</body>
+</html>
