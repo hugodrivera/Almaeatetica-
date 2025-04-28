@@ -31,7 +31,7 @@
     function drawTable() {
       var queryString = encodeURIComponent('SELECT A, B, C, D, E, F, G');
 
-      var dataSourceUrl = 'https://docs.google.com/spreadsheets/d/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/gviz/tq?tq=' + queryString;
+      var dataSourceUrl = 'https://script.google.com/macros/s/AKfycbwxgTalUfXed3ci5HXwJrGBlfZsnjYKPAFgZOEoQt5s9r3IbKowPxm8RzUfCnAtlMpTXQ/exec/gviz/tq?tq=' + queryString;
 
       var query = new google.visualization.Query(dataSourceUrl);
       query.send(function(response) {
