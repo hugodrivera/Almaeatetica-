@@ -2,11 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Turnos - Tabla - Alma Estética</title>
+  <title>Panel de Administración - Alma Estética</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
     body {
+      font-family: 'Poppins', Arial, sans-serif;
       background: linear-gradient(120deg, #fce4ec, #f8bbd0);
-      font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
       text-align: center;
@@ -15,14 +19,25 @@
       color: #c2185b;
       margin-bottom: 20px;
     }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
     table {
       width: 95%;
       margin: auto;
       border-collapse: collapse;
       background: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       border-radius: 12px;
       overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     th, td {
       padding: 12px;
@@ -37,18 +52,10 @@
       font-size: 14px;
       color: #555;
     }
-    button {
-      padding: 5px 10px;
-      margin: 2px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .editar { background: #c2185b; color: white; }
-    .eliminar { background: #b71c1c; color: white; }
+    .editar { background: #c2185b; }
+    .eliminar { background: #b71c1c; }
     .contador {
-      margin: 10px 0 20px 0;
+      margin: 15px;
       font-size: 18px;
       color: #333;
     }
@@ -85,16 +92,28 @@
       font-size: 14px;
       cursor: pointer;
     }
-    .guardar { background: #c2185b; color: white; }
-    .cerrar { background: #555; color: white; margin-left: 10px; }
+    #calendar {
+      max-width: 900px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
-<h1>Turnos Registrados - Alma Estética</h1>
+<h1>Panel de Turnos - Alma Estética</h1>
+<div>
+  <button onclick="mostrarLista()">Ver Lista</button>
+  <button onclick="mostrarCalendario()">Ver Calendario</button>
+</div>
+
 <div class="contador" id="contadorTurnos">Cargando turnos...</div>
 
-<table>
+<!-- LISTA -->
+<table id="tablaTurnos">
   <thead>
     <tr>
       <th>Nombre</th>
@@ -109,17 +128,28 @@
   <tbody id="turnos"></tbody>
 </table>
 
+<!-- CALENDARIO -->
+<div id="calendar"></div>
+
 <script>
-const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
+const urlScript = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
+const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1';
+
+let calendar; // para inicializar calendario después
 
 function cargarTurnos() {
-  fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
+  fetch(sheetUrl)
     .then(response => response.json())
     .then(data => {
       document.getElementById('turnos').innerHTML = '';
       document.getElementById('contadorTurnos').innerText = `Total de turnos: ${data.length}`;
 
+      if (calendar) {
+        calendar.removeAllEvents();
+      }
+
       data.forEach((turno, index) => {
+        // Lista
         const fila = document.createElement('tr');
         fila.innerHTML = `
           <td>${turno.nombre}</td>
@@ -134,6 +164,20 @@ function cargarTurnos() {
           </td>
         `;
         document.getElementById('turnos').appendChild(fila);
+
+        // Calendario
+        if (calendar) {
+          calendar.addEvent({
+            title: turno.nombre,
+            start: `${turno.fecha}T${turno.hora}`,
+            extendedProps: {
+              id: index + 2,
+              telefono: turno.telefono,
+              profesional: turno.profesional,
+              servicio: turno.servicio
+            }
+          });
+        }
       });
     });
 }
@@ -169,7 +213,7 @@ function guardarCambios(id) {
     hora: document.getElementById('hora').value
   };
 
-  fetch(url + '?_method=PUT', {
+  fetch(urlScript + '?_method=PUT', {
     method: 'POST',
     body: JSON.stringify(updatedData)
   })
@@ -185,7 +229,7 @@ function guardarCambios(id) {
 
 function eliminarTurno(id) {
   if (confirm('¿Eliminar este turno?')) {
-    fetch(url + '?_method=DELETE', {
+    fetch(urlScript + '?_method=DELETE', {
       method: 'POST',
       body: JSON.stringify({ id })
     })
@@ -204,7 +248,36 @@ function cerrarPopup() {
   document.querySelector('.popup').remove();
 }
 
-cargarTurnos();
+function mostrarLista() {
+  document.getElementById('tablaTurnos').style.display = 'table';
+  document.getElementById('calendar').style.display = 'none';
+}
+
+function mostrarCalendario() {
+  document.getElementById('tablaTurnos').style.display = 'none';
+  document.getElementById('calendar').style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'es',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    events: [],
+    eventClick: function(info) {
+      if (confirm(`¿Editar turno de ${info.event.title}?`)) {
+        editarTurno(info.event.extendedProps.id, info.event.title, info.event.extendedProps.telefono, info.event.extendedProps.profesional, info.event.extendedProps.servicio, info.event.startStr.substring(0,10), info.event.startStr.substring(11,16));
+      }
+    }
+  });
+  calendar.render();
+  cargarTurnos();
+});
 </script>
 
 </body>
