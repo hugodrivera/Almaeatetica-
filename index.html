@@ -142,15 +142,11 @@
     <input type="date" id="fecha" required><br>
     <input type="time" id="hora" required><br>
 
-    <button type="submit" id="botonEnviar">Reservar Turno</button><br>
-    <button type="button" id="buscarTurno">Modificar / Eliminar mi Turno</button>
+    <button type="submit" id="botonEnviar">Reservar Turno</button>
   </form>
 </div>
 
 <script>
-  let idTurno = null;
-  const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
-
   document.getElementById('reservaForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -170,183 +166,26 @@
       hora
     };
 
-    if (idTurno) {
-      data.id = idTurno;
-      fetch(url + '?_method=PUT', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("✅ Turno modificado exitosamente!");
-          document.getElementById('reservaForm').reset();
-          idTurno = null;
-        } else {
-          alert("❌ Error modificando el turno.");
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert("❌ Error modificando el turno.");
-      });
-    } else {
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("✅ Reserva enviada exitosamente!");
-          document.getElementById('reservaForm').reset();
-        } else {
-          alert("❌ Hubo un problema enviando la reserva.");
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert("❌ Hubo un problema enviando la reserva.");
-      });
-    }
-  });
+    const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
 
-  document.getElementById('buscarTurno').addEventListener('click', function() {
-    const telefono = prompt('Ingresá tu número de teléfono para buscar tus turnos:');
-
-    if (!telefono) {
-      alert('Debés ingresar un número de teléfono.');
-      return;
-    }
-
-    fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
-      .then(response => response.json())
-      .then(data => {
-        const turnos = data
-          .map((t, i) => ({ ...t, fila: i + 2 }))
-          .filter(t => t.telefono === telefono);
-
-        if (turnos.length === 0) {
-          alert('❌ No se encontraron turnos con ese número.');
-          return;
-        }
-
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.top = '0';
-        container.style.left = '0';
-        container.style.width = '100%';
-        container.style.height = '100%';
-        container.style.background = 'rgba(0, 0, 0, 0.5)';
-        container.style.zIndex = '9999';
-        container.style.overflowY = 'auto';
-        container.style.display = 'flex';
-        container.style.flexDirection = 'column';
-        container.style.alignItems = 'center';
-        container.style.justifyContent = 'center';
-        container.style.padding = '20px';
-
-        turnos.forEach(turno => {
-          const card = document.createElement('div');
-          card.style.background = 'white';
-          card.style.borderRadius = '12px';
-          card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
-          card.style.margin = '10px';
-          card.style.padding = '20px';
-          card.style.maxWidth = '350px';
-          card.style.width = '100%';
-          card.style.textAlign = 'left';
-          card.style.fontSize = '16px';
-
-          card.innerHTML = `
-            <strong>Nombre:</strong> ${turno.nombre}<br>
-            <strong>Profesional:</strong> ${turno.profesional}<br>
-            <strong>Servicio:</strong> ${turno.servicio}<br>
-            <strong>Fecha:</strong> ${turno.fecha}<br>
-            <strong>Hora:</strong> ${turno.hora}<br><br>
-          `;
-
-          const btns = document.createElement('div');
-          btns.style.display = 'flex';
-          btns.style.justifyContent = 'space-between';
-          btns.style.gap = '10px';
-
-          const btnEditar = document.createElement('button');
-          btnEditar.textContent = 'Modificar';
-          btnEditar.style.flex = '1';
-          btnEditar.style.background = '#c2185b';
-          btnEditar.style.color = 'white';
-          btnEditar.style.border = 'none';
-          btnEditar.style.borderRadius = '8px';
-          btnEditar.style.padding = '10px';
-          btnEditar.onclick = () => {
-            idTurno = turno.fila;
-            document.getElementById('nombre').value = turno.nombre;
-            document.getElementById('telefono').value = turno.telefono;
-            document.getElementById('profesional').value = turno.profesional;
-            document.getElementById('servicio').value = turno.servicio;
-            document.getElementById('fecha').value = turno.fecha;
-            document.getElementById('hora').value = turno.hora;
-            alert('✅ Ahora podés modificar el turno y apretar "Reservar Turno".');
-            document.body.removeChild(container);
-          };
-
-          const btnEliminar = document.createElement('button');
-          btnEliminar.textContent = 'Eliminar';
-          btnEliminar.style.flex = '1';
-          btnEliminar.style.background = '#b71c1c';
-          btnEliminar.style.color = 'white';
-          btnEliminar.style.border = 'none';
-          btnEliminar.style.borderRadius = '8px';
-          btnEliminar.style.padding = '10px';
-          btnEliminar.onclick = () => {
-            if (confirm('¿Estás seguro de eliminar este turno?')) {
-              fetch(url + '?_method=DELETE', {
-                method: 'POST',
-                body: JSON.stringify({ id: turno.fila })
-              })
-              .then(response => {
-                if (response.ok) {
-                  alert('🗑️ Turno eliminado.');
-                  document.body.removeChild(container);
-                  document.getElementById('reservaForm').reset();
-                  idTurno = null;
-                } else {
-                  alert('❌ Error al eliminar el turno.');
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error al eliminar el turno.');
-              });
-            }
-          };
-
-          btns.appendChild(btnEditar);
-          btns.appendChild(btnEliminar);
-          card.appendChild(btns);
-          container.appendChild(card);
-        });
-
-        const cerrar = document.createElement('button');
-        cerrar.textContent = 'Cerrar';
-        cerrar.style.marginTop = '20px';
-        cerrar.style.padding = '10px 20px';
-        cerrar.style.background = '#555';
-        cerrar.style.color = 'white';
-        cerrar.style.border = 'none';
-        cerrar.style.borderRadius = '8px';
-        cerrar.onclick = () => document.body.removeChild(container);
-
-        container.appendChild(cerrar);
-        document.body.appendChild(container);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('❌ Error buscando el turno.');
-      });
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (response.ok) {
+        alert("✅ ¡Tu turno fue reservado exitosamente!");
+        document.getElementById('reservaForm').reset();
+      } else {
+        alert("❌ Hubo un problema enviando tu reserva.");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert("❌ Hubo un problema enviando tu reserva.");
+    });
   });
 </script>
-
-
 
 </body>
 </html>
