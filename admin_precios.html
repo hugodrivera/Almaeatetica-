@@ -3,208 +3,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Gestionar Tratamientos - Alma Estética</title>
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #fce4ec; margin: 0; padding: 20px; }
-    h1 { color: #c2185b; text-align: center; }
-    .boton-agregar {
-      display: block;
-      margin: 0 auto;
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background-color: #c2185b;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #f8bbd0;
-      color: #880e4f;
-    }
-    .editar {
-      background-color: #c2185b;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .eliminar {
-      background-color: #b71c1c;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #popup {
-      display: none;
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-    .popup-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      width: 300px;
-    }
-    .popup-card input {
-      width: 95%;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-  </style>
+  <title>Prueba de Edición de Tratamiento</title>
 </head>
 <body>
+  <h2>Prueba de actualización directa (fila 5)</h2>
+  <button onclick="editarTratamiento()">Editar tratamiento en fila 5</button>
 
-<h1>Gestionar Tratamientos</h1>
-<button class="boton-agregar" onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
+  <script>
+    function editarTratamiento() {
+      const data = {
+        id: 5,
+        rubro: "TEST Rubro",
+        subrubro: "TEST Subrubro Modificado",
+        duracion: "60 min",
+        precio: "$1999",
+        _method: "PUT"
+      };
 
-<table>
-  <thead>
-    <tr>
-      <th>Rubro</th>
-      <th>Tratamiento</th>
-      <th>Duración</th>
-      <th>Precio</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody id="tratamientos"></tbody>
-</table>
-
-<div id="popup">
-  <div class="popup-card">
-    <h3 id="popupTitulo">Editar Tratamiento</h3>
-    <input id="rubroInput" placeholder="Rubro">
-    <input id="subrubroInput" placeholder="Tratamiento">
-    <input id="duracionInput" placeholder="Duración">
-    <input id="precioInput" placeholder="Precio">
-    <br>
-    <button onclick="guardarCambios()">Guardar</button>
-    <button onclick="cerrarPopup()">Cancelar</button>
-  </div>
-</div>
-
-<script>
-const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 2';
-const apiUrl = 'https://script.google.com/macros/s/AKfycbyoJmNXfLTvRc4S-1LU7egDb6ZoJIDLT3rIyUk14NB29IBZnDIz0ia3IjUAznaGPun5/exec';
-
-let tratamientos = [];
-let filaEditando = null;
-
-function cargarTratamientos() {
-  fetch(sheetUrl)
-    .then(r => r.json())
-    .then(data => {
-      tratamientos = data;
-      const tbody = document.getElementById("tratamientos");
-      tbody.innerHTML = '';
-      data.forEach((t, i) => {
-        const fila = i + 2; // la fila real (con encabezado)
-        tbody.innerHTML += `
-          <tr>
-            <td>${t.Rubro || ''}</td>
-            <td>${t.Subrubro || ''}</td>
-            <td>${t['Duración'] || ''}</td>
-            <td>${t.Precio || ''}</td>
-            <td>
-              <button class="editar" onclick="editar(${i}, ${fila})">Editar</button>
-              <button class="eliminar" onclick="eliminar(${fila})">Eliminar</button>
-            </td>
-          </tr>`;
-      });
-    });
-}
-
-function agregarTratamiento() {
-  filaEditando = null;
-  document.getElementById("popupTitulo").innerText = "Nuevo Tratamiento";
-  document.getElementById("rubroInput").value = "";
-  document.getElementById("subrubroInput").value = "";
-  document.getElementById("duracionInput").value = "";
-  document.getElementById("precioInput").value = "";
-  document.getElementById("popup").style.display = "flex";
-}
-
-function editar(i, fila) {
-  filaEditando = fila;
-  const t = tratamientos[i];
-  document.getElementById("popupTitulo").innerText = "Editar Tratamiento";
-  document.getElementById("rubroInput").value = t.Rubro;
-  document.getElementById("subrubroInput").value = t.Subrubro;
-  document.getElementById("duracionInput").value = t['Duración'];
-  document.getElementById("precioInput").value = t.Precio;
-  document.getElementById("popup").style.display = "flex";
-}
-
-function guardarCambios() {
-  const data = {
-    rubro: document.getElementById("rubroInput").value,
-    subrubro: document.getElementById("subrubroInput").value,
-    duracion: document.getElementById("duracionInput").value,
-    precio: document.getElementById("precioInput").value
-  };
-
-  if (filaEditando) {
-    data.id = filaEditando;
-    data._method = "PUT";
-  }
-
-  fetch(apiUrl, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
-  .then(r => r.text())
-  .then(() => {
-    cerrarPopup();
-    cargarTratamientos();
-  });
-}
-
-function eliminar(fila) {
-  if (!confirm("¿Eliminar este tratamiento?")) return;
-
-  const data = {
-    id: fila,
-    _method: "DELETE"
-  };
-
-  fetch(apiUrl, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
-  .then(r => r.text())
-  .then(() => cargarTratamientos());
-}
-
-function cerrarPopup() {
-  document.getElementById("popup").style.display = "none";
-}
-
-document.addEventListener("DOMContentLoaded", cargarTratamientos);
-</script>
-
+      fetch('https://script.google.com/macros/s/AKfycbyoJmNXfLTvRc4S-1LU7egDb6ZoJIDLT3rIyUk14NB29IBZnDIz0ia3IjUAznaGPun5/exec', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+      .then(r => r.text())
+      .then(t => alert("Respuesta del servidor:
+" + t))
+      .catch(err => alert("Error: " + err));
+    }
+  </script>
 </body>
 </html>
