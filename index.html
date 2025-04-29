@@ -5,14 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reserva tu Turno - Alma Estética</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 50px; background-color: #fbe9f0; }
-    input, select, button { margin: 10px; padding: 10px; width: 250px; border-radius: 8px; }
-    form { background: white; padding: 20px; border-radius: 10px; display: inline-block; }
-    img { width: 180px; margin-bottom: 20px; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fbe9f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 350px;
+      margin: auto;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    img {
+      width: 160px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      color: #c2185b;
+      font-size: 26px;
+      margin: 10px 0;
+    }
+
+    h3 {
+      color: #ad1457;
+      font-weight: normal;
+      font-size: 18px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    @media (max-width: 480px) {
+      form {
+        padding: 20px;
+        max-width: 90%;
+      }
+      input, select, button {
+        font-size: 15px;
+        padding: 10px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
 
+<div class="container">
   <img src="logo.jpg" alt="Logo Alma Estética">
 
   <h1>Alma Estética</h1>
@@ -76,48 +142,107 @@
     <input type="date" id="fecha" required><br>
     <input type="time" id="hora" required><br>
 
-    <button type="submit">Reservar Turno</button>
+    <button type="submit" id="botonEnviar">Reservar Turno</button><br>
+    <button type="button" id="buscarTurno">Modificar mi Turno</button>
   </form>
+</div>
 
-  <script>
-    document.getElementById('reservaForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+<script>
+  let idTurno = null;
 
-      const nombre = document.getElementById('nombre').value;
-      const telefono = document.getElementById('telefono').value;
-      const profesional = document.getElementById('profesional').value;
-      const servicio = document.getElementById('servicio').value;
-      const fecha = document.getElementById('fecha').value;
-      const hora = document.getElementById('hora').value;
+  document.getElementById('reservaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-      const data = {
-        nombre,
-        telefono,
-        profesional,
-        servicio,
-        fecha,
-        hora
-      };
+    const nombre = document.getElementById('nombre').value;
+    const telefono = document.getElementById('telefono').value;
+    const profesional = document.getElementById('profesional').value;
+    const servicio = document.getElementById('servicio').value;
+    const fecha = document.getElementById('fecha').value;
+    const hora = document.getElementById('hora').value;
 
-      fetch('https://script.google.com/macros/s/AKfycbzqzHp0LSlpAfaYKjKeD86lQM2trJv-Oz6ByvixhyLqvIJGoojO8sgt_14G9hNBaBUS/exec', {
+    const data = {
+      nombre,
+      telefono,
+      profesional,
+      servicio,
+      fecha,
+      hora
+    };
+
+    const url = 'https://script.google.com/macros/s/AKfycbzqzHp0LSlpAfaYKjKeD86lQM2trJv-Oz6ByvixhyLqvIJGoojO8sgt_14G9hNBaBUS/exec';
+
+    if (idTurno) {
+      data.id = idTurno;
+      fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("✅ Turno modificado exitosamente!");
+          document.getElementById('reservaForm').reset();
+          idTurno = null;
+        } else {
+          alert("❌ Error modificando el turno.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("❌ Error modificando el turno.");
+      });
+    } else {
+      fetch(url, {
         method: 'POST',
         body: JSON.stringify(data)
       })
       .then(response => {
         if (response.ok) {
-          alert("¡Reserva enviada exitosamente!");
+          alert("✅ Reserva enviada exitosamente!");
           document.getElementById('reservaForm').reset();
         } else {
-          alert("Hubo un problema enviando la reserva.");
+          alert("❌ Hubo un problema enviando la reserva.");
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert("Hubo un problema enviando la reserva.");
+        alert("❌ Hubo un problema enviando la reserva.");
       });
-    });
-  </script>
+    }
+  });
+
+  document.getElementById('buscarTurno').addEventListener('click', function() {
+    const telefono = prompt('Ingresá tu número de teléfono para buscar tu turno:');
+
+    if (!telefono) {
+      alert('Debés ingresar un número de teléfono.');
+      return;
+    }
+
+    fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
+      .then(response => response.json())
+      .then(data => {
+        const turno = data.find((t, index) => t.telefono === telefono);
+
+        if (turno) {
+          idTurno = data.indexOf(turno) + 2;
+          document.getElementById('nombre').value = turno.nombre;
+          document.getElementById('telefono').value = turno.telefono;
+          document.getElementById('profesional').value = turno.profesional;
+          document.getElementById('servicio').value = turno.servicio;
+          document.getElementById('fecha').value = turno.fecha;
+          document.getElementById('hora').value = turno.hora;
+
+          alert('✅ Turno encontrado. Ahora podés modificarlo y enviar.');
+        } else {
+          alert('❌ No se encontró un turno con ese número.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Error buscando el turno.');
+      });
+  });
+</script>
 
 </body>
 </html>
-
