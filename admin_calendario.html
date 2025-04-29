@@ -1,147 +1,191 @@
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendario de Turnos - Alma Estética</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
+  <style>
+    body {
+      background-color: #fce4ec;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    img {
+      width: 180px;
+      margin-top: 20px;
+    }
+    h1 {
+      color: #c2185b;
+      margin-top: 10px;
+    }
+    #calendar {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      locale: 'es',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      },
-      events: [],
-      eventClick: function(info) {
-        const popup = document.createElement('div');
-        popup.style.position = 'fixed';
-        popup.style.top = '0';
-        popup.style.left = '0';
-        popup.style.width = '100%';
-        popup.style.height = '100%';
-        popup.style.background = 'rgba(0, 0, 0, 0.5)';
-        popup.style.zIndex = '9999';
-        popup.style.display = 'flex';
-        popup.style.flexDirection = 'column';
-        popup.style.alignItems = 'center';
-        popup.style.justifyContent = 'center';
+  <img src="logo.jpg" alt="Logo Alma Estética">
+  <h1>Calendario de Turnos</h1>
 
-        const card = document.createElement('div');
-        card.style.background = 'white';
-        card.style.padding = '20px';
-        card.style.borderRadius = '10px';
-        card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
-        card.style.textAlign = 'center';
-        card.style.width = '300px';
+  <div id="calendar"></div>
 
-        card.innerHTML = `
-          <h3>${info.event.title}</h3>
-          <p><strong>Profesional:</strong> ${info.event.extendedProps.profesional}</p>
-          <p><strong>Servicio:</strong> ${info.event.extendedProps.servicio}</p>
-          <p><strong>Fecha:</strong> ${info.event.startStr.substring(0, 10)}</p>
-          <p><strong>Hora:</strong> ${info.event.startStr.substring(11, 16)}</p>
-          <div style="margin-top: 20px; display: flex; justify-content: space-around;">
-            <button id="editarBtn" style="padding: 10px 20px; background: #c2185b; color: white; border: none; border-radius: 8px;">Modificar</button>
-            <button id="eliminarBtn" style="padding: 10px 20px; background: #b71c1c; color: white; border: none; border-radius: 8px;">Eliminar</button>
-          </div>
-          <button id="cerrarBtn" style="margin-top: 15px; background: #555; color: white; padding: 10px 20px; border: none; border-radius: 8px;">Cancelar</button>
-        `;
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
 
-        popup.appendChild(card);
-        document.body.appendChild(popup);
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: [],
+        eventClick: function(info) {
+          const popup = document.createElement('div');
+          popup.style.position = 'fixed';
+          popup.style.top = '0';
+          popup.style.left = '0';
+          popup.style.width = '100%';
+          popup.style.height = '100%';
+          popup.style.background = 'rgba(0, 0, 0, 0.5)';
+          popup.style.zIndex = '9999';
+          popup.style.display = 'flex';
+          popup.style.flexDirection = 'column';
+          popup.style.alignItems = 'center';
+          popup.style.justifyContent = 'center';
 
-        document.getElementById('editarBtn').onclick = function() {
-          const nuevoNombre = prompt('Nuevo nombre:', info.event.title);
-          const nuevoTelefono = prompt('Nuevo teléfono:', info.event.extendedProps.telefono);
-          const nuevoProfesional = prompt('Nuevo profesional:', info.event.extendedProps.profesional);
-          const nuevoServicio = prompt('Nuevo servicio:', info.event.extendedProps.servicio);
-          const nuevaFecha = prompt('Nueva fecha (YYYY-MM-DD):', info.event.startStr.substring(0, 10));
-          const nuevaHora = prompt('Nueva hora (HH:MM):', info.event.startStr.substring(11, 16));
+          const card = document.createElement('div');
+          card.style.background = 'white';
+          card.style.padding = '20px';
+          card.style.borderRadius = '10px';
+          card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+          card.style.textAlign = 'center';
+          card.style.width = '300px';
 
-          if (nuevoNombre && nuevaFecha && nuevaHora) {
-            const updatedData = {
-              nombre: nuevoNombre,
-              telefono: nuevoTelefono,
-              profesional: nuevoProfesional,
-              servicio: nuevoServicio,
-              fecha: nuevaFecha,
-              hora: nuevaHora,
-              id: info.event.extendedProps.id
-            };
+          card.innerHTML = `
+            <h3>${info.event.title}</h3>
+            <p><strong>Profesional:</strong> ${info.event.extendedProps.profesional}</p>
+            <p><strong>Servicio:</strong> ${info.event.extendedProps.servicio}</p>
+            <p><strong>Fecha:</strong> ${info.event.startStr.substring(0, 10)}</p>
+            <p><strong>Hora:</strong> ${info.event.startStr.substring(11, 16)}</p>
+            <div style="margin-top: 20px; display: flex; justify-content: space-around;">
+              <button id="editarBtn" style="padding: 10px 20px; background: #c2185b; color: white; border: none; border-radius: 8px;">Modificar</button>
+              <button id="eliminarBtn" style="padding: 10px 20px; background: #b71c1c; color: white; border: none; border-radius: 8px;">Eliminar</button>
+            </div>
+            <button id="cerrarBtn" style="margin-top: 15px; background: #555; color: white; padding: 10px 20px; border: none; border-radius: 8px;">Cancelar</button>
+          `;
 
-            fetch(url + '?_method=PUT', {
-              method: 'POST',
-              body: JSON.stringify(updatedData)
-            })
-            .then(response => {
-              if (response.ok) {
-                alert('✅ Turno modificado.');
-                window.location.reload();
-              } else {
+          popup.appendChild(card);
+          document.body.appendChild(popup);
+
+          document.getElementById('editarBtn').onclick = function() {
+            const nuevoNombre = prompt('Nuevo nombre:', info.event.title);
+            const nuevoTelefono = prompt('Nuevo teléfono:', info.event.extendedProps.telefono);
+            const nuevoProfesional = prompt('Nuevo profesional:', info.event.extendedProps.profesional);
+            const nuevoServicio = prompt('Nuevo servicio:', info.event.extendedProps.servicio);
+            const nuevaFecha = prompt('Nueva fecha (YYYY-MM-DD):', info.event.startStr.substring(0, 10));
+            const nuevaHora = prompt('Nueva hora (HH:MM):', info.event.startStr.substring(11, 16));
+
+            if (nuevoNombre && nuevaFecha && nuevaHora) {
+              const updatedData = {
+                nombre: nuevoNombre,
+                telefono: nuevoTelefono,
+                profesional: nuevoProfesional,
+                servicio: nuevoServicio,
+                fecha: nuevaFecha,
+                hora: nuevaHora,
+                id: info.event.extendedProps.id
+              };
+
+              fetch(url + '?_method=PUT', {
+                method: 'POST',
+                body: JSON.stringify(updatedData)
+              })
+              .then(response => {
+                if (response.ok) {
+                  alert('✅ Turno modificado.');
+                  window.location.reload();
+                } else {
+                  alert('❌ Error modificando el turno.');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
                 alert('❌ Error modificando el turno.');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('❌ Error modificando el turno.');
-            });
-          }
-        };
-
-        document.getElementById('eliminarBtn').onclick = function() {
-          if (confirm('¿Estás seguro de eliminar este turno?')) {
-            const deleteData = { id: info.event.extendedProps.id };
-
-            fetch(url + '?_method=DELETE', {
-              method: 'POST',
-              body: JSON.stringify(deleteData)
-            })
-            .then(response => {
-              if (response.ok) {
-                alert('🗑️ Turno eliminado.');
-                window.location.reload();
-              } else {
-                alert('❌ Error eliminando el turno.');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('❌ Error eliminando el turno.');
-            });
-          }
-        };
-
-        document.getElementById('cerrarBtn').onclick = function() {
-          document.body.removeChild(popup);
-        };
-      }
-    });
-
-    calendar.render();
-
-    fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
-      .then(response => response.json())
-      .then(data => {
-        if (!Array.isArray(data)) throw new Error('Datos no válidos');
-
-        const eventos = data
-          .filter(turno => turno.nombre && turno.fecha && turno.hora)
-          .map((turno, index) => ({
-            title: turno.nombre,
-            start: `${turno.fecha}T${turno.hora}`,
-            extendedProps: {
-              profesional: turno.profesional || '',
-              servicio: turno.servicio || '',
-              telefono: turno.telefono || '',
-              id: index + 2 // la fila en la hoja (empieza en 2 porque 1 es encabezado)
+              });
             }
-          }));
+          };
 
-        calendar.addEventSource(eventos);
-      })
-      .catch(error => {
-        console.error('Error cargando turnos:', error);
-        alert("⚠️ Hubo un problema al cargar los turnos. Revisá la hoja de Google.");
+          document.getElementById('eliminarBtn').onclick = function() {
+            if (confirm('¿Estás seguro de eliminar este turno?')) {
+              const deleteData = { id: info.event.extendedProps.id };
+
+              fetch(url + '?_method=DELETE', {
+                method: 'POST',
+                body: JSON.stringify(deleteData)
+              })
+              .then(response => {
+                if (response.ok) {
+                  alert('🗑️ Turno eliminado.');
+                  window.location.reload();
+                } else {
+                  alert('❌ Error eliminando el turno.');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error eliminando el turno.');
+              });
+            }
+          };
+
+          document.getElementById('cerrarBtn').onclick = function() {
+            document.body.removeChild(popup);
+          };
+        }
       });
-  });
-</script>
+
+      calendar.render();
+
+      fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
+        .then(response => response.json())
+        .then(data => {
+          if (!Array.isArray(data)) throw new Error('Datos no válidos');
+
+          const eventos = data
+            .filter(turno => turno.nombre && turno.fecha && turno.hora)
+            .map((turno, index) => ({
+              title: turno.nombre,
+              start: `${turno.fecha}T${turno.hora}`,
+              extendedProps: {
+                profesional: turno.profesional || '',
+                servicio: turno.servicio || '',
+                telefono: turno.telefono || '',
+                id: index + 2
+              }
+            }));
+
+          calendar.addEventSource(eventos);
+        })
+        .catch(error => {
+          console.error('Error cargando turnos:', error);
+          alert("⚠️ Hubo un problema al cargar los turnos. Revisá la hoja de Google.");
+        });
+    });
+  </script>
+
+</body>
+</html>
