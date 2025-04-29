@@ -102,6 +102,18 @@
       text-align: right;
     }
 
+    #gracias {
+      display: none;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    iframe {
+      border-radius: 12px;
+      margin-top: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
     @keyframes fadeInDown {
       from {
         opacity: 0;
@@ -111,12 +123,6 @@
         opacity: 1;
         transform: translateY(0);
       }
-    }
-
-    iframe {
-      border-radius: 12px;
-      margin-top: 30px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     @media (max-width: 480px) {
@@ -142,24 +148,6 @@
 <body>
 
 <div class="container">
-  <div id="gracias" style="display:none; text-align:center; margin-top: 50px;">
-  <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
-  <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
-  <button onclick="volverFormulario()" style="
-    margin-top: 20px;
-    padding: 12px 20px;
-    background-color: #c2185b;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  ">
-    Reservar otro turno
-  </button>
-</div>
-
   <img src="logo.jpg" alt="Logo Alma Estética">
 
   <h1>Alma Estética</h1>
@@ -239,6 +227,12 @@
     </table>
   </div>
 
+  <div id="gracias">
+    <h1>¡Gracias por reservar!</h1>
+    <p>Te esperamos en Alma Estética 💖</p>
+    <button onclick="volverFormulario()">Reservar otro turno</button>
+  </div>
+
   <div style="margin-top: 40px;">
     <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
     <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
@@ -281,19 +275,11 @@
     })
     .then(response => {
       if (response.ok) {
-        .then(response => {
-  if (response.ok) {
-    document.getElementById('reservaForm').reset();
-    document.getElementById('reservaForm').style.display = 'none';
-    document.getElementById('verHorarios').style.display = 'none';
-    document.getElementById('horariosBox').style.display = 'none';
-    document.getElementById('gracias').style.display = 'block';
-  } else {
-    alert("❌ Hubo un problema enviando tu reserva.");
-  }
-})
-
         document.getElementById('reservaForm').reset();
+        document.getElementById('reservaForm').style.display = 'none';
+        document.getElementById('verHorarios').style.display = 'none';
+        document.getElementById('horariosBox').style.display = 'none';
+        document.getElementById('gracias').style.display = 'block';
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
       }
@@ -302,14 +288,13 @@
       console.error('Error:', error);
       alert("❌ Hubo un problema enviando tu reserva.");
     });
-    function volverFormulario() {
-  document.getElementById('gracias').style.display = 'none';
-  document.getElementById('reservaForm').style.display = 'block';
-  document.getElementById('verHorarios').style.display = 'inline-block';
-  document.getElementById('horariosBox').style.display = 'none';
-}
-
   });
+
+  function volverFormulario() {
+    document.getElementById('gracias').style.display = 'none';
+    document.getElementById('reservaForm').style.display = 'block';
+    document.getElementById('verHorarios').style.display = 'inline-block';
+  }
 </script>
 
 </body>
