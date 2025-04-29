@@ -281,7 +281,18 @@
     })
     .then(response => {
       if (response.ok) {
-        alert("✅ ¡Tu turno fue reservado exitosamente!");
+        .then(response => {
+  if (response.ok) {
+    document.getElementById('reservaForm').reset();
+    document.getElementById('reservaForm').style.display = 'none';
+    document.getElementById('verHorarios').style.display = 'none';
+    document.getElementById('horariosBox').style.display = 'none';
+    document.getElementById('gracias').style.display = 'block';
+  } else {
+    alert("❌ Hubo un problema enviando tu reserva.");
+  }
+})
+
         document.getElementById('reservaForm').reset();
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
@@ -291,6 +302,13 @@
       console.error('Error:', error);
       alert("❌ Hubo un problema enviando tu reserva.");
     });
+    function volverFormulario() {
+  document.getElementById('gracias').style.display = 'none';
+  document.getElementById('reservaForm').style.display = 'block';
+  document.getElementById('verHorarios').style.display = 'inline-block';
+  document.getElementById('horariosBox').style.display = 'none';
+}
+
   });
 </script>
 
