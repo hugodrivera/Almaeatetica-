@@ -1,74 +1,54 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Calendario de Turnos - Alma Estética</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
-  <style>
-    body { background-color: #fce4ec; font-family: Arial, sans-serif; text-align: center; }
-    img { width: 180px; margin-top: 20px; }
-    h1 { color: #c2185b; margin-top: 10px; }
-    #calendar { max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; }
-  </style>
-</head>
-<body>
+body {
+    background-color: #ffe6f0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-  <img src="logo.jpg" alt="Logo Alma Estética">
-  <h1>Calendario de Turnos</h1>
+.form-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
 
-  <div id="calendar"></div>
+h1 {
+    text-align: center;
+    color: #d86c9d;
+}
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var calendarEl = document.getElementById('calendar');
+form {
+    display: flex;
+    flex-direction: column;
+}
 
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'es',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: [],
-        eventClick: function(info) {
-          alert('Turno:\n' +
-                'Nombre: ' + (info.event.title || '') + '\n' +
-                'Profesional: ' + (info.event.extendedProps.profesional || '') + '\n' +
-                'Servicio: ' + (info.event.extendedProps.servicio || '') + '\n' +
-                'Teléfono: ' + (info.event.extendedProps.telefono || ''));
-        }
-      });
+label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #333333;
+}
 
-      calendar.render();
+input, select {
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+}
 
-      fetch('https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 1')
-        .then(response => response.json())
-        .then(data => {
-          if (!Array.isArray(data)) throw new Error('Datos no válidos');
+button {
+    margin-top: 20px;
+    background-color: #d86c9d;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
 
-          const eventos = data
-            .filter(turno => turno.nombre && turno.fecha && turno.hora)
-            .map(turno => ({
-              title: turno.nombre,
-              start: `${turno.fecha}T${turno.hora}`,
-              extendedProps: {
-                profesional: turno.profesional || '',
-                servicio: turno.servicio || '',
-                telefono: turno.telefono || ''
-              }
-            }));
-
-          calendar.addEventSource(eventos);
-        })
-        .catch(error => {
-          console.error('Error cargando turnos:', error);
-          alert("⚠️ Hubo un problema al cargar los turnos. Revisá la hoja de Google.");
-        });
-    });
-  </script>
-
-</body>
-</html>
+button:hover {
+    background-color: #c4558c;
+}
