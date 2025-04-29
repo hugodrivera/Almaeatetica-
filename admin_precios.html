@@ -174,12 +174,14 @@ function guardarCambios() {
     precio: document.getElementById("precioInput").value
   };
 
+  let url = apiUrl;
   if (filaEditando !== null) {
     data.id = filaEditando;
     data._method = "PUT";
+    url += '?_method=PUT';
   }
 
-  fetch(apiUrl, {
+  fetch(url, {
     method: 'POST',
     body: JSON.stringify(data)
   })
@@ -199,7 +201,7 @@ function eliminar(fila) {
     _method: "DELETE"
   };
 
-  fetch(apiUrl, {
+  fetch(apiUrl + '?_method=DELETE', {
     method: 'POST',
     body: JSON.stringify(data)
   })
