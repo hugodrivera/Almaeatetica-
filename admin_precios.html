@@ -177,6 +177,9 @@ function guardarCambios() {
   if (filaEditando !== null) {
     data.id = filaEditando;
     data._method = "PUT";
+    console.log("🟡 EDITANDO - Enviando fila ID:", filaEditando);
+  } else {
+    console.log("🟢 NUEVO tratamiento");
   }
 
   fetch(apiUrl, {
@@ -184,7 +187,8 @@ function guardarCambios() {
     body: JSON.stringify(data)
   })
   .then(r => r.text())
-  .then(() => {
+  .then((res) => {
+    console.log("✅ Respuesta:", res);
     cerrarPopup();
     cargarTratamientos();
     mostrarNotificacion("✅ Tratamiento guardado exitosamente", "green");
@@ -199,12 +203,15 @@ function eliminar(fila) {
     _method: "DELETE"
   };
 
+  console.log("🗑️ Eliminando fila:", fila);
+
   fetch(apiUrl, {
     method: 'POST',
     body: JSON.stringify(data)
   })
   .then(r => r.text())
-  .then(() => {
+  .then((res) => {
+    console.log("🗑️ Respuesta:", res);
     cargarTratamientos();
     mostrarNotificacion("🗑️ Tratamiento eliminado exitosamente", "red");
   });
