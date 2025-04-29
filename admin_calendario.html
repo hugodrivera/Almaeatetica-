@@ -31,11 +31,6 @@
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-    .fc-event {
-      border-radius: 8px;
-      padding: 4px;
-      font-size: 14px;
-    }
     .popup {
       position: fixed;
       top: 0; left: 0;
@@ -56,17 +51,25 @@
       max-width: 400px;
       text-align: center;
     }
+    .popup-card input, .popup-card select {
+      width: 90%;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
     .popup-card button {
-      margin: 10px;
+      margin: 10px 5px;
       padding: 10px 20px;
       border: none;
       border-radius: 10px;
       font-size: 16px;
       cursor: pointer;
     }
-    .popup-card .editar { background: #c2185b; color: white; }
-    .popup-card .eliminar { background: #b71c1c; color: white; }
+    .popup-card .guardar { background: #c2185b; color: white; }
     .popup-card .cerrar { background: #555; color: white; }
+    .popup-card .eliminar { background: #b71c1c; color: white; }
     @keyframes fadeIn {
       from { opacity: 0; } to { opacity: 1; }
     }
@@ -110,65 +113,61 @@
           card.className = 'popup-card';
 
           card.innerHTML = `
-            <h3>${info.event.title}</h3>
-            <p><strong>Servicio:</strong> ${info.event.extendedProps.servicio}</p>
-            <p><strong>Fecha:</strong> ${info.event.startStr.substring(0, 10)}</p>
-            <p><strong>Hora:</strong> ${info.event.startStr.substring(11, 16)}</p>
-            <button class="editar">Modificar</button>
-            <button class="eliminar">Eliminar</button>
-            <button class="cerrar">Cerrar</button>
+            <h3>Modificar Turno</h3>
+            <input type="text" id="nombre" value="${info.event.title.split(' - ')[0]}" placeholder="Nombre">
+            <input type="text" id="telefono" value="${info.event.extendedProps.telefono}" placeholder="Teléfono">
+            <input type="text" id="profesional" value="${info.event.extendedProps.profesional}" placeholder="Profesional">
+            <input type="text" id="servicio" value="${info.event.extendedProps.servicio}" placeholder="Servicio">
+            <input type="date" id="fecha" value="${info.event.startStr.substring(0,10)}">
+            <input type="time" id="hora" value="${info.event.startStr.substring(11,16)}">
+            <div style="margin-top: 15px;">
+              <button class="guardar">Guardar cambios</button>
+              <button class="eliminar">Eliminar turno</button>
+              <button class="cerrar">Cancelar</button>
+            </div>
           `;
 
           popup.appendChild(card);
           document.body.appendChild(popup);
 
-          card.querySelector('.editar').onclick = function() {
-            const nuevoNombre = prompt('Nuevo nombre:', info.event.title);
-            const nuevoTelefono = prompt('Nuevo teléfono:', info.event.extendedProps.telefono);
-            const nuevoProfesional = prompt('Nuevo profesional:', info.event.extendedProps.profesional);
-            const nuevoServicio = prompt('Nuevo servicio:', info.event.extendedProps.servicio);
-            const nuevaFecha = prompt('Nueva fecha (YYYY-MM-DD):', info.event.startStr.substring(0, 10));
-            const nuevaHora = prompt('Nueva hora (HH:MM):', info.event.startStr.substring(11, 16));
+          card.querySelector('.guardar').onclick = function() {
+            const updatedData = {
+              nombre: document.getElementById('nombre').value,
+              telefono: document.getElementById('telefono').value,
+              profesional: document.getElementById('profesional').value,
+              servicio: document.getElementById('servicio').value,
+              fecha: document.getElementById('fecha').value,
+              hora: document.getElementById('hora').value,
+              id: info.event.extendedProps.id
+            };
 
-            if (nuevoNombre && nuevaFecha && nuevaHora) {
-              const updatedData = {
-                nombre: nuevoNombre,
-                telefono: nuevoTelefono,
-                profesional: nuevoProfesional,
-                servicio: nuevoServicio,
-                fecha: nuevaFecha,
-                hora: nuevaHora,
-                id: info.event.extendedProps.id
-              };
-
-              fetch(url + '?_method=PUT', {
-                method: 'POST',
-                body: JSON.stringify(updatedData)
-              })
-              .then(response => {
-                if (response.ok) {
-                  alert('✅ Turno modificado.');
-                  window.location.reload();
-                } else {
-                  alert('❌ Error modificando el turno.');
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error modificando el turno.');
-              });
-            }
+            fetch(url + '?_method=PUT', {
+              method: 'POST',
+              body: JSON.stringify(updatedData)
+            })
+            .then(response => {
+              if (response.ok) {
+                alert('✅ Turno modificado correctamente.');
+                window.location.reload();
+              } else {
+                alert('❌ Error al modificar el turno.');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('❌ Error modificando el turno.');
+            });
           };
 
           card.querySelector('.eliminar').onclick = function() {
-            if (confirm('¿Estás seguro de eliminar este turno?')) {
+            if (confirm('¿Eliminar este turno?')) {
               fetch(url + '?_method=DELETE', {
                 method: 'POST',
                 body: JSON.stringify({ id: info.event.extendedProps.id })
               })
               .then(response => {
                 if (response.ok) {
-                  alert('🗑️ Turno eliminado.');
+                  alert('🗑️ Turno eliminado correctamente.');
                   window.location.reload();
                 } else {
                   alert('❌ Error eliminando el turno.');
@@ -212,7 +211,7 @@
         })
         .catch(error => {
           console.error('Error cargando turnos:', error);
-          alert("⚠️ Hubo un problema al cargar los turnos. Revisá la hoja de Google.");
+          alert("⚠️ Hubo un problema al cargar los turnos.");
         });
     });
   </script>
