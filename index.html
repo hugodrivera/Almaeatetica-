@@ -143,6 +143,56 @@
 
     <button type="submit" id="botonEnviar">Reservar Turno</button>
   </form>
+  <!-- Botón + Horarios de atención -->
+<div style="margin-top: 30px;">
+  <button onclick="toggleHorarios()" style="
+    padding: 12px 20px;
+    background-color: #c2185b;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  ">
+    Ver horarios de atención
+  </button>
+
+  <div id="horariosBox" style="
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    margin-top: 20px;
+  ">
+    <table style="
+      width: 100%;
+      max-width: 350px;
+      margin: auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 15px;
+      color: #555;
+    ">
+      <tr><td><strong>Lunes</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
+      <tr><td><strong>Martes</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
+      <tr><td><strong>Miércoles</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
+      <tr><td><strong>Jueves</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
+      <tr><td><strong>Viernes</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
+      <tr><td><strong>Sábado</strong></td><td style="text-align:right;">08:00 - 19:00</td></tr>
+      <tr><td><strong>Domingo</strong></td><td style="text-align:right;">Cerrado</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  function toggleHorarios() {
+    const box = document.getElementById('horariosBox');
+    box.style.maxHeight = box.style.maxHeight === '0px' || box.style.maxHeight === '' ? '500px' : '0';
+  }
+</script>
+
   <div style="margin-top: 40px;">
   <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
   <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
