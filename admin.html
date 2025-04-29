@@ -256,7 +256,13 @@ function mostrarLista() {
 function mostrarCalendario() {
   document.getElementById('tablaTurnos').style.display = 'none';
   document.getElementById('calendar').style.display = 'block';
+
+  // Forzar render para que FullCalendar se vea bien después de mostrarlo
+  setTimeout(() => {
+    calendar.render();
+  }, 10);
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('calendar');
