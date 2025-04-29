@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,8 +9,7 @@
     h1 { color: #c2185b; text-align: center; }
     .boton-agregar {
       display: block;
-      margin: 0 auto;
-      margin-bottom: 20px;
+      margin: 0 auto 20px auto;
       padding: 10px 20px;
       background-color: #c2185b;
       color: white;
@@ -35,22 +35,15 @@
       background-color: #f8bbd0;
       color: #880e4f;
     }
-    .editar {
-      background-color: #c2185b;
+    .editar, .eliminar {
       color: white;
       border: none;
       padding: 6px 10px;
       border-radius: 6px;
       cursor: pointer;
     }
-    .eliminar {
-      background-color: #b71c1c;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+    .editar { background-color: #c2185b; }
+    .eliminar { background-color: #b71c1c; }
     #popup {
       display: none;
       position: fixed; top: 0; left: 0;
@@ -72,6 +65,19 @@
       margin: 5px 0;
       border-radius: 5px;
       border: 1px solid #ccc;
+    }
+    #notificacion {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4caf50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 16px;
+      z-index: 10000;
     }
   </style>
 </head>
@@ -106,6 +112,8 @@
   </div>
 </div>
 
+<div id="notificacion"></div>
+
 <script>
 const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 2';
 const apiUrl = 'https://script.google.com/macros/s/AKfycbyoJmNXfLTvRc4S-1LU7egDb6ZoJIDLT3rIyUk14NB29IBZnDIz0ia3IjUAznaGPun5/exec';
@@ -121,7 +129,7 @@ function cargarTratamientos() {
       const tbody = document.getElementById("tratamientos");
       tbody.innerHTML = '';
       data.forEach((t, i) => {
-        const fila = i + 2; // la fila real (con encabezado)
+        const fila = i + 2;
         tbody.innerHTML += `
           <tr>
             <td>${t.Rubro || ''}</td>
@@ -166,7 +174,7 @@ function guardarCambios() {
     precio: document.getElementById("precioInput").value
   };
 
-  if (filaEditando) {
+  if (filaEditando !== null) {
     data.id = filaEditando;
     data._method = "PUT";
   }
@@ -179,6 +187,7 @@ function guardarCambios() {
   .then(() => {
     cerrarPopup();
     cargarTratamientos();
+    mostrarNotificacion("✅ Tratamiento guardado exitosamente", "green");
   });
 }
 
@@ -195,11 +204,24 @@ function eliminar(fila) {
     body: JSON.stringify(data)
   })
   .then(r => r.text())
-  .then(() => cargarTratamientos());
+  .then(() => {
+    cargarTratamientos();
+    mostrarNotificacion("🗑️ Tratamiento eliminado exitosamente", "red");
+  });
 }
 
 function cerrarPopup() {
   document.getElementById("popup").style.display = "none";
+}
+
+function mostrarNotificacion(mensaje, color) {
+  const notif = document.getElementById("notificacion");
+  notif.style.backgroundColor = (color === "red") ? "#e53935" : "#43a047";
+  notif.innerText = mensaje;
+  notif.style.display = "block";
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 2000);
 }
 
 document.addEventListener("DOMContentLoaded", cargarTratamientos);
