@@ -2,40 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Turnos - Cards - Alma Estética</title>
+  <title>Panel de Turnos - Tabla - Alma Estética</title>
   <style>
     body {
       background: linear-gradient(120deg, #fce4ec, #f8bbd0);
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 20px;
       text-align: center;
     }
     h1 {
       color: #c2185b;
-      margin-top: 20px;
+      margin-bottom: 20px;
     }
-    #turnos {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 20px;
-    }
-    .card {
+    table {
+      width: 95%;
+      margin: auto;
+      border-collapse: collapse;
       background: white;
-      margin: 10px;
-      padding: 20px;
-      border-radius: 12px;
-      width: 280px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      border-radius: 12px;
+      overflow: hidden;
     }
-    .card button {
-      margin-top: 8px;
-      padding: 8px;
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f8bbd0;
+      color: #880e4f;
+      font-size: 16px;
+    }
+    td {
+      font-size: 14px;
+      color: #555;
+    }
+    button {
+      padding: 5px 10px;
+      margin: 2px;
       border: none;
       border-radius: 8px;
       font-size: 14px;
@@ -44,7 +48,7 @@
     .editar { background: #c2185b; color: white; }
     .eliminar { background: #b71c1c; color: white; }
     .contador {
-      margin: 20px;
+      margin: 10px 0 20px 0;
       font-size: 18px;
       color: #333;
     }
@@ -64,6 +68,7 @@
       border-radius: 12px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
       text-align: center;
+      width: 300px;
     }
     .popup-card input {
       width: 90%;
@@ -88,7 +93,21 @@
 
 <h1>Turnos Registrados - Alma Estética</h1>
 <div class="contador" id="contadorTurnos">Cargando turnos...</div>
-<div id="turnos"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Teléfono</th>
+      <th>Profesional</th>
+      <th>Servicio</th>
+      <th>Fecha</th>
+      <th>Hora</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="turnos"></tbody>
+</table>
 
 <script>
 const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
@@ -101,18 +120,20 @@ function cargarTurnos() {
       document.getElementById('contadorTurnos').innerText = `Total de turnos: ${data.length}`;
 
       data.forEach((turno, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <strong>${turno.nombre}</strong><br>
-          📞 ${turno.telefono}<br>
-          👩‍⚕️ ${turno.profesional}<br>
-          💆 ${turno.servicio}<br>
-          📅 ${turno.fecha} ⏰ ${turno.hora}<br>
-          <button class="editar" onclick="editarTurno(${index + 2}, '${turno.nombre}', '${turno.telefono}', '${turno.profesional}', '${turno.servicio}', '${turno.fecha}', '${turno.hora}')">Editar</button>
-          <button class="eliminar" onclick="eliminarTurno(${index + 2})">Eliminar</button>
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${turno.nombre}</td>
+          <td>${turno.telefono}</td>
+          <td>${turno.profesional}</td>
+          <td>${turno.servicio}</td>
+          <td>${turno.fecha}</td>
+          <td>${turno.hora}</td>
+          <td>
+            <button class="editar" onclick="editarTurno(${index + 2}, '${turno.nombre}', '${turno.telefono}', '${turno.profesional}', '${turno.servicio}', '${turno.fecha}', '${turno.hora}')">Editar</button>
+            <button class="eliminar" onclick="eliminarTurno(${index + 2})">Eliminar</button>
+          </td>
         `;
-        document.getElementById('turnos').appendChild(card);
+        document.getElementById('turnos').appendChild(fila);
       });
     });
 }
