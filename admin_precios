@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestionar Tratamientos - Alma Estética</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(120deg, #fce4ec, #f8bbd0);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #c2185b;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 95%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f8bbd0;
+      color: #880e4f;
+      font-size: 16px;
+    }
+    td {
+      font-size: 14px;
+      color: #555;
+    }
+    .editar {
+      background: #c2185b;
+    }
+    .eliminar {
+      background: #b71c1c;
+    }
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 300px;
+    }
+    .popup-card input {
+      width: 90%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Gestionar Tratamientos</h1>
+<button onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>Rubro</th>
+      <th>Tratamiento</th>
+      <th>Duración</th>
+      <th>Precio</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tratamientos"></tbody>
+</table>
+
+<div id="popup" class="popup" style="display:none;">
+  <div class="popup-card">
+    <h3 id="popupTitulo">Editar Tratamiento</h3>
+    <input id="rubroInput" placeholder="Rubro">
+    <input id="subrubroInput" placeholder="Tratamiento">
+    <input id="duracionInput" placeholder="Duración">
+    <input id="precioInput" placeholder="Precio">
+    <br>
+    <button onclick="guardarCambios()">Guardar</button>
+    <button onclick="cerrarPopup()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja%202';
+let tratamientosData = [];
+let tratamientoEditando = null;
+
+function cargarTratamientos() {
+  fetch(sheetUrl)
+    .then(response => response.json())
+    .then(data => {
+      tratamientosData = data;
+      actualizarTabla();
+    });
+}
+
+function actualizarTabla() {
+  const tbody = document.getElementById('tratamientos');
+  tbody.innerHTML = '';
+  tratamientosData.forEach((tratamiento, index) => {
+    const fila = document.createElement('tr');
+    fila.innerHTML = `
+      <td>${tratamiento.Rubro || ''}</td>
+      <td>${tratamiento.Subrubro || ''}</td>
+      <td>${tratamiento['Duración'] || ''}</td>
+      <td>${tratamiento.Precio || ''}</td>
+      <td>
+        <button class="editar" onclick="editarTratamiento(${index})">Editar</button>
+        <button class="eliminar" onclick="eliminarTratamiento(${index})">Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(fila);
+  });
+}
+
+function editarTratamiento(index) {
+  tratamientoEditando = index;
+  document.getElementById('rubroInput').value = tratamientosData[index].Rubro;
+  document.getElementById('subrubroInput').value = tratamientosData[index].Subrubro;
+  document.getElementById('duracionInput').value = tratamientosData[index]['Duración'];
+  document.getElementById('precioInput').value = tratamientosData[index].Precio;
+  document.getElementById('popup').style.display = 'flex';
+}
+
+function eliminarTratamiento(index) {
+  if (confirm('¿Seguro que querés eliminar este tratamiento?')) {
+    tratamientosData.splice(index, 1);
+    actualizarTabla();
+  }
+}
+
+function agregarTratamiento() {
+  tratamientoEditando = null;
+  document.getElementById('rubroInput').value = '';
+  document.getElementById('subrubroInput').value = '';
+  document.getElementById('duracionInput').value = '';
+  document.getElementById('precioInput').value = '';
+  document.getElementById('popup').style.display = 'flex';
+}
+
+function guardarCambios() {
+  const nuevo = {
+    Rubro: document.getElementById('rubroInput').value,
+    Subrubro: document.getElementById('subrubroInput').value,
+    'Duración': document.getElementById('duracionInput').value,
+    Precio: document.getElementById('precioInput').value,
+  };
+  if (tratamientoEditando !== null) {
+    tratamientosData[tratamientoEditando] = nuevo;
+  } else {
+    tratamientosData.push(nuevo);
+  }
+  actualizarTabla();
+  cerrarPopup();
+}
+
+function cerrarPopup() {
+  document.getElementById('popup').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', cargarTratamientos);
+</script>
+
+</body>
+</html>
