@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,22 +7,79 @@
   <style>
     body { font-family: Arial, sans-serif; background-color: #fce4ec; margin: 0; padding: 20px; }
     h1 { color: #c2185b; text-align: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    th { background-color: #f8bbd0; color: #880e4f; }
-    button { padding: 5px 10px; border: none; border-radius: 5px; margin: 2px; }
-    .editar { background-color: #c2185b; color: white; }
-    .eliminar { background-color: #b71c1c; color: white; }
-    #popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-             background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; }
-    .popup-card { background: white; padding: 20px; border-radius: 10px; width: 300px; }
-    .popup-card input { width: 90%; margin: 5px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    .boton-agregar {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f8bbd0;
+      color: #880e4f;
+    }
+    .editar {
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .eliminar {
+      background-color: #b71c1c;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #popup {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+    }
+    .popup-card input {
+      width: 95%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
 
 <h1>Gestionar Tratamientos</h1>
-<button onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
+<button class="boton-agregar" onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
 
 <table>
   <thead>
@@ -38,7 +96,7 @@
 
 <div id="popup">
   <div class="popup-card">
-    <h3 id="popupTitulo">Nuevo Tratamiento</h3>
+    <h3 id="popupTitulo">Editar Tratamiento</h3>
     <input id="rubroInput" placeholder="Rubro">
     <input id="subrubroInput" placeholder="Tratamiento">
     <input id="duracionInput" placeholder="Duración">
@@ -50,18 +108,21 @@
 </div>
 
 <script>
-const urlLectura = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 2';
-const urlEscritura = 'https://script.google.com/macros/s/AKfycbyoJmNXfLTvRc4S-1LU7egDb6ZoJIDLT3rIyUk14NB29IBZnDIz0ia3IjUAznaGPun5/exec';
+const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 2';
+const apiUrl = 'https://script.google.com/macros/s/AKfycbyoJmNXfLTvRc4S-1LU7egDb6ZoJIDLT3rIyUk14NB29IBZnDIz0ia3IjUAznaGPun5/exec';
+
 let tratamientos = [];
+let filaEditando = null;
 
 function cargarTratamientos() {
-  fetch(urlLectura)
+  fetch(sheetUrl)
     .then(r => r.json())
     .then(data => {
       tratamientos = data;
       const tbody = document.getElementById("tratamientos");
       tbody.innerHTML = '';
       data.forEach((t, i) => {
+        const fila = i + 2; // la fila real (con encabezado)
         tbody.innerHTML += `
           <tr>
             <td>${t.Rubro || ''}</td>
@@ -69,8 +130,8 @@ function cargarTratamientos() {
             <td>${t['Duración'] || ''}</td>
             <td>${t.Precio || ''}</td>
             <td>
-              <button class="editar" onclick="editar(${i})">Editar</button>
-              <button class="eliminar" onclick="eliminar(${i})">Eliminar</button>
+              <button class="editar" onclick="editar(${i}, ${fila})">Editar</button>
+              <button class="eliminar" onclick="eliminar(${fila})">Eliminar</button>
             </td>
           </tr>`;
       });
@@ -78,6 +139,7 @@ function cargarTratamientos() {
 }
 
 function agregarTratamiento() {
+  filaEditando = null;
   document.getElementById("popupTitulo").innerText = "Nuevo Tratamiento";
   document.getElementById("rubroInput").value = "";
   document.getElementById("subrubroInput").value = "";
@@ -86,44 +148,57 @@ function agregarTratamiento() {
   document.getElementById("popup").style.display = "flex";
 }
 
+function editar(i, fila) {
+  filaEditando = fila;
+  const t = tratamientos[i];
+  document.getElementById("popupTitulo").innerText = "Editar Tratamiento";
+  document.getElementById("rubroInput").value = t.Rubro;
+  document.getElementById("subrubroInput").value = t.Subrubro;
+  document.getElementById("duracionInput").value = t['Duración'];
+  document.getElementById("precioInput").value = t.Precio;
+  document.getElementById("popup").style.display = "flex";
+}
+
 function guardarCambios() {
-  const nuevo = {
+  const data = {
     rubro: document.getElementById("rubroInput").value,
     subrubro: document.getElementById("subrubroInput").value,
     duracion: document.getElementById("duracionInput").value,
-    precio: document.getElementById("precioInput").value,
+    precio: document.getElementById("precioInput").value
   };
-  fetch(urlEscritura, {
+
+  let metodo = "POST";
+  if (filaEditando) {
+    data.id = filaEditando;
+    metodo = "PUT";
+  }
+
+  fetch(apiUrl + '?_method=' + metodo, {
     method: 'POST',
-    body: JSON.stringify(nuevo)
-  }).then(r => r.text())
-    .then(() => {
-      cerrarPopup();
-      cargarTratamientos();
-    });
+    body: JSON.stringify(data)
+  })
+  .then(r => r.text())
+  .then(() => {
+    cerrarPopup();
+    cargarTratamientos();
+  });
+}
+
+function eliminar(fila) {
+  if (!confirm("¿Eliminar este tratamiento?")) return;
+  fetch(apiUrl + '?_method=DELETE', {
+    method: 'POST',
+    body: JSON.stringify({ id: fila })
+  })
+  .then(r => r.text())
+  .then(() => cargarTratamientos());
 }
 
 function cerrarPopup() {
   document.getElementById("popup").style.display = "none";
 }
 
-function editar(i) {
-  const t = tratamientos[i];
-  document.getElementById("rubroInput").value = t.Rubro;
-  document.getElementById("subrubroInput").value = t.Subrubro;
-  document.getElementById("duracionInput").value = t['Duración'];
-  document.getElementById("precioInput").value = t.Precio;
-  document.getElementById("popupTitulo").innerText = "Editar Tratamiento";
-  document.getElementById("popup").style.display = "flex";
-}
-
-function eliminar(i) {
-  alert("Por ahora solo se elimina visualmente, no en el Excel.");
-  tratamientos.splice(i, 1);
-  cargarTratamientos();
-}
-
-document.addEventListener('DOMContentLoaded', cargarTratamientos);
+document.addEventListener("DOMContentLoaded", cargarTratamientos);
 </script>
 
 </body>
