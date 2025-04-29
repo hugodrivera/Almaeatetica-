@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -59,53 +60,18 @@
       font-size: 20px;
     }
 
-    p {
-      font-size: 16px;
-      color: #555;
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    button#verHorarios {
+    #detalleTratamiento {
       margin-top: 20px;
-      padding: 12px 20px;
-      background-color: #c2185b;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    #horariosBox {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.5s ease;
-      margin-top: 20px;
-    }
-
-    table {
-      width: 100%;
-      max-width: 400px;
-      margin: auto;
-      border-collapse: collapse;
+      display: none;
       background: white;
       border-radius: 12px;
+      padding: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      font-size: 15px;
-      color: #555;
-    }
-    td {
-      padding: 10px;
-      text-align: left;
-    }
-    td:last-child {
-      text-align: right;
-    }
-
-    #gracias {
-      display: none;
-      text-align: center;
-      margin-top: 50px;
     }
 
     iframe {
@@ -113,43 +79,12 @@
       margin-top: 30px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 15px;
-      }
-      form {
-        padding: 20px;
-      }
-      input, select, button {
-        font-size: 15px;
-        padding: 10px;
-      }
-      h1 {
-        font-size: 24px;
-      }
-      h3 {
-        font-size: 18px;
-      }
-    }
   </style>
 </head>
 <body>
 
 <div class="container">
   <img src="logo.jpg" alt="Logo Alma Estética">
-
   <h1>Alma Estética</h1>
   <h3>Belleza y Bienestar a tu medida</h3>
 
@@ -167,7 +102,9 @@
       <option value="Alis">Alis</option>
     </select><br>
 
-    <select id="servicio" required style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
+    <!-- Select de tratamientos -->
+    
+<select id="servicio" required style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
   <option value="">Seleccioná un tratamiento</option>
 <optgroup label="ALISADOS">
   <option value="Con formol alisado en gel efecto espejo células madres">Con formol alisado en gel efecto espejo células madres</option>
@@ -311,46 +248,164 @@
   <option value="Hollywood Peel">Hollywood Peel</option>
 </optgroup>
 </select>
-<div id="detalleTratamiento" style="margin-top: 20px; display: none;">
-  <p><strong>Tratamiento:</strong> <span id="tratamientoNombre"></span></p>
-  <p><strong>Duración:</strong> <span id="tratamientoDuracion"></span></p>
-  <p><strong>Precio:</strong> <span id="tratamientoPrecio"></span></p>
-</div>
 
-<script>
-function mostrarDetalleTratamiento() {
-  const seleccion = document.getElementById('selectorTratamiento').value;
-  if (seleccion) {
-    const [nombre, duracion, precio] = seleccion.split('|');
-    document.getElementById('tratamientoNombre').textContent = nombre;
-    document.getElementById('tratamientoDuracion').textContent = duracion;
-    document.getElementById('tratamientoPrecio').textContent = precio;
-    document.getElementById('detalleTratamiento').style.display = 'block';
-  } else {
-    document.getElementById('detalleTratamiento').style.display = 'none';
-  }
-}
-</script>
+    <input type="date" id="fecha" required><br>
+    <input type="time" id="hora" required><br>
 
+    <button type="submit" id="botonEnviar">Reservar Turno</button>
+  </form>
 
-  <button id="verHorarios" onclick="toggleHorarios()">Ver horarios de atención</button>
+  <h3 style="margin-top: 30px; color: #c2185b;">Elegí un tratamiento para ver detalles</h3>
+  <select id="selectorTratamiento" onchange="mostrarDetalleTratamiento()" style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
+    <option value="">-- Seleccioná un tratamiento --</option>
+    <optgroup label="ALISADOS">
+      <option value="Con formol alisado en gel efecto espejo células madres|1 hr 30 min|$30.000">Con formol alisado en gel efecto espejo células madres</option>
+      <option value="Sin formol sistema biomolecular|2 hrs|$40.000">Sin formol sistema biomolecular</option>
+    </optgroup>
+    <optgroup label="CEJAS">
+      <option value="Delineado Permanente|1 hr|$40.000">Delineado Permanente</option>
+      <option value="Diseño perfilado y laminado cejas|1 hr|$15.000">Diseño perfilado y laminado cejas</option>
+      <option value="Laminado de cejas|30 min|$8.000">Laminado de cejas</option>
+      <option value="Microblanding|2 hrs|$50.000">Microblanding</option>
+      <option value="Perfilado de cejas|10 min|$4.000">Perfilado de cejas</option>
+    </optgroup>
+    <optgroup label="CORTES">
+      <option value="Corte más Color|1 hr|$35.000">Corte más Color</option>
+      <option value="Corte más nutrición|1 hr|$18.000">Corte más nutrición</option>
+    </optgroup>
+    <optgroup label="DEPILACION CON CERA">
+      <option value="Depilación Bozo|10 min|$4.000">Depilación Bozo</option>
+      <option value="Depilación cera cavado|30 min|$8.000">Depilación cera cavado</option>
+      <option value="Depilación cera rostro|20 min|$8.000">Depilación cera rostro</option>
+      <option value="Pecho, brazos, axilas, pelvis, zona íntima, cola, cavado, piernas (Hombre cera)|2 hrs|$40.000">Pecho, brazos, axilas, pelvis, zona íntima, cola, cavado, piernas (Hombre cera)</option>
+    </optgroup>
+    <optgroup label="DEPILACION LASER">
+      <option value="Brazos|10 min|$6.000">Brazos</option>
+      <option value="Depilación láser cavado|15 min|$8.000">Depilación láser cavado</option>
+      <option value="Depil Laser Combo 1 (mujer)|15 min|$7.500">Depil Laser Combo 1 (mujer)</option>
+      <option value="Depil Laser Combo 3 mujer (rostro axilas piernas completas)|15 min|$6.500">Depil Laser Combo 3 mujer (rostro axilas piernas completas)</option>
+      <option value="Depil Laser (Hombre) Espalda baja|10 min|$8.000">Depil Laser (Hombre) Espalda baja</option>
+      <option value="Depil láser pierna completa (mujer)|10 min|$6.000">Depil láser pierna completa (mujer)</option>
+      <option value="Depil Láser (Piernas axilas más brazos) (mujer)|15 min|$7.500">Depil Láser (Piernas axilas más brazos) (mujer)</option>
+      <option value="Depil Láser (rostro más axilas mujer)|15 min|$7.000">Depil Láser (rostro más axilas mujer)</option>
+      <option value="Combo 2 (mujer)|15 min|$6.500">Combo 2 (mujer)</option>
+      <option value="Combo 4 (mujer)|15 min|$8.500">Combo 4 (mujer)</option>
+      <option value="Pack cuerpo completo (mujer)|20 min|$9.500">Pack cuerpo completo (mujer)</option>
+      <option value="Depil Láser axilas piernas (mujer)|15 min|$7.000">Depil Láser axilas piernas (mujer)</option>
+    </optgroup>
+    <optgroup label="DEPILACION LASER HOMBRE">
+      <option value="Depilación láser hombre (brazos, piernas)|15 min|$7.000">Depilación láser hombre (brazos, piernas)</option>
+      <option value="Depilación láser espalda, nuca, pecho (hombre)|15 min|$11.000">Depilación láser espalda, nuca, pecho (hombre)</option>
+      <option value="Depil láser hombre (axilas, pecho, abdomen)|10 min|$9.500">Depil láser hombre (axilas, pecho, abdomen)</option>
+      <option value="Depil láser hombre (barba y cuello)|10 min|$7.000">Depil láser hombre (barba y cuello)</option>
+      <option value="Depilación láser hombre cavado|5 min|$8.000">Depilación láser hombre cavado</option>
+      <option value="Depil láser hombre espalda baja|10 min|$8.000">Depil láser hombre espalda baja</option>
+      <option value="Depil láser hombre (espalda, nuca)|10 min|$9.500">Depil láser hombre (espalda, nuca)</option>
+      <option value="Pecho más abdomen (hombre)|10 min|$9.000">Pecho más abdomen (hombre)</option>
+      <option value="Depil láser hombre (pecho, abdomen, espalda, hombros, cintura)|20 min|$10.000">Depil láser hombre (pecho, abdomen, espalda, hombros, cintura)</option>
+      <option value="Depilación láser piernas y rostro (hombre)|15 min|$8.000">Depilación láser piernas y rostro (hombre)</option>
+      <option value="Hombre 1 (pecho, abdomen, hombros, espalda, cintura)|15 min|$10.000">Hombre 1 (pecho, abdomen, hombros, espalda, cintura)</option>
+      <option value="Depilación láser piernas más axilas (hombre)|15 min|$8.000">Depilación láser piernas más axilas (hombre)</option>
+    </optgroup>
+    <optgroup label="GLUTEOS">
+      <option value="Endopeel|1 hr|$300.000">Endopeel</option>
+    </optgroup>
+    <optgroup label="HIDRATACIONES CAPILARES">
+      <option value="Hidratación Capilar Repair Hair|1 hr|$15.000">Hidratación Capilar Repair Hair</option>
+    </optgroup>
+    <optgroup label="HIFU 7D">
+      <option value="3 zonas Hifu|1 hr 20 min|$100.000">3 zonas Hifu</option>
+      <option value="Hifu corporal|30 min|$40.000">Hifu corporal</option>
+      <option value="Hifu rostro|40 min|$30.000">Hifu rostro</option>
+      <option value="Hifu rostro más papada|40 min|$40.000">Hifu rostro más papada</option>
+    </optgroup>
+    <optgroup label="LABIOS">
+      <option value="Perfilado y Relleno de labios (ácido hialurónico)|1 hr|$200.000">Perfilado y Relleno de labios (ácido hialurónico)</option>
+    </optgroup>
+    <optgroup label="MAQUILLAJE">
+      <option value="Maquillaje social|40 min|$20.000">Maquillaje social</option>
+    </optgroup>
+    <optgroup label="MASAJES">
+      <option value="Masaje Deportivo|40 min|$10.000">Masaje Deportivo</option>
+      <option value="Masajes descontracturantes espalda|30 min|$8.000">Masajes descontracturantes espalda</option>
+      <option value="Masajes espalda y piernas|40 min|$10.000">Masajes espalda y piernas</option>
+      <option value="Spa cuerpo completo más facial|1 hr 20 min|$20.000">Spa cuerpo completo más facial</option>
+      <option value="Recuperación de lesión en pierna (electrodo más ultrasonido)|1 hr|$10.000">Recuperación de lesión en pierna (electrodo más ultrasonido)</option>
+    </optgroup>
+    <optgroup label="OTROS">
+      <option value="Onicomicosis (dedo gordo)|15 min|$15.000">Onicomicosis (dedo gordo)</option>
+    </optgroup>
+    <optgroup label="PAQUETES X SESIONES">
+      <option value="Electrodos x10|40 min|$25.000">Electrodos x10</option>
+      <option value="Lipoláser + ultracavitador + radiofrecuencia x10|1 hr 20 min|$50.000">Lipoláser + ultracavitador + radiofrecuencia x10</option>
+      <option value="Maderoterapia x10|30 min|$30.000">Maderoterapia x10</option>
+      <option value="Ultracavitador + radiofrecuencia + madero x10|1 hr 10 min|$50.000">Ultracavitador + radiofrecuencia + madero x10</option>
+      <option value="Ultracavitador + radiofrecuencia x10|40 min|$40.000">Ultracavitador + radiofrecuencia x10</option>
+      <option value="Vela slim (4 sesiones)|20 min|$20.000">Vela slim (4 sesiones)</option>
+    </optgroup>
+    <optgroup label="PELUQUERIA">
+      <option value="Peinado|30 min|$15.000">Peinado</option>
+    </optgroup>
+    <optgroup label="PESTAÑAS">
+      <option value="Extensiones de pestañas clásicas|1 hr 40 min|$15.000">Extensiones de pestañas clásicas</option>
+      <option value="Extensiones volumen|2 hrs|$20.000">Extensiones volumen</option>
+      <option value="Lifting de pestañas|30 min|$8.000">Lifting de pestañas</option>
+      <option value="Mantenimiento clásicas|1 hr|$7.500">Mantenimiento clásicas</option>
+      <option value="Ondulación de pestañas|30 min|$8.000">Ondulación de pestañas</option>
+    </optgroup>
+    <optgroup label="REMOCCION DE TATUAJES">
+      <option value="2 Tatuajes grandes|10 min|$30.000">2 Tatuajes grandes</option>
+      <option value="3 Tatuajes grandes|10 min|$45.000">3 Tatuajes grandes</option>
+      <option value="Dos tatuajes chicos|10 min|$20.000">Dos tatuajes chicos</option>
+      <option value="Tatuaje chico|10 min|$10.000">Tatuaje chico</option>
+      <option value="Tatuaje mediano|10 min|$18.000">Tatuaje mediano</option>
+      <option value="Tatuaje mediano intermedio|10 min|$15.000">Tatuaje mediano intermedio</option>
+      <option value="Tatuaje medio|5 min|$13.000">Tatuaje medio</option>
+    </optgroup>
+    <optgroup label="RINOMODELACION">
+      <option value="Rinomodelación (ácido hialurónico)|1 hr|$300.000">Rinomodelación (ácido hialurónico)</option>
+    </optgroup>
+    <optgroup label="TRATAMIENTOS CORPORALES">
+      <option value="Body up (4 sesiones)|20 min|$20.000">Body up (4 sesiones)</option>
+      <option value="Body up 1 zona|30 min|$5.000">Body up 1 zona</option>
+      <option value="Body up 2 zonas|1 hr|$10.000">Body up 2 zonas</option>
+      <option value="Criolipólisis plana 2 zonas|1 hr|$8.000">Criolipólisis plana 2 zonas</option>
+      <option value="Criolipólisis plana una zona|30 min|$5.000">Criolipólisis plana una zona</option>
+      <option value="Radiofrecuencia corporal|20 min|$15.000">Radiofrecuencia corporal</option>
+      <option value="Radiofrecuencia corporal pack x4|1 hr|$45.000">Radiofrecuencia corporal pack x4</option>
+      <option value="Drenaje Linfático x10|20 min|$30.000">Drenaje Linfático x10</option>
+      <option value="Electrodos + vacuumterapia + maderoterapia x10|1 hr 10 min|$50.000">Electrodos + vacuumterapia + maderoterapia x10</option>
+      <option value="Maderoterapia x10 + radiofrecuencia x4 + body up x4|1 hr|$95.000">Maderoterapia x10 + radiofrecuencia x4 + body up x4</option>
+      <option value="Peptonas|5 min|$20.000">Peptonas</option>
+      <option value="Tratamiento pack estrías x4|40 min|$50.000">Tratamiento pack estrías x4</option>
+      <option value="Ultrasonido x10|20 min|$30.000">Ultrasonido x10</option>
+      <option value="Una sesión de maderoterapia|20 min|$6.000">Una sesión de maderoterapia</option>
+      <option value="PACK VACUM X10|20 min|$25.000">PACK VACUM X10</option>
+      <option value="Lipoláser + ultracavitador + radiofrecuencia x10|1 hr 10 min|$50.000">Lipoláser + ultracavitador + radiofrecuencia x10</option>
+    </optgroup>
+    <optgroup label="TRATAMIENTOS FACIALES">
+      <option value="Consulta|10 min|$5.000">Consulta</option>
+      <option value="Radiofrecuencia facial|20 min|$15.000">Radiofrecuencia facial</option>
+      <option value="Radiofrecuencia facial más papada + limpieza + terapia led|40 min|$20.000">Radiofrecuencia facial más papada + limpieza + terapia led</option>
+      <option value="Extracción de verruga|30 min|$5.000">Extracción de verruga</option>
+      <option value="Hilos tensores rostro|40 min|$30.000">Hilos tensores rostro</option>
+      <option value="Hollywood peel + limpieza + terapia led|40 min|$20.000">Hollywood peel + limpieza + terapia led</option>
+      <option value="Limpieza básica|40 min|$15.000">Limpieza básica</option>
+      <option value="Limpieza facial acné|1 hr|$20.000">Limpieza facial acné</option>
+      <option value="Limpieza facial anti age|1 hr 30 min|$30.000">Limpieza facial anti age</option>
+      <option value="Limpieza facial premium|1 hr 30 min|$25.000">Limpieza facial premium</option>
+      <option value="Peeling|40 min|$20.000">Peeling</option>
+      <option value="Peeling x4|40 min|$50.000">Peeling x4</option>
+      <option value="Plasma pen rostro|1 hr|$60.000">Plasma pen rostro</option>
+      <option value="Hollywood Peel|30 min|$15.000">Hollywood Peel</option>
+    </optgroup>
 
-  <div id="horariosBox">
-    <table>
-      <tr><td><strong>Lunes</strong></td><td>08:00 - 20:00</td></tr>
-      <tr><td><strong>Martes</strong></td><td>08:00 - 20:00</td></tr>
-      <tr><td><strong>Miércoles</strong></td><td>08:00 - 20:00</td></tr>
-      <tr><td><strong>Jueves</strong></td><td>08:00 - 20:00</td></tr>
-      <tr><td><strong>Viernes</strong></td><td>08:00 - 20:00</td></tr>
-      <tr><td><strong>Sábado</strong></td><td>08:00 - 19:00</td></tr>
-      <tr><td><strong>Domingo</strong></td><td>Cerrado</td></tr>
-    </table>
-  </div>
+  </select>
 
-  <div id="gracias">
-    <h1>¡Gracias por reservar!</h1>
-    <p>Te esperamos en Alma Estética 💖</p>
-    <button onclick="volverFormulario()">Reservar otro turno</button>
+  <div id="detalleTratamiento">
+    <p><strong>Tratamiento:</strong> <span id="tratamientoNombre"></span></p>
+    <p><strong>Duración:</strong> <span id="tratamientoDuracion"></span></p>
+    <p><strong>Precio:</strong> <span id="tratamientoPrecio"></span></p>
   </div>
 
   <div style="margin-top: 40px;">
@@ -366,18 +421,24 @@ function mostrarDetalleTratamiento() {
       referrerpolicy="no-referrer-when-downgrade">
     </iframe>
   </div>
-
 </div>
 
 <script>
-  function toggleHorarios() {
-    const box = document.getElementById('horariosBox');
-    box.style.maxHeight = box.style.maxHeight === '0px' || box.style.maxHeight === '' ? '500px' : '0';
+  function mostrarDetalleTratamiento() {
+    const seleccion = document.getElementById('selectorTratamiento').value;
+    if (seleccion) {
+      const [nombre, duracion, precio] = seleccion.split('|');
+      document.getElementById('tratamientoNombre').textContent = nombre;
+      document.getElementById('tratamientoDuracion').textContent = duracion;
+      document.getElementById('tratamientoPrecio').textContent = precio;
+      document.getElementById('detalleTratamiento').style.display = 'block';
+    } else {
+      document.getElementById('detalleTratamiento').style.display = 'none';
+    }
   }
 
   document.getElementById('reservaForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const data = {
       nombre: document.getElementById('nombre').value,
       telefono: document.getElementById('telefono').value,
@@ -387,19 +448,14 @@ function mostrarDetalleTratamiento() {
       hora: document.getElementById('hora').value
     };
 
-    const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
-
-    fetch(url, {
+    fetch('https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec', {
       method: 'POST',
       body: JSON.stringify(data)
     })
     .then(response => {
       if (response.ok) {
+        alert("✅ ¡Tu turno fue reservado exitosamente!");
         document.getElementById('reservaForm').reset();
-        document.getElementById('reservaForm').style.display = 'none';
-        document.getElementById('verHorarios').style.display = 'none';
-        document.getElementById('horariosBox').style.display = 'none';
-        document.getElementById('gracias').style.display = 'block';
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
       }
@@ -409,12 +465,6 @@ function mostrarDetalleTratamiento() {
       alert("❌ Hubo un problema enviando tu reserva.");
     });
   });
-
-  function volverFormulario() {
-    document.getElementById('gracias').style.display = 'none';
-    document.getElementById('reservaForm').style.display = 'block';
-    document.getElementById('verHorarios').style.display = 'inline-block';
-  }
 </script>
 
 </body>
