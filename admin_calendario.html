@@ -8,8 +8,8 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
     body {
-      background-color: #fce4ec;
-      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #fce4ec, #f8bbd0);
+      font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
       text-align: center;
@@ -21,14 +21,54 @@
     h1 {
       color: #c2185b;
       margin-top: 10px;
+      font-size: 28px;
     }
     #calendar {
-      max-width: 900px;
+      max-width: 95%;
       margin: 30px auto;
       background: white;
-      padding: 20px;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .fc-event {
+      border-radius: 8px;
+      padding: 4px;
+      font-size: 14px;
+    }
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    .popup-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .popup-card button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .popup-card .editar { background: #c2185b; color: white; }
+    .popup-card .eliminar { background: #b71c1c; color: white; }
+    .popup-card .cerrar { background: #555; color: white; }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
     }
   </style>
 </head>
@@ -41,57 +81,48 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      var calendarEl = document.getElementById('calendar');
+      const calendarEl = document.getElementById('calendar');
       const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
 
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+      const coloresProfesionales = {
+        'Melanie': '#f8bbd0',
+        'Fátima': '#f48fb1',
+        'Dr. Maria': '#f06292',
+        'Maria': '#ec407a',
+        'Cris': '#e91e63',
+        'Alis': '#d81b60'
+      };
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
         locale: 'es',
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          right: 'timeGridWeek,dayGridMonth'
         },
         events: [],
         eventClick: function(info) {
           const popup = document.createElement('div');
-          popup.style.position = 'fixed';
-          popup.style.top = '0';
-          popup.style.left = '0';
-          popup.style.width = '100%';
-          popup.style.height = '100%';
-          popup.style.background = 'rgba(0, 0, 0, 0.5)';
-          popup.style.zIndex = '9999';
-          popup.style.display = 'flex';
-          popup.style.flexDirection = 'column';
-          popup.style.alignItems = 'center';
-          popup.style.justifyContent = 'center';
+          popup.className = 'popup';
 
           const card = document.createElement('div');
-          card.style.background = 'white';
-          card.style.padding = '20px';
-          card.style.borderRadius = '10px';
-          card.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
-          card.style.textAlign = 'center';
-          card.style.width = '300px';
+          card.className = 'popup-card';
 
           card.innerHTML = `
             <h3>${info.event.title}</h3>
-            <p><strong>Profesional:</strong> ${info.event.extendedProps.profesional}</p>
             <p><strong>Servicio:</strong> ${info.event.extendedProps.servicio}</p>
             <p><strong>Fecha:</strong> ${info.event.startStr.substring(0, 10)}</p>
             <p><strong>Hora:</strong> ${info.event.startStr.substring(11, 16)}</p>
-            <div style="margin-top: 20px; display: flex; justify-content: space-around;">
-              <button id="editarBtn" style="padding: 10px 20px; background: #c2185b; color: white; border: none; border-radius: 8px;">Modificar</button>
-              <button id="eliminarBtn" style="padding: 10px 20px; background: #b71c1c; color: white; border: none; border-radius: 8px;">Eliminar</button>
-            </div>
-            <button id="cerrarBtn" style="margin-top: 15px; background: #555; color: white; padding: 10px 20px; border: none; border-radius: 8px;">Cancelar</button>
+            <button class="editar">Modificar</button>
+            <button class="eliminar">Eliminar</button>
+            <button class="cerrar">Cerrar</button>
           `;
 
           popup.appendChild(card);
           document.body.appendChild(popup);
 
-          document.getElementById('editarBtn').onclick = function() {
+          card.querySelector('.editar').onclick = function() {
             const nuevoNombre = prompt('Nuevo nombre:', info.event.title);
             const nuevoTelefono = prompt('Nuevo teléfono:', info.event.extendedProps.telefono);
             const nuevoProfesional = prompt('Nuevo profesional:', info.event.extendedProps.profesional);
@@ -129,13 +160,11 @@
             }
           };
 
-          document.getElementById('eliminarBtn').onclick = function() {
+          card.querySelector('.eliminar').onclick = function() {
             if (confirm('¿Estás seguro de eliminar este turno?')) {
-              const deleteData = { id: info.event.extendedProps.id };
-
               fetch(url + '?_method=DELETE', {
                 method: 'POST',
-                body: JSON.stringify(deleteData)
+                body: JSON.stringify({ id: info.event.extendedProps.id })
               })
               .then(response => {
                 if (response.ok) {
@@ -152,7 +181,7 @@
             }
           };
 
-          document.getElementById('cerrarBtn').onclick = function() {
+          card.querySelector('.cerrar').onclick = function() {
             document.body.removeChild(popup);
           };
         }
@@ -168,8 +197,9 @@
           const eventos = data
             .filter(turno => turno.nombre && turno.fecha && turno.hora)
             .map((turno, index) => ({
-              title: turno.nombre,
+              title: `${turno.nombre} - ${turno.servicio}`,
               start: `${turno.fecha}T${turno.hora}`,
+              backgroundColor: coloresProfesionales[turno.profesional] || '#f8bbd0',
               extendedProps: {
                 profesional: turno.profesional || '',
                 servicio: turno.servicio || '',
