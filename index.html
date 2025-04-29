@@ -212,6 +212,176 @@
 
     <button type="submit" id="botonEnviar">Reservar Turno</button>
   </form>
+  
+<h3 style="margin-top: 30px; color: #c2185b;">Elegí un tratamiento para ver detalles</h3>
+
+<select id="selectorTratamiento" onchange="mostrarDetalleTratamiento()" style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
+  <option value="">-- Seleccioná un tratamiento --</option>
+<optgroup label="ALISADOS">
+<option value="Con formol alisado en gel efecto espejo células madres|1 hr 30 min|$30.000">Con formol alisado en gel efecto espejo células madres</option>
+<option value="Sin formol sistema biomolecular|2 hrs|$40.000">Sin formol sistema biomolecular</option>
+</optgroup>
+<optgroup label="CEJAS">
+<option value="Delineado Permanente|1 hr|$40.000">Delineado Permanente</option>
+<option value="Diseño perfilado y laminado cejas|1 hr|$15.000">Diseño perfilado y laminado cejas</option>
+<option value="Laminado de cejas|30 min|$8.000">Laminado de cejas</option>
+<option value="Microblanding|2 hrs|$50.000">Microblanding</option>
+<option value="Perfilado de cejas|10 min|$4.000">Perfilado de cejas</option>
+</optgroup>
+<optgroup label="CORTES">
+<option value="Corte más Color|1 hr|$35.000">Corte más Color</option>
+<option value="Corte más nutrición|1 hr|$18.000">Corte más nutrición</option>
+</optgroup>
+<optgroup label="DEPILACION CON CERA">
+<option value="Depilación Bozo|10 min|$4.000">Depilación Bozo</option>
+<option value="Depilación cera cavado|30 min|$8.000">Depilación cera cavado</option>
+<option value="Depilación cera rostro|20 min|$8.000">Depilación cera rostro</option>
+<option value="Pecho, brazos, axilas, pelvis, zona íntima, cola, cavado, piernas (Hombre cera)|2 hrs|$40.000">Pecho, brazos, axilas, pelvis, zona íntima, cola, cavado, piernas (Hombre cera)</option>
+</optgroup>
+<optgroup label="DEPILACION LASER">
+<option value="Brazos|10 min|$6.000">Brazos</option>
+<option value="Depilación láser cavado|15 min|$8.000">Depilación láser cavado</option>
+<option value="Depil Laser Combo 1 (mujer)|15 min|$7.500">Depil Laser Combo 1 (mujer)</option>
+<option value="Depil Laser Combo 3 mujer (rostro axilas piernas completas)|15 min|$6.500">Depil Laser Combo 3 mujer (rostro axilas piernas completas)</option>
+<option value="Depil Laser (Hombre) Espalda baja|10 min|$8.000">Depil Laser (Hombre) Espalda baja</option>
+<option value="Depil láser pierna completa (mujer)|10 min|$6.000">Depil láser pierna completa (mujer)</option>
+<option value="Depil Láser (Piernas axilas más brazos) (mujer)|15 min|$7.500">Depil Láser (Piernas axilas más brazos) (mujer)</option>
+<option value="Depil Láser (rostro más axilas mujer)|15 min|$7.000">Depil Láser (rostro más axilas mujer)</option>
+<option value="Combo 2 (mujer)|15 min|$6.500">Combo 2 (mujer)</option>
+<option value="Combo 4 (mujer)|15 min|$8.500">Combo 4 (mujer)</option>
+<option value="Pack cuerpo completo (mujer)|20 min|$9.500">Pack cuerpo completo (mujer)</option>
+<option value="Depil Láser axilas piernas (mujer)|15 min|$7.000">Depil Láser axilas piernas (mujer)</option>
+</optgroup>
+<optgroup label="DEPILACION LASER HOMBRE">
+<option value="Depilación láser hombre (brazos, piernas)|15 min|$7.000">Depilación láser hombre (brazos, piernas)</option>
+<option value="Depilación láser espalda, nuca, pecho (hombre)|15 min|$11.000">Depilación láser espalda, nuca, pecho (hombre)</option>
+<option value="Depil láser hombre (axilas, pecho, abdomen)|10 min|$9.500">Depil láser hombre (axilas, pecho, abdomen)</option>
+<option value="Depil láser hombre (barba y cuello)|10 min|$7.000">Depil láser hombre (barba y cuello)</option>
+<option value="Depilación láser hombre cavado|5 min|$8.000">Depilación láser hombre cavado</option>
+<option value="Depil láser hombre espalda baja|10 min|$8.000">Depil láser hombre espalda baja</option>
+<option value="Depil láser hombre (espalda, nuca)|10 min|$9.500">Depil láser hombre (espalda, nuca)</option>
+<option value="Pecho más abdomen (hombre)|10 min|$9.000">Pecho más abdomen (hombre)</option>
+<option value="Depil láser hombre (pecho, abdomen, espalda, hombros, cintura)|20 min|$10.000">Depil láser hombre (pecho, abdomen, espalda, hombros, cintura)</option>
+<option value="Depilación láser piernas y rostro (hombre)|15 min|$8.000">Depilación láser piernas y rostro (hombre)</option>
+<option value="Hombre 1 (pecho, abdomen, hombros, espalda, cintura)|15 min|$10.000">Hombre 1 (pecho, abdomen, hombros, espalda, cintura)</option>
+<option value="Depilación láser piernas más axilas (hombre)|15 min|$8.000">Depilación láser piernas más axilas (hombre)</option>
+</optgroup>
+<optgroup label="GLUTEOS">
+<option value="Endopeel|1 hr|$300.000">Endopeel</option>
+</optgroup>
+<optgroup label="HIDRATACIONES CAPILARES">
+<option value="Hidratación Capilar Repair Hair|1 hr|$15.000">Hidratación Capilar Repair Hair</option>
+</optgroup>
+<optgroup label="HIFU 7D">
+<option value="3 zonas Hifu|1 hr 20 min|$100.000">3 zonas Hifu</option>
+<option value="Hifu corporal|30 min|$40.000">Hifu corporal</option>
+<option value="Hifu rostro|40 min|$30.000">Hifu rostro</option>
+<option value="Hifu rostro más papada|40 min|$40.000">Hifu rostro más papada</option>
+</optgroup>
+<optgroup label="LABIOS">
+<option value="Perfilado y Relleno de labios (ácido hialurónico)|1 hr|$200.000">Perfilado y Relleno de labios (ácido hialurónico)</option>
+</optgroup>
+<optgroup label="MAQUILLAJE">
+<option value="Maquillaje social|40 min|$20.000">Maquillaje social</option>
+</optgroup>
+<optgroup label="MASAJES">
+<option value="Masaje Deportivo|40 min|$10.000">Masaje Deportivo</option>
+<option value="Masajes descontracturantes espalda|30 min|$8.000">Masajes descontracturantes espalda</option>
+<option value="Masajes espalda y piernas|40 min|$10.000">Masajes espalda y piernas</option>
+<option value="Spa cuerpo completo más facial|1 hr 20 min|$20.000">Spa cuerpo completo más facial</option>
+<option value="Recuperación de lesión en pierna (electrodo más ultrasonido)|1 hr|$10.000">Recuperación de lesión en pierna (electrodo más ultrasonido)</option>
+</optgroup>
+<optgroup label="OTROS">
+<option value="Onicomicosis (dedo gordo)|15 min|$15.000">Onicomicosis (dedo gordo)</option>
+</optgroup>
+<optgroup label="PAQUETES X SESIONES">
+<option value="Electrodos x10|40 min|$25.000">Electrodos x10</option>
+<option value="Lipoláser + ultracavitador + radiofrecuencia x10|1 hr 20 min|$50.000">Lipoláser + ultracavitador + radiofrecuencia x10</option>
+<option value="Maderoterapia x10|30 min|$30.000">Maderoterapia x10</option>
+<option value="Ultracavitador + radiofrecuencia + madero x10|1 hr 10 min|$50.000">Ultracavitador + radiofrecuencia + madero x10</option>
+<option value="Ultracavitador + radiofrecuencia x10|40 min|$40.000">Ultracavitador + radiofrecuencia x10</option>
+<option value="Vela slim (4 sesiones)|20 min|$20.000">Vela slim (4 sesiones)</option>
+</optgroup>
+<optgroup label="PELUQUERIA">
+<option value="Peinado|30 min|$15.000">Peinado</option>
+</optgroup>
+<optgroup label="PESTAÑAS">
+<option value="Extensiones de pestañas clásicas|1 hr 40 min|$15.000">Extensiones de pestañas clásicas</option>
+<option value="Extensiones volumen|2 hrs|$20.000">Extensiones volumen</option>
+<option value="Lifting de pestañas|30 min|$8.000">Lifting de pestañas</option>
+<option value="Mantenimiento clásicas|1 hr|$7.500">Mantenimiento clásicas</option>
+<option value="Ondulación de pestañas|30 min|$8.000">Ondulación de pestañas</option>
+</optgroup>
+<optgroup label="REMOCCION DE TATUAJES">
+<option value="2 Tatuajes grandes|10 min|$30.000">2 Tatuajes grandes</option>
+<option value="3 Tatuajes grandes|10 min|$45.000">3 Tatuajes grandes</option>
+<option value="Dos tatuajes chicos|10 min|$20.000">Dos tatuajes chicos</option>
+<option value="Tatuaje chico|10 min|$10.000">Tatuaje chico</option>
+<option value="Tatuaje mediano|10 min|$18.000">Tatuaje mediano</option>
+<option value="Tatuaje mediano intermedio|10 min|$15.000">Tatuaje mediano intermedio</option>
+<option value="Tatuaje medio|5 min|$13.000">Tatuaje medio</option>
+</optgroup>
+<optgroup label="RINOMODELACION">
+<option value="Rinomodelación (ácido hialurónico)|1 hr|$300.000">Rinomodelación (ácido hialurónico)</option>
+</optgroup>
+<optgroup label="TRATAMIENTOS CORPORALES">
+<option value="Body up (4 sesiones)|20 min|$20.000">Body up (4 sesiones)</option>
+<option value="Body up 1 zona|30 min|$5.000">Body up 1 zona</option>
+<option value="Body up 2 zonas|1 hr|$10.000">Body up 2 zonas</option>
+<option value="Criolipólisis plana 2 zonas|1 hr|$8.000">Criolipólisis plana 2 zonas</option>
+<option value="Criolipólisis plana una zona|30 min|$5.000">Criolipólisis plana una zona</option>
+<option value="Radiofrecuencia corporal|20 min|$15.000">Radiofrecuencia corporal</option>
+<option value="Radiofrecuencia corporal pack x4|1 hr|$45.000">Radiofrecuencia corporal pack x4</option>
+<option value="Drenaje Linfático x10|20 min|$30.000">Drenaje Linfático x10</option>
+<option value="Electrodos + vacuumterapia + maderoterapia x10|1 hr 10 min|$50.000">Electrodos + vacuumterapia + maderoterapia x10</option>
+<option value="Maderoterapia x10 + radiofrecuencia x4 + body up x4|1 hr|$95.000">Maderoterapia x10 + radiofrecuencia x4 + body up x4</option>
+<option value="Peptonas|5 min|$20.000">Peptonas</option>
+<option value="Tratamiento pack estrías x4|40 min|$50.000">Tratamiento pack estrías x4</option>
+<option value="Ultrasonido x10|20 min|$30.000">Ultrasonido x10</option>
+<option value="Una sesión de maderoterapia|20 min|$6.000">Una sesión de maderoterapia</option>
+<option value="PACK VACUM X10|20 min|$25.000">PACK VACUM X10</option>
+<option value="Lipoláser + ultracavitador + radiofrecuencia x10|1 hr 10 min|$50.000">Lipoláser + ultracavitador + radiofrecuencia x10</option>
+</optgroup>
+<optgroup label="TRATAMIENTOS FACIALES">
+<option value="Consulta|10 min|$5.000">Consulta</option>
+<option value="Radiofrecuencia facial|20 min|$15.000">Radiofrecuencia facial</option>
+<option value="Radiofrecuencia facial más papada + limpieza + terapia led|40 min|$20.000">Radiofrecuencia facial más papada + limpieza + terapia led</option>
+<option value="Extracción de verruga|30 min|$5.000">Extracción de verruga</option>
+<option value="Hilos tensores rostro|40 min|$30.000">Hilos tensores rostro</option>
+<option value="Hollywood peel + limpieza + terapia led|40 min|$20.000">Hollywood peel + limpieza + terapia led</option>
+<option value="Limpieza básica|40 min|$15.000">Limpieza básica</option>
+<option value="Limpieza facial acné|1 hr|$20.000">Limpieza facial acné</option>
+<option value="Limpieza facial anti age|1 hr 30 min|$30.000">Limpieza facial anti age</option>
+<option value="Limpieza facial premium|1 hr 30 min|$25.000">Limpieza facial premium</option>
+<option value="Peeling|40 min|$20.000">Peeling</option>
+<option value="Peeling x4|40 min|$50.000">Peeling x4</option>
+<option value="Plasma pen rostro|1 hr|$60.000">Plasma pen rostro</option>
+<option value="Hollywood Peel|30 min|$15.000">Hollywood Peel</option>
+</optgroup>
+
+</select>
+
+<div id="detalleTratamiento" style="margin-top: 20px; display: none;">
+  <p><strong>Tratamiento:</strong> <span id="tratamientoNombre"></span></p>
+  <p><strong>Duración:</strong> <span id="tratamientoDuracion"></span></p>
+  <p><strong>Precio:</strong> <span id="tratamientoPrecio"></span></p>
+</div>
+
+<script>
+function mostrarDetalleTratamiento() {
+  const seleccion = document.getElementById('selectorTratamiento').value;
+  if (seleccion) {
+    const [nombre, duracion, precio] = seleccion.split('|');
+    document.getElementById('tratamientoNombre').textContent = nombre;
+    document.getElementById('tratamientoDuracion').textContent = duracion;
+    document.getElementById('tratamientoPrecio').textContent = precio;
+    document.getElementById('detalleTratamiento').style.display = 'block';
+  } else {
+    document.getElementById('detalleTratamiento').style.display = 'none';
+  }
+}
+</script>
+
 
   <button id="verHorarios" onclick="toggleHorarios()">Ver horarios de atención</button>
 
