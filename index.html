@@ -4,29 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reserva tu Turno - Alma Estética</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', Arial, sans-serif;
       background-color: #fbe9f0;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: start;
       min-height: 100vh;
     }
 
     .container {
       text-align: center;
       padding: 20px;
+      width: 100%;
+      max-width: 500px;
     }
 
     form {
       background: white;
       padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      max-width: 350px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       margin: auto;
     }
 
@@ -34,44 +36,105 @@
       width: 100%;
       padding: 12px;
       margin: 8px 0;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 16px;
     }
 
     img {
-      width: 160px;
+      width: 180px;
       margin-bottom: 15px;
+      animation: fadeInDown 1.5s ease;
     }
 
     h1 {
       color: #c2185b;
-      font-size: 26px;
+      font-size: 28px;
       margin: 10px 0;
     }
 
     h3 {
       color: #ad1457;
       font-weight: normal;
-      font-size: 18px;
+      font-size: 20px;
     }
 
     p {
-      font-size: 14px;
+      font-size: 16px;
       color: #555;
     }
 
+    button#verHorarios {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    #horariosBox {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 15px;
+      color: #555;
+    }
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+    td:last-child {
+      text-align: right;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    iframe {
+      border-radius: 12px;
+      margin-top: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
     @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
       form {
         padding: 20px;
-        max-width: 90%;
       }
       input, select, button {
         font-size: 15px;
         padding: 10px;
       }
       h1 {
-        font-size: 22px;
+        font-size: 24px;
+      }
+      h3 {
+        font-size: 18px;
       }
     }
   </style>
@@ -83,7 +146,7 @@
 
   <h1>Alma Estética</h1>
   <h3>Belleza y Bienestar a tu medida</h3>
-  
+
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required><br>
     <input type="text" id="telefono" placeholder="Tu número (sin +54)" required><br>
@@ -143,60 +206,24 @@
 
     <button type="submit" id="botonEnviar">Reservar Turno</button>
   </form>
-  <!-- Botón + Horarios de atención -->
-<div style="margin-top: 30px;">
-  <button onclick="toggleHorarios()" style="
-    padding: 12px 20px;
-    background-color: #c2185b;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  ">
-    Ver horarios de atención
-  </button>
 
-  <div id="horariosBox" style="
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease;
-    margin-top: 20px;
-  ">
-    <table style="
-      width: 100%;
-      max-width: 350px;
-      margin: auto;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      font-size: 15px;
-      color: #555;
-    ">
-      <tr><td><strong>Lunes</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
-      <tr><td><strong>Martes</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
-      <tr><td><strong>Miércoles</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
-      <tr><td><strong>Jueves</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
-      <tr><td><strong>Viernes</strong></td><td style="text-align:right;">08:00 - 20:00</td></tr>
-      <tr><td><strong>Sábado</strong></td><td style="text-align:right;">08:00 - 19:00</td></tr>
-      <tr><td><strong>Domingo</strong></td><td style="text-align:right;">Cerrado</td></tr>
+  <button id="verHorarios" onclick="toggleHorarios()">Ver horarios de atención</button>
+
+  <div id="horariosBox">
+    <table>
+      <tr><td><strong>Lunes</strong></td><td>08:00 - 20:00</td></tr>
+      <tr><td><strong>Martes</strong></td><td>08:00 - 20:00</td></tr>
+      <tr><td><strong>Miércoles</strong></td><td>08:00 - 20:00</td></tr>
+      <tr><td><strong>Jueves</strong></td><td>08:00 - 20:00</td></tr>
+      <tr><td><strong>Viernes</strong></td><td>08:00 - 20:00</td></tr>
+      <tr><td><strong>Sábado</strong></td><td>08:00 - 19:00</td></tr>
+      <tr><td><strong>Domingo</strong></td><td>Cerrado</td></tr>
     </table>
   </div>
-</div>
-
-<script>
-  function toggleHorarios() {
-    const box = document.getElementById('horariosBox');
-    box.style.maxHeight = box.style.maxHeight === '0px' || box.style.maxHeight === '' ? '500px' : '0';
-  }
-</script>
 
   <div style="margin-top: 40px;">
-  <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
-  <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
-  <div style="border-radius: 12px; overflow: hidden; width: 100%; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
+    <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
     <iframe
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9417d6d4b53d48d7%3A0x8a216b8dc6819e3b!2sSarmiento%20407%2C%20T4100%20Concepci%C3%B3n%2C%20Tucum%C3%A1n%2C%20Argentina!5e0!3m2!1ses-419!2sar!4v1680101302284!5m2!1ses-419!2sar"
       width="100%"
@@ -207,28 +234,25 @@
       referrerpolicy="no-referrer-when-downgrade">
     </iframe>
   </div>
-</div>
 
 </div>
 
 <script>
+  function toggleHorarios() {
+    const box = document.getElementById('horariosBox');
+    box.style.maxHeight = box.style.maxHeight === '0px' || box.style.maxHeight === '' ? '500px' : '0';
+  }
+
   document.getElementById('reservaForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const nombre = document.getElementById('nombre').value;
-    const telefono = document.getElementById('telefono').value;
-    const profesional = document.getElementById('profesional').value;
-    const servicio = document.getElementById('servicio').value;
-    const fecha = document.getElementById('fecha').value;
-    const hora = document.getElementById('hora').value;
-
     const data = {
-      nombre,
-      telefono,
-      profesional,
-      servicio,
-      fecha,
-      hora
+      nombre: document.getElementById('nombre').value,
+      telefono: document.getElementById('telefono').value,
+      profesional: document.getElementById('profesional').value,
+      servicio: document.getElementById('servicio').value,
+      fecha: document.getElementById('fecha').value,
+      hora: document.getElementById('hora').value
     };
 
     const url = 'https://script.google.com/macros/s/AKfycbx14SIRVYRHE9TbuNDSd-bJXOfrVBz6F65rG7PHhBHPPXG7fN9LG4E4j3X6SmznDa08/exec';
