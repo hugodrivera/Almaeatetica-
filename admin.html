@@ -1,52 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración - Alma Estética</title>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; background-color: #fce4ec; margin: 0; padding: 20px; }
-    img { width: 180px; margin-top: 20px; }
-    table { margin: 20px auto; width: 95%; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-    th { background-color: #f8bbd0; }
-    #refreshButton { margin: 20px; padding: 10px 20px; font-size: 16px; background-color: #f48fb1; border: none; color: white; border-radius: 8px; cursor: pointer; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
 </head>
 <body>
-
-  <img src="logo.jpg" alt="Logo Alma Estética">
-
-  <h1>Panel de 1Administración</h1>
-
-  <button id="refreshButton" onclick="drawTable()">Actualizar Turnos</button>
-
-  <div id="tablaTurnos"></div>
-
-  <script type="text/javascript">
-    google.charts.load('current', {'packages':['table']});
-    google.charts.setOnLoadCallback(drawTable);
-
-    function drawTable() {
-      var queryString = encodeURIComponent('SELECT A, B, C, D, E, F, G');
-
-      var dataSourceUrl = 'https://docs.google.com/spreadsheets/d/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/gviz/tq?tq=' + queryString;
-
-      var query = new google.visualization.Query(dataSourceUrl);
-      query.send(function(response) {
-        if (response.isError()) {
-          console.error('Error en la consulta:', response.getMessage(), response.getDetailedMessage());
-          alert("Hubo un problema al cargar los turnos.");
-          return;
-        }
-
-        var data = response.getDataTable();
-        var table = new google.visualization.Table(document.getElementById('tablaTurnos'));
-        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
-      });
-    }
-  </script>
-
+    <h1>Panel de Administración</h1>
+    <p>Acceso restringido. Solo personal autorizado.</p>
 </body>
 </html>
