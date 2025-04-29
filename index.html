@@ -408,7 +408,26 @@
     <p><strong>Precio:</strong> <span id="tratamientoPrecio"></span></p>
   </div>
 
-  <div style="margin-top: 40px;">
+  
+<div id="gracias" style="display:none; text-align:center; margin-top: 50px;">
+  <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
+  <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
+  <button onclick="volverFormulario()" style="
+    margin-top: 20px;
+    padding: 12px 20px;
+    background-color: #c2185b;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  ">
+    Reservar otro turno
+  </button>
+</div>
+
+<div style="margin-top: 40px;">
     <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
     <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
     <iframe
@@ -454,8 +473,9 @@
     })
     .then(response => {
       if (response.ok) {
-        alert("✅ ¡Tu turno fue reservado exitosamente!");
         document.getElementById('reservaForm').reset();
+        document.getElementById('reservaForm').style.display = 'none';
+        document.getElementById('gracias').style.display = 'block';
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
       }
@@ -465,6 +485,11 @@
       alert("❌ Hubo un problema enviando tu reserva.");
     });
   });
+
+  function volverFormulario() {
+    document.getElementById('gracias').style.display = 'none';
+    document.getElementById('reservaForm').style.display = 'block';
+  }
 </script>
 
 </body>
