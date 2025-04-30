@@ -81,6 +81,9 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
+      text-align: left;
+      text-indent: 0;
+      box-sizing: border-box;
     }
     .modal-card button {
       padding: 10px;
@@ -175,11 +178,8 @@
       const res = await fetch(API_URL + "?hoja=1");
       const datos = await res.json();
       const fila = datos[id - 1];
-
-      const fechaObj = new Date(fila[4]);
-      const horaObj = new Date(fila[5]);
-      const fecha = fechaObj.toISOString().split('T')[0];
-      const hora = horaObj.toTimeString().slice(0,5);
+      const fecha = new Date(fila[4]).toISOString().split('T')[0];
+      const hora = new Date(fila[5]).toTimeString().slice(0,5);
 
       const html = `
       <div class="modal" onclick="this.remove()">
@@ -194,7 +194,6 @@
           <button onclick="document.querySelector('.modal').remove()">Cancelar</button>
         </div>
       </div>`;
-
       document.getElementById("modalContainer").innerHTML = html;
     }
 
@@ -208,9 +207,7 @@
 
       fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({
-          _method: "PUT", id, nombre, telefono, profesional, servicio, fecha, hora
-        })
+        body: JSON.stringify({ _method: "PUT", id, nombre, telefono, profesional, servicio, fecha, hora })
       }).then(() => {
         cargarTurnos();
         document.querySelector(".modal").remove();
@@ -233,7 +230,6 @@
           <button onclick="document.querySelector('.modal').remove()">Cancelar</button>
         </div>
       </div>`;
-
       document.getElementById("modalContainer").innerHTML = html;
     }
 
@@ -245,9 +241,7 @@
 
       fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({
-          _method: "PUT", id, rubro, subrubro, duracion, precio
-        })
+        body: JSON.stringify({ _method: "PUT", id, rubro, subrubro, duracion, precio })
       }).then(() => {
         cargarTratamientos();
         document.querySelector(".modal").remove();
