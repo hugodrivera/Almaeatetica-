@@ -97,12 +97,7 @@
       </select>
 
       <select id="servicio" required>
-        const duracion = tratamiento["Duración"] || tratamiento["Duraci\u00f3n"] || "";
-const precio = tratamiento["Precio"] || "";
-
-opcion.setAttribute("data-duracion", duracion);
-opcion.setAttribute("data-precio", precio);
-
+        <option value="">Seleccioná un tratamiento</option>
       </select>
 
       <input type="date" id="fecha" required>
@@ -136,7 +131,7 @@ opcion.setAttribute("data-precio", precio);
         nombre: document.getElementById('nombre').value,
         telefono: document.getElementById('telefono').value,
         profesional: document.getElementById('profesional').value,
-        servicio: document.getElementById('servicio').value,
+        servicio: document.getElementById('servicio').value || "Sin seleccionar",
         fecha: document.getElementById('fecha').value,
         hora: document.getElementById('hora').value
       };
@@ -165,7 +160,6 @@ opcion.setAttribute("data-precio", precio);
       document.getElementById('reservaForm').style.display = 'block';
     }
 
-    // Cargar tratamientos desde Google Sheets Hoja 2
     fetch("https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec?hoja=2")
       .then(res => res.json())
       .then(tratamientos => {
@@ -182,11 +176,14 @@ opcion.setAttribute("data-precio", precio);
           optgroup.label = rubro;
 
           grupos[rubro].forEach(tratamiento => {
+            const duracion = tratamiento["Duración"] || tratamiento["Duraci\u00f3n"] || "";
+            const precio = tratamiento["Precio"] || "";
+
             const opcion = document.createElement("option");
             opcion.value = tratamiento.Subrubro;
             opcion.textContent = tratamiento.Subrubro;
-            opcion.setAttribute("data-duracion", tratamiento["Duración"]);
-            opcion.setAttribute("data-precio", tratamiento["Precio"]);
+            opcion.setAttribute("data-duracion", duracion);
+            opcion.setAttribute("data-precio", precio);
             optgroup.appendChild(opcion);
           });
 
