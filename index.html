@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,7 +83,6 @@
     <form id="reservaForm">
       <input type="text" id="nombre" placeholder="Tu nombre" required>
       <input type="text" id="telefono" placeholder="Tu número (sin +54)" required>
-
       <select id="profesional" required>
         <option value="">Seleccioná un profesional</option>
         <option value="Melanie">Melanie</option>
@@ -92,14 +92,11 @@
         <option value="Cris">Cris</option>
         <option value="Alis">Alis</option>
       </select>
-
       <select id="servicio" required>
         <option value="">Seleccioná un tratamiento</option>
       </select>
-
       <input type="date" id="fecha" required>
       <input type="time" id="hora" required>
-
       <button type="submit">Reservar Turno</button>
     </form>
 
@@ -123,22 +120,27 @@
 
     fetch(endpoint + '?hoja=2')
       .then(res => res.json())
-      .then(tratamientos => {
+      .then(data => {
         const select = document.getElementById("servicio");
         const grupos = {};
-        tratamientos.forEach(t => {
+
+        data.forEach(t => {
+          if (!t.Rubro || !t.Subrubro) return;
           if (!grupos[t.Rubro]) grupos[t.Rubro] = [];
           grupos[t.Rubro].push(t);
         });
+
         Object.keys(grupos).forEach(rubro => {
           const optgroup = document.createElement("optgroup");
           optgroup.label = rubro;
+
           grupos[rubro].forEach(tratamiento => {
             const opcion = document.createElement("option");
             opcion.value = tratamiento.Subrubro;
             opcion.textContent = tratamiento.Subrubro;
             optgroup.appendChild(opcion);
           });
+
           select.appendChild(optgroup);
         });
       });
@@ -153,6 +155,7 @@
         fecha: document.getElementById('fecha').value,
         hora: document.getElementById('hora').value
       };
+
       fetch(endpoint, {
         method: 'POST',
         body: JSON.stringify(data)
