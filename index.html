@@ -77,7 +77,6 @@
   </style>
 </head>
 <body>
-
 <div class="container">
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Alma Estética</h1>
@@ -112,17 +111,41 @@
     <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
     <iframe
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9417d6d4b53d48d7%3A0x8a216b8dc6819e3b!2sSarmiento%20407%2C%20T4100%20Concepci%C3%B3n%2C%20Tucum%C3%A1n%2C%20Argentina!5e0!3m2!1ses-419!2sar!4v1680101302284!5m2!1ses-419!2sar"
-      width="100%"
-      height="300"
-      style="border:0;"
-      allowfullscreen=""
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade">
-    </iframe>
+      width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
   </div>
 </div>
 
 <script>
+fetch("https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec?hoja=2")
+  .then(res => res.json())
+  .then(tratamientos => {
+    const select = document.getElementById("servicio");
+    const grupos = {};
+
+    tratamientos.forEach(t => {
+      if (!grupos[t.Rubro]) grupos[t.Rubro] = [];
+      grupos[t.Rubro].push(t);
+    });
+
+    Object.keys(grupos).forEach(rubro => {
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = rubro;
+
+      grupos[rubro].forEach(tratamiento => {
+        const opcion = document.createElement("option");
+        opcion.value = tratamiento.Subrubro;
+        opcion.textContent = tratamiento.Subrubro;
+        opcion.setAttribute("data-duracion", tratamiento.Duración);
+        opcion.setAttribute("data-precio", tratamiento.Precio);
+        optgroup.appendChild(opcion);
+      });
+
+      select.appendChild(optgroup);
+    });
+  })
+  .catch(err => console.error("Error cargando tratamientos:", err));
+
+// Enviar reserva
   document.getElementById('reservaForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const data = {
@@ -141,7 +164,7 @@
     .then(response => {
       if (response.ok) {
         document.getElementById('reservaForm').reset();
-        alert('✅ Turno reservado correctamente.');
+        alert("✅ Reserva enviada con éxito");
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
       }
@@ -151,34 +174,6 @@
       alert("❌ Hubo un problema enviando tu reserva.");
     });
   });
-
-  fetch("https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec?hoja=2")
-    .then(res => res.json())
-    .then(tratamientos => {
-      const select = document.getElementById("servicio");
-      const grupos = {};
-
-      tratamientos.forEach(t => {
-        if (!grupos[t.Rubro]) grupos[t.Rubro] = [];
-        grupos[t.Rubro].push(t);
-      });
-
-      Object.keys(grupos).forEach(rubro => {
-        const optgroup = document.createElement("optgroup");
-        optgroup.label = rubro;
-
-        grupos[rubro].forEach(tratamiento => {
-          const opcion = document.createElement("option");
-          opcion.value = tratamiento.Subrubro;
-          opcion.textContent = tratamiento.Subrubro;
-          optgroup.appendChild(opcion);
-        });
-
-        select.appendChild(optgroup);
-      });
-    })
-    .catch(err => console.error("Error cargando tratamientos:", err));
 </script>
-
 </body>
 </html>
