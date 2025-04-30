@@ -11,22 +11,32 @@
       background-color: #fbe9f0;
       margin: 0;
       padding: 0;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      min-height: 100vh;
     }
+
     .container {
-      margin: 0 auto;
+      text-align: center;
       padding: 20px;
+      width: 100%;
       max-width: 500px;
     }
+
     form {
       background: white;
       padding: 25px;
       border-radius: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
     }
+
     input, select, button {
       width: 100%;
       padding: 12px;
@@ -35,152 +45,157 @@
       font-size: 16px;
       box-sizing: border-box;
     }
+
+    img {
+      width: 180px;
+      margin-bottom: 15px;
+      animation: fadeInDown 1.5s ease;
+    }
+
+    h1 {
+      color: #c2185b;
+      font-size: 28px;
+      margin: 10px 0;
+    }
+
+    h3 {
+      color: #ad1457;
+      font-weight: normal;
+      font-size: 20px;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     #gracias {
       display: none;
+      text-align: center;
+      margin-top: 50px;
     }
-    #detalle {
-      background: #fff;
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: none;
-    }
+
     iframe {
-      width: 100%;
-      border: 0;
       border-radius: 12px;
-      height: 300px;
       margin-top: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="logo.jpg" alt="Logo Alma Estética" style="width:150px">
-    <h1 style="color:#c2185b">Alma Estética</h1>
-    <h3 style="color:#ad1457">Belleza y Bienestar a tu medida</h3>
+<div class="container">
+  <img src="logo.jpg" alt="Logo Alma Estética">
+  <h1>Alma Estética</h1>
+  <h3>Belleza y Bienestar a tu medida</h3>
 
-    <form id="reservaForm">
-      <input type="text" id="nombre" placeholder="Tu nombre" required>
-      <input type="text" id="telefono" placeholder="Tu número (sin +54)" required>
-      <select id="profesional" required>
-        <option value="">Seleccioná un profesional</option>
-        <option value="Melanie">Melanie</option>
-        <option value="Fátima">Fátima</option>
-        <option value="Dr. Maria">Dr. Maria</option>
-        <option value="Maria">Maria</option>
-        <option value="Cris">Cris</option>
-        <option value="Alis">Alis</option>
-      </select>
-      <select id="servicio" required>
-        <option value="">Seleccioná un tratamiento</option>
-      </select>
-      <input type="date" id="fecha" required>
-      <input type="time" id="hora" required>
-      <button type="submit">Reservar Turno</button>
-    </form>
+  <form id="reservaForm">
+    <input type="text" id="nombre" placeholder="Tu nombre" required>
+    <input type="text" id="telefono" placeholder="Tu número (sin +54)" required>
 
-    <div id="gracias">
-      <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
-      <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
-      <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Reservar otro turno</button>
-    </div>
+    <select id="profesional" required>
+      <option value="">Seleccioná un profesional</option>
+      <option value="Melanie">Melanie</option>
+      <option value="Fátima">Fátima</option>
+      <option value="Dr. Maria">Dr. Maria</option>
+      <option value="Maria">Maria</option>
+      <option value="Cris">Cris</option>
+      <option value="Alis">Alis</option>
+    </select>
 
-    <div id="detalle"></div>
+    <select id="servicio" required>
+      <option value="">Seleccioná un tratamiento</option>
+    </select>
 
-    <div style="margin-top: 40px;">
-      <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
-      <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
+    <input type="date" id="fecha" required>
+    <input type="time" id="hora" required>
+
+    <button type="submit">Reservar Turno</button>
+  </form>
+
+  <div id="gracias">
+    <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
+    <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
+    <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      Reservar otro turno
+    </button>
   </div>
 
-  <script>
-    const endpoint = 'https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec';
+  <div style="margin-top: 40px;">
+    <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
+    <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</div>
 
-    fetch(endpoint + '?hoja=2')
-      .then(res => res.json())
-      .then(data => {
-        const select = document.getElementById("servicio");
-        const detalleDiv = document.getElementById("detalle");
-        const grupos = {};
+<script>
+  const endpoint = 'https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec';
 
-        data.forEach(t => {
-          const rubro = (t.Rubro || 'Sin rubro').toString().trim();
-          const subrubro = (t.Subrubro || 'Sin subrubro').toString().trim();
-          const duracion = t.Duración || '';
-          const precio = t.Precio || '';
+  fetch(endpoint + '?hoja=2')
+    .then(res => res.json())
+    .then(tratamientos => {
+      const select = document.getElementById("servicio");
+      const grupos = {};
 
-          if (!grupos[rubro]) grupos[rubro] = [];
-          grupos[rubro].push({ nombre: subrubro, duracion, precio });
-        });
+      tratamientos.forEach(t => {
+        const rubro = t["Rubro"] || "Sin rubro";
+        const subrubro = t["Subrubro"] || "Sin subrubro";
+        const duracion = t["Duración"] || "";
+        const precio = t["Precio"] || "";
 
-        Object.entries(grupos).forEach(([rubro, tratamientos]) => {
-          const optgroup = document.createElement("optgroup");
-          optgroup.label = rubro;
-
-          tratamientos.forEach(({ nombre, duracion, precio }) => {
-            const opcion = document.createElement("option");
-            opcion.value = nombre;
-            opcion.textContent = nombre;
-            opcion.dataset.duracion = duracion;
-            opcion.dataset.precio = precio;
-            optgroup.appendChild(opcion);
-          });
-
-          select.appendChild(optgroup);
-        });
-
-        select.addEventListener('change', () => {
-          const selected = select.options[select.selectedIndex];
-          if (selected.value === '') {
-            detalleDiv.style.display = 'none';
-            return;
-          }
-          detalleDiv.innerHTML = `
-            <p><strong>Tratamiento:</strong> ${selected.value}</p>
-            <p><strong>Duración:</strong> ${selected.dataset.duracion}</p>
-            <p><strong>Precio:</strong> ${selected.dataset.precio}</p>
-          `;
-          detalleDiv.style.display = 'block';
-        });
+        if (!grupos[rubro]) grupos[rubro] = [];
+        grupos[rubro].push({ subrubro, duracion, precio });
       });
 
-    document.getElementById('reservaForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = {
-        nombre: document.getElementById('nombre').value,
-        telefono: document.getElementById('telefono').value,
-        profesional: document.getElementById('profesional').value,
-        servicio: document.getElementById('servicio').value,
-        fecha: document.getElementById('fecha').value,
-        hora: document.getElementById('hora').value
-      };
+      Object.keys(grupos).forEach(rubro => {
+        const optgroup = document.createElement("optgroup");
+        optgroup.label = rubro;
 
-      fetch(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          document.getElementById('reservaForm').reset();
-          document.getElementById('reservaForm').style.display = 'none';
-          document.getElementById('gracias').style.display = 'block';
-        } else {
-          alert("❌ Hubo un problema enviando tu reserva.");
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
+        grupos[rubro].forEach(t => {
+          const opcion = document.createElement("option");
+          opcion.value = t.subrubro;
+          opcion.textContent = t.subrubro + (t.duracion && t.precio ? ` (${t.duracion}, ${t.precio})` : "");
+          optgroup.appendChild(opcion);
+        });
+
+        select.appendChild(optgroup);
+      });
+    })
+    .catch(err => console.error("Error cargando tratamientos:", err));
+
+  document.getElementById('reservaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+      nombre: document.getElementById('nombre').value,
+      telefono: document.getElementById('telefono').value,
+      profesional: document.getElementById('profesional').value,
+      servicio: document.getElementById('servicio').value,
+      fecha: document.getElementById('fecha').value,
+      hora: document.getElementById('hora').value
+    };
+
+    fetch(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (response.ok) {
+        document.getElementById('reservaForm').reset();
+        document.getElementById('reservaForm').style.display = 'none';
+        document.getElementById('gracias').style.display = 'block';
+      } else {
         alert("❌ Hubo un problema enviando tu reserva.");
-      });
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert("❌ Hubo un problema enviando tu reserva.");
     });
+  });
 
-    function volverFormulario() {
-      document.getElementById('gracias').style.display = 'none';
-      document.getElementById('reservaForm').style.display = 'block';
-    }
-  </script>
+  function volverFormulario() {
+    document.getElementById('gracias').style.display = 'none';
+    document.getElementById('reservaForm').style.display = 'block';
+  }
+</script>
 </body>
 </html>
