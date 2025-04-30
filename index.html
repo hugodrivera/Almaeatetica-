@@ -16,14 +16,12 @@
       align-items: start;
       min-height: 100vh;
     }
-
     .container {
       text-align: center;
       padding: 20px;
       width: 100%;
       max-width: 500px;
     }
-
     form {
       background: white;
       padding: 25px;
@@ -31,7 +29,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       margin: auto;
     }
-
     input, select, button {
       width: 100%;
       padding: 12px;
@@ -40,30 +37,17 @@
       border: 1px solid #ccc;
       font-size: 16px;
     }
-
     img {
       width: 180px;
       margin-bottom: 15px;
       animation: fadeInDown 1.5s ease;
     }
-
-    h1 {
-      color: #c2185b;
-      font-size: 28px;
-      margin: 10px 0;
-    }
-
-    h3 {
-      color: #ad1457;
-      font-weight: normal;
-      font-size: 20px;
-    }
-
+    h1 { color: #c2185b; font-size: 28px; margin: 10px 0; }
+    h3 { color: #ad1457; font-weight: normal; font-size: 20px; }
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-30px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     #detalleTratamiento {
       margin-top: 20px;
       display: none;
@@ -72,16 +56,20 @@
       padding: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-
     iframe {
       border-radius: 12px;
       margin-top: 30px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+    footer {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 40px;
+      color: #777;
+    }
   </style>
 </head>
 <body>
-
 <div class="container">
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Alma Estética</h1>
@@ -90,7 +78,6 @@
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required><br>
     <input type="text" id="telefono" placeholder="Tu número (sin +54)" required><br>
-
     <select id="profesional" required>
       <option value="">Seleccioná un profesional</option>
       <option value="Melanie">Melanie</option>
@@ -100,29 +87,25 @@
       <option value="Cris">Cris</option>
       <option value="Alis">Alis</option>
     </select><br>
-
-    <select id="servicio" required style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
+    <select id="servicio" required>
       <option value="">Seleccioná un tratamiento</option>
     </select>
-
     <input type="date" id="fecha" required><br>
     <input type="time" id="hora" required><br>
-
-    <button type="submit" id="botonEnviar">Reservar Turno</button>
+    <button type="submit">Reservar Turno</button>
   </form>
 
   <h3 style="margin-top: 30px; color: #c2185b;">Elegí un tratamiento para ver detalles</h3>
-  <select id="selectorTratamiento" onchange="mostrarDetalleTratamiento()" style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
+  <select id="selectorTratamiento" onchange="mostrarDetalleTratamiento()">
     <option value="">-- Seleccioná un tratamiento --</option>
   </select>
-
   <div id="detalleTratamiento">
     <p><strong>Tratamiento:</strong> <span id="tratamientoNombre"></span></p>
     <p><strong>Duración:</strong> <span id="tratamientoDuracion"></span></p>
     <p><strong>Precio:</strong> <span id="tratamientoPrecio"></span></p>
   </div>
 
-  <div id="gracias" style="display:none; text-align:center; margin-top: 50px;">
+  <div id="gracias" style="display:none; margin-top: 50px;">
     <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
     <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
     <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Reservar otro turno</button>
@@ -131,9 +114,9 @@
   <div style="margin-top: 40px;">
     <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
     <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
-    <iframe src="https://www.google.com/maps/embed?..." width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <iframe src="https://www.google.com/maps/embed?..." width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
   </div>
-  <footer style="text-align:center; margin-top: 40px; font-size: 13px; color: #777;">
+  <footer>
     Design by Hugo Rivera
   </footer>
 </div>
@@ -145,10 +128,10 @@ function cargarTratamientos() {
   fetch(apiUrl)
     .then(res => res.json())
     .then(data => {
-      const selectorServicio = document.getElementById('servicio');
-      const selectorDetalle = document.getElementById('selectorTratamiento');
-      selectorServicio.innerHTML = '<option value="">Seleccioná un tratamiento</option>';
-      selectorDetalle.innerHTML = '<option value="">-- Seleccioná un tratamiento --</option>';
+      const servicioSelect = document.getElementById('servicio');
+      const detalleSelect = document.getElementById('selectorTratamiento');
+      servicioSelect.innerHTML = '<option value="">Seleccioná un tratamiento</option>';
+      detalleSelect.innerHTML = '<option value="">-- Seleccioná un tratamiento --</option>';
 
       const grupos = {};
       data.forEach(t => {
@@ -166,17 +149,16 @@ function cargarTratamientos() {
           const option1 = document.createElement('option');
           option1.value = t.Subrubro;
           option1.textContent = t.Subrubro;
+          optgroup1.appendChild(option1);
 
           const option2 = document.createElement('option');
           option2.value = `${t.Subrubro}|${t.Duración}|$${t.Precio}`;
           option2.textContent = t.Subrubro;
-
-          optgroup1.appendChild(option1);
           optgroup2.appendChild(option2);
         });
 
-        selectorServicio.appendChild(optgroup1);
-        selectorDetalle.appendChild(optgroup2);
+        servicioSelect.appendChild(optgroup1);
+        detalleSelect.appendChild(optgroup2);
       });
     });
 }
@@ -199,35 +181,37 @@ function volverFormulario() {
   document.getElementById('reservaForm').style.display = 'block';
 }
 
-cargarTratamientos();
+document.addEventListener('DOMContentLoaded', () => {
+  cargarTratamientos();
 
-document.getElementById('reservaForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const data = {
-    nombre: document.getElementById('nombre').value,
-    telefono: document.getElementById('telefono').value,
-    profesional: document.getElementById('profesional').value,
-    servicio: document.getElementById('servicio').value,
-    fecha: document.getElementById('fecha').value,
-    hora: document.getElementById('hora').value
-  };
+  document.getElementById('reservaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+      nombre: document.getElementById('nombre').value,
+      telefono: document.getElementById('telefono').value,
+      profesional: document.getElementById('profesional').value,
+      servicio: document.getElementById('servicio').value,
+      fecha: document.getElementById('fecha').value,
+      hora: document.getElementById('hora').value
+    };
 
-  fetch('https://script.google.com/macros/s/AKfycbyOG1Oz06orjJKJYnQf3mnypvlSNaknG3bjK2t_Svj2Vn78rkPl_VdlXaLm0_60R83F/exec', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
-  .then(response => {
-    if (response.ok) {
-      document.getElementById('reservaForm').reset();
-      document.getElementById('reservaForm').style.display = 'none';
-      document.getElementById('gracias').style.display = 'block';
-    } else {
+    fetch('https://script.google.com/macros/s/AKfycbyOG1Oz06orjJKJYnQf3mnypvlSNaknG3bjK2t_Svj2Vn78rkPl_VdlXaLm0_60R83F/exec', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (response.ok) {
+        document.getElementById('reservaForm').reset();
+        document.getElementById('reservaForm').style.display = 'none';
+        document.getElementById('gracias').style.display = 'block';
+      } else {
+        alert("❌ Hubo un problema enviando tu reserva.");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
       alert("❌ Hubo un problema enviando tu reserva.");
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert("❌ Hubo un problema enviando tu reserva.");
+    });
   });
 });
 </script>
