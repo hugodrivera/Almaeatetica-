@@ -1,12 +1,13 @@
 
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Reserva tu Turno - Alma Estética</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8"/>
+<title>Reserva tu Turno - Alma Estética</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<style>
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #fbe9f0;
@@ -51,45 +52,41 @@
     }
   </style>
 </head>
-<body>
-<div class="container">
-  <img src="logo.jpg" alt="Logo Alma Estética" style="width: 180px; margin-bottom: 15px;">
-  <h1 style="color: #c2185b;">Alma Estética</h1>
-  <h3 style="color: #ad1457;">Belleza y Bienestar a tu medida</h3>
-
-  <form id="reservaForm">
-    <input type="text" id="nombre" placeholder="Tu nombre" required>
-    <input type="text" id="telefono" placeholder="Tu número (sin +54)" required>
-    <select id="profesional" required>
-      <option value="">Seleccioná un profesional</option>
-      <option value="Melanie">Melanie</option>
-      <option value="Fátima">Fátima</option>
-      <option value="Dr. Maria">Dr. Maria</option>
-      <option value="Maria">Maria</option>
-      <option value="Cris">Cris</option>
-      <option value="Alis">Alis</option>
-    </select>
-    <select id="servicio" required>
-      <option value="">Seleccioná un tratamiento</option>
-    </select>
-    <input type="date" id="fecha" required>
-    <input type="time" id="hora" required>
-    <button type="submit">Reservar Turno</button>
-  </form>
-
-  <div id="gracias">
-    <h1 style="color: #c2185b;">¡Gracias por reservar!</h1>
-    <p style="color: #555;">Te esperamos en Alma Estética 💖</p>
-    <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">Reservar otro turno</button>
-  </div>
-
-  <div style="margin-top: 40px;">
-    <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
-    <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9417d6d4b53d48d7%3A0x8a216b8dc6819e3b!2sSarmiento%20407%2C%20T4100%20Concepci%C3%B3n%2C%20Tucum%C3%A1n%2C%20Argentina!5e0!3m2!1ses-419!2sar!4v1680101302284!5m2!1ses-419!2sar" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-  </div>
+<body style=" display: flex; flex-direction: column; align-items: center;">
+<div class="container" style="margin: auto;">
+<img alt="Logo Alma Estética" src="logo.jpg" style="width: 180px; margin-bottom: 15px;"/>
+<h1 style="color: #c2185b;">Alma Estética</h1>
+<h3 style="color: #ad1457;">Belleza y Bienestar a tu medida</h3>
+<form id="reservaForm">
+<input id="nombre" placeholder="Tu nombre" required="" type="text"/>
+<input id="telefono" placeholder="Tu número (sin +54)" required="" type="text"/>
+<select id="profesional" required="">
+<option value="">Seleccioná un profesional</option>
+<option value="Melanie">Melanie</option>
+<option value="Fátima">Fátima</option>
+<option value="Dr. Maria">Dr. Maria</option>
+<option value="Maria">Maria</option>
+<option value="Cris">Cris</option>
+<option value="Alis">Alis</option>
+</select>
+<select id="servicio" required="">
+<option value="">Seleccioná un tratamiento</option>
+</select>
+<input id="fecha" required="" type="date"/>
+<input id="hora" required="" type="time"/>
+<button type="submit">Reservar Turno</button>
+</form>
+<div id="gracias">
+<h1 style="color: #c2185b;">¡Gracias por reservar!</h1>
+<p style="color: #555;">Te esperamos en Alma Estética 💖</p>
+<button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">Reservar otro turno</button>
 </div>
-
+<div style="margin-top: 40px;">
+<h3 style="color: #c2185b;">¿Dónde estamos?</h3>
+<p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
+<iframe allowfullscreen="" height="300" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9417d6d4b53d48d7%3A0x8a216b8dc6819e3b!2sSarmiento%20407%2C%20T4100%20Concepci%C3%B3n%2C%20Tucum%C3%A1n%2C%20Argentina!5e0!3m2!1ses-419!2sar!4v1680101302284!5m2!1ses-419!2sar" style="border:0;" width="100%"></iframe>
+</div>
+</div>
 <script>
 const endpoint = 'https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec';
 
