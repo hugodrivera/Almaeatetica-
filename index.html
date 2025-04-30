@@ -97,7 +97,12 @@
       </select>
 
       <select id="servicio" required>
-        <option value="">Seleccioná un tratamiento</option>
+        const duracion = tratamiento["Duración"] || tratamiento["Duraci\u00f3n"] || "";
+const precio = tratamiento["Precio"] || "";
+
+opcion.setAttribute("data-duracion", duracion);
+opcion.setAttribute("data-precio", precio);
+
       </select>
 
       <input type="date" id="fecha" required>
