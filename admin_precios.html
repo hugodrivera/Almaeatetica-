@@ -80,10 +80,24 @@
       z-index: 10000;
     }
   </style>
+  .boton-volver {
+  display: block;
+  margin: 0 auto 20px auto;
+  padding: 10px 20px;
+  background-color: #880e4f;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
 </head>
 <body>
 
 <h1>Gestionar Tratamientos</h1>
+  <button onclick="window.location.href='admin.html'" class="boton-volver">← Volver a Panel Principal</button>
 <button class="boton-agregar" onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
 
 <table>
