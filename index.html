@@ -180,7 +180,10 @@
   const precio = tratamiento["Precio"] || "";
 
   const opcion = document.createElement("option");
-  opcion.value = tratamiento.Subrubro || tratamiento["Subrubro"] || "Sin nombre";
+  const subrubro = tratamiento["Subrubro"] || Object.values(tratamiento)[1] || "Sin nombre";
+opcion.value = subrubro;
+opcion.textContent = subrubro;
+
   opcion.textContent = opcion.value;
   opcion.setAttribute("data-duracion", duracion);
   opcion.setAttribute("data-precio", precio);
