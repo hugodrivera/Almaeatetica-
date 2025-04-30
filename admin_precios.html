@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,9 +7,7 @@
   <style>
     body { font-family: Arial, sans-serif; background-color: #fce4ec; margin: 0; padding: 20px; }
     h1 { color: #c2185b; text-align: center; }
-
-    .boton-volver,
-    .boton-agregar {
+    .boton-agregar, .boton-volver {
       display: block;
       margin: 0 auto 20px auto;
       padding: 10px 20px;
@@ -20,11 +19,6 @@
       cursor: pointer;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-
-    .boton-volver {
-      background-color: #880e4f;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -50,7 +44,6 @@
     }
     .editar { background-color: #c2185b; }
     .eliminar { background-color: #b71c1c; }
-
     #popup {
       display: none;
       position: fixed; top: 0; left: 0;
@@ -73,7 +66,6 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
-
     #notificacion {
       display: none;
       position: fixed;
@@ -87,20 +79,19 @@
       font-size: 16px;
       z-index: 10000;
     }
-
     footer {
       text-align: center;
-      margin-top: 40px;
       font-size: 14px;
-      color: #777;
+      margin-top: 40px;
+      color: #999;
     }
   </style>
 </head>
 <body>
 
 <h1>Gestionar Tratamientos</h1>
-<button class="boton-volver" onclick="window.location.href='admin.html'">← Volver a Panel Principal</button>
 <button class="boton-agregar" onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
+<button class="boton-volver" onclick="window.location.href='admin.html'">← Volver al Panel Principal</button>
 
 <table>
   <thead>
@@ -130,7 +121,7 @@
 
 <div id="notificacion"></div>
 
-<footer>Design by <strong>Hugo Rivera</strong></footer>
+<footer>Desing by Hugo Rivera</footer>
 
 <script>
 const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 2';
@@ -224,7 +215,7 @@ function eliminar(fila) {
   .then(r => r.text())
   .then(() => {
     cargarTratamientos();
-    mostrarNotificacion("🗑 Tratamiento eliminado exitosamente", "red");
+    mostrarNotificacion("🗑️ Tratamiento eliminado exitosamente", "red");
   });
 }
 
