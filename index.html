@@ -356,7 +356,9 @@
     document.getElementById('reservaForm').style.display = 'block';
   }
 </script>
-  <script>
+  
+</body>
+<script>
   fetch("https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec?hoja=2")
     .then(res => res.json())
     .then(tratamientos => {
@@ -386,7 +388,5 @@
     })
     .catch(err => console.error("Error cargando tratamientos:", err));
 </script>
-
-</body>
 
 </html>
