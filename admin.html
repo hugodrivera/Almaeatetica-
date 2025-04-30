@@ -1,48 +1,55 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Administración Completa - Alma Estética</title>
+  <title>Administración - Alma Estética</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
-    body { font-family: 'Poppins', Arial, sans-serif; background: #fce4ec; margin: 0; padding: 20px; text-align: center; }
-    h1 { color: #c2185b; margin: 20px 0 10px; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fce4ec;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { color: #c2185b; }
     button {
-      padding: 10px 20px; margin: 10px 5px;
-      background-color: #c2185b; color: white;
-      border: none; border-radius: 10px;
-      font-size: 15px; cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      background-color: #c2185b;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 10px 5px;
     }
     table {
-      width: 95%; margin: auto; border-collapse: collapse;
-      background: white; border-radius: 12px;
+      margin: auto;
+      width: 95%;
+      border-collapse: collapse;
+      background: white;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    th, td { padding: 10px; border: 1px solid #eee; }
-    th { background: #f8bbd0; color: #880e4f; }
-    td { color: #555; }
-    .popup, #popupTratamiento {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: none; align-items: center; justify-content: center;
-      z-index: 9999;
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
     }
-    .popup-card {
-      background: white; padding: 20px;
-      border-radius: 12px; width: 300px;
+    th {
+      background-color: #f8bbd0;
+      color: #880e4f;
     }
-    .popup-card input {
-      width: 90%; padding: 10px; margin: 5px 0;
-      border-radius: 8px; border: 1px solid #ccc;
+    .editar, .eliminar {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .editar { background-color: #c2185b; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
-    .eliminar { background-color: #b71c1c; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+    .editar { background: #c2185b; color: white; }
+    .eliminar { background: #b71c1c; color: white; }
+
     #calendar {
       max-width: 900px;
       margin: 20px auto;
@@ -51,12 +58,149 @@
       border-radius: 12px;
       display: none;
     }
+
+    footer {
+      margin-top: 40px;
+      color: #888;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
-<!-- shortened for brevity -->
-<script>
-// contenido del script también se ha generado previamente
-</script>
+  <h1>Administración de Turnos y Tratamientos</h1>
+  <button onclick="mostrarTabla()">Ver Turnos</button>
+  <button onclick="mostrarCalendario()">Ver Calendario</button>
+
+  <div id="tablaTurnos"></div>
+  <div id="calendar"></div>
+
+  <h2>Lista de Tratamientos</h2>
+  <div id="tablaTratamientos"></div>
+
+  <footer>Design by Hugo Rivera</footer>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw3HC40zrkIx-16nJSVV5bipvDnR1vYIIAmc38fmdM8H8WvHMVjAitwblHAin91HwB8/exec";
+
+    // Mostrar turnos en tabla
+    async function cargarTurnos() {
+      const res = await fetch(API_URL + "?hoja=1");
+      const datos = await res.json();
+      let html = `<table><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Profesional</th><th>Servicio</th><th>Fecha</th><th>Hora</th><th>Acciones</th></tr>`;
+      datos.slice(1).forEach((fila, i) => {
+        html += `<tr>
+          <td>${i + 2}</td>
+          <td>${fila[0]}</td>
+          <td>${fila[1]}</td>
+          <td>${fila[2]}</td>
+          <td>${fila[3]}</td>
+          <td>${fila[4]}</td>
+          <td>${fila[5]}</td>
+          <td>
+            <button class="editar" onclick="editarTurno(${i + 2})">Editar</button>
+            <button class="eliminar" onclick="eliminarTurno(${i + 2})">Eliminar</button>
+          </td>
+        </tr>`;
+      });
+      html += `</table>`;
+      document.getElementById("tablaTurnos").innerHTML = html;
+    }
+
+    // Mostrar tratamientos en tabla
+    async function cargarTratamientos() {
+      const res = await fetch(API_URL + "?hoja=2");
+      const datos = await res.json();
+      let html = `<table><tr><th>ID</th><th>Rubro</th><th>Subrubro</th><th>Duración</th><th>Precio</th><th>Acciones</th></tr>`;
+      datos.slice(1).forEach((fila, i) => {
+        html += `<tr>
+          <td>${i + 2}</td>
+          <td>${fila[0]}</td>
+          <td>${fila[1]}</td>
+          <td>${fila[2]}</td>
+          <td>${fila[3]}</td>
+          <td>
+            <button class="editar" onclick="editarTratamiento(${i + 2})">Editar</button>
+            <button class="eliminar" onclick="eliminarTratamiento(${i + 2})">Eliminar</button>
+          </td>
+        </tr>`;
+      });
+      html += `</table>`;
+      document.getElementById("tablaTratamientos").innerHTML = html;
+    }
+
+    // Calendario FullCalendar
+    function mostrarCalendario() {
+      document.getElementById('tablaTurnos').style.display = "none";
+      document.getElementById('calendar').style.display = "block";
+
+      fetch(API_URL + "?hoja=1")
+        .then(res => res.json())
+        .then(datos => {
+          const eventos = datos.slice(1).map(fila => ({
+            title: fila[3] + " - " + fila[0],
+            start: fila[4] + "T" + fila[5],
+          }));
+          const calendarEl = document.getElementById('calendar');
+          calendarEl.innerHTML = '';
+          const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'es',
+            initialView: 'dayGridMonth',
+            events: eventos
+          });
+          calendar.render();
+        });
+    }
+
+    function mostrarTabla() {
+      document.getElementById('calendar').style.display = "none";
+      document.getElementById('tablaTurnos').style.display = "block";
+    }
+
+    function eliminarTurno(id) {
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ _method: "DELETE", id, fecha: true })
+      }).then(() => cargarTurnos());
+    }
+
+    function eliminarTratamiento(id) {
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ _method: "DELETE", id })
+      }).then(() => cargarTratamientos());
+    }
+
+    function editarTurno(id) {
+      const nombre = prompt("Nuevo nombre:");
+      const telefono = prompt("Nuevo teléfono:");
+      const profesional = prompt("Nuevo profesional:");
+      const servicio = prompt("Nuevo servicio:");
+      const fecha = prompt("Nueva fecha (YYYY-MM-DD):");
+      const hora = prompt("Nueva hora (HH:MM):");
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          _method: "PUT", id, nombre, telefono, profesional, servicio, fecha, hora
+        })
+      }).then(() => cargarTurnos());
+    }
+
+    function editarTratamiento(id) {
+      const rubro = prompt("Nuevo rubro:");
+      const subrubro = prompt("Nuevo subrubro:");
+      const duracion = prompt("Nueva duración:");
+      const precio = prompt("Nuevo precio:");
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          _method: "PUT", id, rubro, subrubro, duracion, precio
+        })
+      }).then(() => cargarTratamientos());
+    }
+
+    // Cargar al iniciar
+    cargarTurnos();
+    cargarTratamientos();
+  </script>
 </body>
 </html>
