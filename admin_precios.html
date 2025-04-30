@@ -146,11 +146,16 @@ function cargarTratamientos() {
   fetch(sheetUrl)
     .then(r => r.json())
     .then(data => {
-      tratamientos = data;
+      tratamientos = data.map((t, i) => ({ ...t, fila: i + 2 }))
+        .sort((a, b) => {
+          const rubroA = (a.Rubro || '').toLowerCase();
+          const rubroB = (b.Rubro || '').toLowerCase();
+          if (rubroA !== rubroB) return rubroA.localeCompare(rubroB);
+          return (a.Subrubro || '').localeCompare(b.Subrubro || '');
+        });
       const tbody = document.getElementById("tratamientos");
       tbody.innerHTML = '';
-      data.forEach((t, i) => {
-        const fila = i + 2;
+      tratamientos.forEach((t, i) => {
         tbody.innerHTML += `
           <tr>
             <td>${t.Rubro || ''}</td>
@@ -158,8 +163,8 @@ function cargarTratamientos() {
             <td>${t['Duración'] || ''}</td>
             <td>${t.Precio || ''}</td>
             <td>
-              <button class="editar" onclick="editar(${i}, ${fila})">Editar</button>
-              <button class="eliminar" onclick="eliminar(${fila})">Eliminar</button>
+              <button class="editar" onclick="editar(${i})">Editar</button>
+              <button class="eliminar" onclick="eliminar(${t.fila})">Eliminar</button>
             </td>
           </tr>`;
       });
@@ -176,9 +181,9 @@ function agregarTratamiento() {
   document.getElementById("popup").style.display = "flex";
 }
 
-function editar(i, fila) {
-  filaEditando = fila;
+function editar(i) {
   const t = tratamientos[i];
+  filaEditando = t.fila;
   document.getElementById("popupTitulo").innerText = "Editar Tratamiento";
   document.getElementById("rubroInput").value = t.Rubro;
   document.getElementById("subrubroInput").value = t.Subrubro;
