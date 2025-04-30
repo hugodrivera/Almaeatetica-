@@ -176,16 +176,16 @@
           optgroup.label = rubro;
 
           grupos[rubro].forEach(tratamiento => {
-            const duracion = tratamiento["Duración"] || tratamiento["Duraci\u00f3n"] || "";
-            const precio = tratamiento["Precio"] || "";
+  const duracion = tratamiento["Duración"] || tratamiento["Duraci\u00f3n"] || tratamiento["Duraci%C3%B3n"] || "";
+  const precio = tratamiento["Precio"] || "";
 
-            const opcion = document.createElement("option");
-            opcion.value = tratamiento.Subrubro;
-            opcion.textContent = tratamiento.Subrubro;
-            opcion.setAttribute("data-duracion", duracion);
-            opcion.setAttribute("data-precio", precio);
-            optgroup.appendChild(opcion);
-          });
+  const opcion = document.createElement("option");
+  opcion.value = tratamiento.Subrubro || tratamiento["Subrubro"] || "Sin nombre";
+  opcion.textContent = opcion.value;
+  opcion.setAttribute("data-duracion", duracion);
+  opcion.setAttribute("data-precio", precio);
+  optgroup.appendChild(opcion);
+});
 
           select.appendChild(optgroup);
         });
