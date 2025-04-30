@@ -3,12 +3,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reserva tu Turno - Alma Estética</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Poppins', Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       background-color: #fbe9f0;
       margin: 0;
       padding: 0;
@@ -18,22 +18,19 @@
       min-height: 100vh;
     }
     .container {
-      text-align: center;
-      padding: 20px;
-      width: 100%;
       max-width: 500px;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
     }
     form {
       background: white;
       padding: 25px;
       border-radius: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      width: 100%;
-      box-sizing: border-box;
     }
     input, select, button {
       width: 100%;
@@ -41,22 +38,6 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 16px;
-      box-sizing: border-box;
-    }
-    img {
-      width: 180px;
-      margin-bottom: 15px;
-      animation: fadeInDown 1.5s ease;
-    }
-    h1 {
-      color: #c2185b;
-      font-size: 28px;
-      margin: 10px 0;
-    }
-    h3 {
-      color: #ad1457;
-      font-weight: normal;
-      font-size: 20px;
     }
     #gracias {
       display: none;
@@ -71,104 +52,107 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="logo.jpg" alt="Logo Alma Estética">
-    <h1>Alma Estética</h1>
-    <h3>Belleza y Bienestar a tu medida</h3>
-    <form id="reservaForm">
-      <input type="text" id="nombre" placeholder="Tu nombre" required>
-      <input type="text" id="telefono" placeholder="Tu número (sin +54)" required>
-      <select id="profesional" required>
-        <option value="">Seleccioná un profesional</option>
-        <option value="Melanie">Melanie</option>
-        <option value="Fátima">Fátima</option>
-        <option value="Dr. Maria">Dr. Maria</option>
-        <option value="Maria">Maria</option>
-        <option value="Cris">Cris</option>
-        <option value="Alis">Alis</option>
-      </select>
-      <select id="servicio" required>
-        <option value="">Seleccioná un tratamiento</option>
-      </select>
-      <input type="date" id="fecha" required>
-      <input type="time" id="hora" required>
-      <button type="submit">Reservar Turno</button>
-    </form>
-    <div id="gracias">
-      <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
-      <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
-      <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        Reservar otro turno
-      </button>
-    </div>
-    <div style="margin-top: 40px;">
-      <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
-      <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9417d6d4b53d48d7%3A0x8a216b8dc6819e3b!2sSarmiento%20407%2C%20T4100%20Concepci%C3%B3n%2C%20Tucum%C3%A1n%2C%20Argentina!5e0!3m2!1ses-419!2sar!4v1680101302284!5m2!1ses-419!2sar" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
+<div class="container">
+  <img src="logo.jpg" alt="Logo Alma Estética" style="width: 180px; margin-bottom: 15px;">
+  <h1 style="color: #c2185b;">Alma Estética</h1>
+  <h3 style="color: #ad1457;">Belleza y Bienestar a tu medida</h3>
+
+  <form id="reservaForm">
+    <input type="text" id="nombre" placeholder="Tu nombre" required>
+    <input type="text" id="telefono" placeholder="Tu número (sin +54)" required>
+    <select id="profesional" required>
+      <option value="">Seleccioná un profesional</option>
+      <option value="Melanie">Melanie</option>
+      <option value="Fátima">Fátima</option>
+      <option value="Dr. Maria">Dr. Maria</option>
+      <option value="Maria">Maria</option>
+      <option value="Cris">Cris</option>
+      <option value="Alis">Alis</option>
+    </select>
+    <select id="servicio" required>
+      <option value="">Seleccioná un tratamiento</option>
+    </select>
+    <input type="date" id="fecha" required>
+    <input type="time" id="hora" required>
+    <button type="submit">Reservar Turno</button>
+  </form>
+
+  <div id="gracias">
+    <h1 style="color: #c2185b;">¡Gracias por reservar!</h1>
+    <p style="color: #555;">Te esperamos en Alma Estética 💖</p>
+    <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">Reservar otro turno</button>
   </div>
-  <script>
-    const endpoint = 'https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec';
 
-    fetch(endpoint + '?hoja=2')
-      .then(res => res.json())
-      .then(tratamientos => {
-        const select = document.getElementById("servicio");
-        const grupos = {};
-        tratamientos.forEach(t => {
-          const rubro = t["Rubro"] || "Sin rubro";
-          const subrubro = t["Subrubro"] || "Sin subrubro";
-          if (!grupos[rubro]) grupos[rubro] = [];
-          grupos[rubro].push({ ...t, value: subrubro });
-        });
-        Object.keys(grupos).forEach(rubro => {
-          const optgroup = document.createElement("optgroup");
-          optgroup.label = rubro;
-          grupos[rubro].forEach(tratamiento => {
-            const opcion = document.createElement("option");
-            opcion.value = tratamiento.value;
-            opcion.textContent = tratamiento.value;
-            opcion.setAttribute("data-duracion", tratamiento["Duración"] || "");
-            opcion.setAttribute("data-precio", tratamiento["Precio"] || "");
-            optgroup.appendChild(opcion);
-          });
-          select.appendChild(optgroup);
-        });
-      });
+  <div style="margin-top: 40px;">
+    <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
+    <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9417d6d4b53d48d7%3A0x8a216b8dc6819e3b!2sSarmiento%20407%2C%20T4100%20Concepci%C3%B3n%2C%20Tucum%C3%A1n%2C%20Argentina!5e0!3m2!1ses-419!2sar!4v1680101302284!5m2!1ses-419!2sar" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+  </div>
+</div>
 
-    document.getElementById('reservaForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = {
-        nombre: document.getElementById('nombre').value,
-        telefono: document.getElementById('telefono').value,
-        profesional: document.getElementById('profesional').value,
-        servicio: document.getElementById('servicio').value,
-        fecha: document.getElementById('fecha').value,
-        hora: document.getElementById('hora').value
-      };
-      fetch(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          document.getElementById('reservaForm').reset();
-          document.getElementById('reservaForm').style.display = 'none';
-          document.getElementById('gracias').style.display = 'block';
-        } else {
-          alert("❌ Hubo un problema enviando tu reserva.");
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert("❌ Hubo un problema enviando tu reserva.");
-      });
+<script>
+const endpoint = 'https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec';
+
+fetch(endpoint + '?hoja=2')
+  .then(res => res.json())
+  .then(tratamientos => {
+    const select = document.getElementById("servicio");
+    const grupos = {};
+
+    tratamientos.forEach(t => {
+      const rubro = (t["Rubro"] || "Sin rubro").trim();
+      const subrubro = (t["Subrubro"] || "Sin subrubro").trim();
+      if (!grupos[rubro]) grupos[rubro] = [];
+      grupos[rubro].push(subrubro);
     });
 
-    function volverFormulario() {
-      document.getElementById('gracias').style.display = 'none';
-      document.getElementById('reservaForm').style.display = 'block';
+    Object.keys(grupos).forEach(rubro => {
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = rubro;
+      grupos[rubro].forEach(subrubro => {
+        const opcion = document.createElement("option");
+        opcion.value = subrubro;
+        opcion.textContent = subrubro;
+        optgroup.appendChild(opcion);
+      });
+      select.appendChild(optgroup);
+    });
+  });
+
+document.getElementById('reservaForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const data = {
+    nombre: document.getElementById('nombre').value,
+    telefono: document.getElementById('telefono').value,
+    profesional: document.getElementById('profesional').value,
+    servicio: document.getElementById('servicio').value,
+    fecha: document.getElementById('fecha').value,
+    hora: document.getElementById('hora').value
+  };
+
+  fetch(endpoint, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (response.ok) {
+      document.getElementById('reservaForm').reset();
+      document.getElementById('reservaForm').style.display = 'none';
+      document.getElementById('gracias').style.display = 'block';
+    } else {
+      alert("❌ Hubo un problema enviando tu reserva.");
     }
-  </script>
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert("❌ Hubo un problema enviando tu reserva.");
+  });
+});
+
+function volverFormulario() {
+  document.getElementById('gracias').style.display = 'none';
+  document.getElementById('reservaForm').style.display = 'block';
+}
+</script>
 </body>
 </html>
