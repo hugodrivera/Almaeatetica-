@@ -110,7 +110,10 @@
 
     <!-- Select de tratamientos -->
     
-<select id="servicio" required style="padding: 12px; border-radius: 10px; width: 100%; max-width: 400px; font-size: 16px;">
+<select id="servicio" required>
+  <option value="">Seleccioná un tratamiento</option>
+</select>
+
   <option value="">Seleccioná un tratamiento</option>
 <optgroup label="ALISADOS">
   <option value="Con formol alisado en gel efecto espejo células madres">Con formol alisado en gel efecto espejo células madres</option>
@@ -497,6 +500,37 @@
     document.getElementById('reservaForm').style.display = 'block';
   }
 </script>
+  <script>
+  fetch("https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec?hoja=2")
+    .then(res => res.json())
+    .then(tratamientos => {
+      const select = document.getElementById("servicio");
+      const grupos = {};
+
+      tratamientos.forEach(t => {
+        if (!grupos[t.Rubro]) grupos[t.Rubro] = [];
+        grupos[t.Rubro].push(t);
+      });
+
+      Object.keys(grupos).forEach(rubro => {
+        const optgroup = document.createElement("optgroup");
+        optgroup.label = rubro;
+
+        grupos[rubro].forEach(tratamiento => {
+          const opcion = document.createElement("option");
+          opcion.value = tratamiento.Subrubro;
+          opcion.textContent = tratamiento.Subrubro;
+          opcion.setAttribute("data-duracion", tratamiento.Duración);
+          opcion.setAttribute("data-precio", tratamiento.Precio);
+          optgroup.appendChild(opcion);
+        });
+
+        select.appendChild(optgroup);
+      });
+    })
+    .catch(err => console.error("Error cargando tratamientos:", err));
+</script>
 
 </body>
+
 </html>
