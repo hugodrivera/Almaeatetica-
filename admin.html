@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <title>Administración - Alma Estética</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -49,33 +46,53 @@
     }
     .editar { background: #c2185b; color: white; }
     .eliminar { background: #b71c1c; color: white; }
-
-    #calendar {
-      max-width: 900px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      display: none;
-    }
-
     footer {
       margin-top: 40px;
       color: #888;
       font-size: 13px;
     }
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .modal-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+    }
+    .modal-card input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <h1>Administración de Turnos y Tratamientos</h1>
-  <button onclick="mostrarTabla()">Ver Turnos</button>
-  <button onclick="mostrarCalendario()">Ver Calendario</button>
 
   <div id="tablaTurnos"></div>
-  <div id="calendar"></div>
-
   <h2>Lista de Tratamientos</h2>
   <div id="tablaTratamientos"></div>
+  <div id="modalContainer"></div>
 
   <footer>Design by Hugo Rivera</footer>
 
@@ -101,7 +118,7 @@
           <td>${fechaFormateada}</td>
           <td>${horaFormateada}</td>
           <td>
-            <button class="editar" onclick="editarTurno(${i + 2})">Editar</button>
+            <button class="editar" onclick="mostrarModalEditarTurno(${i + 2})">Editar</button>
             <button class="eliminar" onclick="eliminarTurno(${i + 2})">Eliminar</button>
           </td>
         </tr>`;
@@ -122,40 +139,13 @@
           <td>${fila[2]}</td>
           <td>${fila[3]}</td>
           <td>
-            <button class="editar" onclick="editarTratamiento(${i + 2})">Editar</button>
+            <button class="editar" onclick="mostrarModalEditarTratamiento(${i + 2})">Editar</button>
             <button class="eliminar" onclick="eliminarTratamiento(${i + 2})">Eliminar</button>
           </td>
         </tr>`;
       });
       html += `</table>`;
       document.getElementById("tablaTratamientos").innerHTML = html;
-    }
-
-    function mostrarCalendario() {
-      document.getElementById('tablaTurnos').style.display = "none";
-      document.getElementById('calendar').style.display = "block";
-
-      fetch(API_URL + "?hoja=1")
-        .then(res => res.json())
-        .then(datos => {
-          const eventos = datos.slice(1).map(fila => ({
-            title: fila[3] + " - " + fila[0],
-            start: fila[4] + "T" + fila[5],
-          }));
-          const calendarEl = document.getElementById('calendar');
-          calendarEl.innerHTML = '';
-          const calendar = new FullCalendar.Calendar(calendarEl, {
-            locale: 'es',
-            initialView: 'dayGridMonth',
-            events: eventos
-          });
-          calendar.render();
-        });
-    }
-
-    function mostrarTabla() {
-      document.getElementById('calendar').style.display = "none";
-      document.getElementById('tablaTurnos').style.display = "block";
     }
 
     function eliminarTurno(id) {
@@ -172,49 +162,89 @@
       }).then(() => cargarTratamientos());
     }
 
-    async function editarTurno(id) {
+    async function mostrarModalEditarTurno(id) {
       const res = await fetch(API_URL + "?hoja=1");
       const datos = await res.json();
       const fila = datos[id - 1];
 
-      const nombre = prompt("Editar nombre:", fila[0]);
-      const telefono = prompt("Editar teléfono:", fila[1]);
-      const profesional = prompt("Editar profesional:", fila[2]);
-      const servicio = prompt("Editar servicio:", fila[3]);
+      const fechaObj = new Date(fila[4]);
+      const horaObj = new Date(fila[5]);
+      const fecha = fechaObj.toISOString().split('T')[0];
+      const hora = horaObj.toTimeString().slice(0,5);
 
-      const fechaInput = new Date(fila[4]);
-      const horaInput = new Date(fila[5]);
+      const html = `
+      <div class="modal" onclick="this.remove()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+          <input id="editNombre" value="${fila[0]}" placeholder="Nombre">
+          <input id="editTelefono" value="${fila[1]}" placeholder="Teléfono">
+          <input id="editProfesional" value="${fila[2]}" placeholder="Profesional">
+          <input id="editServicio" value="${fila[3]}" placeholder="Servicio">
+          <input id="editFecha" type="date" value="${fecha}">
+          <input id="editHora" type="time" value="${hora}">
+          <button onclick="guardarEdicionTurno(${id})">Guardar</button>
+          <button onclick="document.querySelector('.modal').remove()">Cancelar</button>
+        </div>
+      </div>`;
 
-      const fecha = prompt("Editar fecha (YYYY-MM-DD):", fechaInput.toISOString().split('T')[0]);
-      const hora = prompt("Editar hora (HH:MM):", horaInput.toTimeString().slice(0,5));
+      document.getElementById("modalContainer").innerHTML = html;
+    }
+
+    function guardarEdicionTurno(id) {
+      const nombre = document.getElementById("editNombre").value;
+      const telefono = document.getElementById("editTelefono").value;
+      const profesional = document.getElementById("editProfesional").value;
+      const servicio = document.getElementById("editServicio").value;
+      const fecha = document.getElementById("editFecha").value;
+      const hora = document.getElementById("editHora").value;
 
       fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({
           _method: "PUT", id, nombre, telefono, profesional, servicio, fecha, hora
         })
-      }).then(() => cargarTurnos());
+      }).then(() => {
+        cargarTurnos();
+        document.querySelector(".modal").remove();
+      });
     }
 
-    async function editarTratamiento(id) {
+    async function mostrarModalEditarTratamiento(id) {
       const res = await fetch(API_URL + "?hoja=2");
       const datos = await res.json();
       const fila = datos[id - 1];
 
-      const rubro = prompt("Editar rubro:", fila[0]);
-      const subrubro = prompt("Editar subrubro:", fila[1]);
-      const duracion = prompt("Editar duración:", fila[2]);
-      const precio = prompt("Editar precio:", fila[3]);
+      const html = `
+      <div class="modal" onclick="this.remove()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+          <input id="editRubro" value="${fila[0]}" placeholder="Rubro">
+          <input id="editSubrubro" value="${fila[1]}" placeholder="Subrubro">
+          <input id="editDuracion" value="${fila[2]}" placeholder="Duración">
+          <input id="editPrecio" value="${fila[3]}" placeholder="Precio">
+          <button onclick="guardarEdicionTratamiento(${id})">Guardar</button>
+          <button onclick="document.querySelector('.modal').remove()">Cancelar</button>
+        </div>
+      </div>`;
+
+      document.getElementById("modalContainer").innerHTML = html;
+    }
+
+    function guardarEdicionTratamiento(id) {
+      const rubro = document.getElementById("editRubro").value;
+      const subrubro = document.getElementById("editSubrubro").value;
+      const duracion = document.getElementById("editDuracion").value;
+      const precio = document.getElementById("editPrecio").value;
 
       fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({
           _method: "PUT", id, rubro, subrubro, duracion, precio
         })
-      }).then(() => cargarTratamientos());
+      }).then(() => {
+        cargarTratamientos();
+        document.querySelector(".modal").remove();
+      });
     }
 
-    // Cargar al iniciar
     cargarTurnos();
     cargarTratamientos();
   </script>
