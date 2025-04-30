@@ -1,142 +1,254 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Administrar Precios</title>
+  <meta charset="UTF-8">
+  <title>Gestionar Tratamientos - Alma Estética</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-    .container { max-width: 1000px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    th { background: #f0f0f0; }
-    input[type="text"], input[type="number"] { width: 100%; padding: 5px; }
-    .acciones button { margin-right: 5px; }
-    .footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: #888; }
-    .btn-principal { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 20px; }
-    .btn-principal:hover { background: #0056b3; }
-    .centrado { text-align: center; }
+    body { font-family: Arial, sans-serif; background-color: #fce4ec; margin: 0; padding: 20px; }
+    h1 { color: #c2185b; text-align: center; }
+    .boton-agregar {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 10px 20px;
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .boton-volver {
+      display: block;
+      margin: 10px auto;
+      padding: 8px 16px;
+      background-color: #880e4f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      text-decoration: none;
+      width: fit-content;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f8bbd0;
+      color: #880e4f;
+    }
+    .editar, .eliminar {
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .editar { background-color: #c2185b; }
+    .eliminar { background-color: #b71c1c; }
+    #popup {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+    }
+    .popup-card input {
+      width: 95%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    #notificacion {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4caf50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 16px;
+      z-index: 10000;
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 30px;
+      color: #777;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Gestión de Precios de Tratamientos</h1>
 
-    <button onclick="cargarTratamientos()">🔄 Recargar lista</button>
-    <a href="admin.html" class="btn-principal">Volver al Panel</a>
+<h1>Gestionar Tratamientos</h1>
+<a href="admin.html" class="boton-volver">← Volver al panel</a>
+<button class="boton-agregar" onclick="agregarTratamiento()">Agregar Nuevo Tratamiento</button>
 
-    <table id="tablaTratamientos">
-      <thead>
-        <tr>
-          <th>Rubro</th>
-          <th>Subrubro</th>
-          <th>Nombre</th>
-          <th>Detalle</th>
-          <th>Duración</th>
-          <th>Precio</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+<table>
+  <thead>
+    <tr>
+      <th>Rubro</th>
+      <th>Tratamiento</th>
+      <th>Duración</th>
+      <th>Precio</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tratamientos"></tbody>
+</table>
 
-    <div class="centrado">
-      <h3>Agregar nuevo tratamiento</h3>
-      <table>
-        <tr>
-          <td><input type="text" id="nuevoRubro" placeholder="Rubro" /></td>
-          <td><input type="text" id="nuevoSubrubro" placeholder="Subrubro" /></td>
-          <td><input type="text" id="nuevoNombre" placeholder="Nombre" /></td>
-          <td><input type="text" id="nuevoDetalle" placeholder="Detalle" /></td>
-          <td><input type="text" id="nuevaDuracion" placeholder="Duración" /></td>
-          <td><input type="number" id="nuevoPrecio" placeholder="Precio" /></td>
-          <td><button onclick="agregarTratamiento()">Agregar</button></td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="footer">Sistema diseñado por Hugo Rivera</div>
+<div id="popup">
+  <div class="popup-card">
+    <h3 id="popupTitulo">Editar Tratamiento</h3>
+    <input id="rubroInput" placeholder="Rubro">
+    <input id="subrubroInput" placeholder="Tratamiento">
+    <input id="duracionInput" placeholder="Duración">
+    <input id="precioInput" placeholder="Precio">
+    <br>
+    <button onclick="guardarCambios()">Guardar</button>
+    <button onclick="cerrarPopup()">Cancelar</button>
   </div>
+</div>
 
-  <script>
-    // ⚠️ IMPORTANTE: Reemplazá esta URL con la de tu Web App publicada desde Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwT_B5lJvGiA9V8ITqNAitUWD2mQjsf1UB95LcknwucRUxaTO6eBKXSTsatbdcg0Srd/exec';
+<div id="notificacion"></div>
 
-    let tratamientos = [];
+<footer>Sistema diseñado por Hugo Rivera</footer>
 
-    async function cargarTratamientos() {
-      const res = await fetch(API_URL + '?sheet=Hoja2');
-      const data = await res.json();
-      tratamientos = data.sort((a, b) => a.nombre.localeCompare(b.nombre));
-      mostrarTabla();
-    }
+<script>
+const sheetUrl = 'https://opensheet.elk.sh/15H4TSdJGTZGJS3VEXQ18bhyJWqJ04Ll-h6Y9LPZt30g/Hoja 2';
+const apiUrl = 'https://script.google.com/macros/s/AKfycbyoJmNXfLTvRc4S-1LU7egDb6ZoJIDLT3rIyUk14NB29IBZnDIz0ia3IjUAznaGPun5/exec';
 
-    function mostrarTabla() {
-      const tbody = document.querySelector('#tablaTratamientos tbody');
+let tratamientos = [];
+let filaEditando = null;
+
+function cargarTratamientos() {
+  fetch(sheetUrl)
+    .then(r => r.json())
+    .then(data => {
+      tratamientos = data;
+      const tbody = document.getElementById("tratamientos");
       tbody.innerHTML = '';
-      tratamientos.forEach((t, index) => {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-          <td><input type="text" value="${t.rubro}" onchange="editarCampo(${index}, 'rubro', this.value)" /></td>
-          <td><input type="text" value="${t.subrubro}" onchange="editarCampo(${index}, 'subrubro', this.value)" /></td>
-          <td><input type="text" value="${t.nombre}" onchange="editarCampo(${index}, 'nombre', this.value)" /></td>
-          <td><input type="text" value="${t.detalle}" onchange="editarCampo(${index}, 'detalle', this.value)" /></td>
-          <td><input type="text" value="${t.duracion}" onchange="editarCampo(${index}, 'duracion', this.value)" /></td>
-          <td><input type="number" value="${t.precio}" onchange="editarCampo(${index}, 'precio', this.value)" /></td>
-          <td class="acciones">
-            <button onclick="guardarEdicion(${index})">💾</button>
-            <button onclick="eliminarTratamiento(${index})">🗑️</button>
-          </td>
-        `;
-        tbody.appendChild(fila);
+      data.forEach((t, i) => {
+        const fila = i + 2;
+        tbody.innerHTML += `
+          <tr>
+            <td>${t.Rubro || ''}</td>
+            <td>${t.Subrubro || ''}</td>
+            <td>${t['Duración'] || ''}</td>
+            <td>${t.Precio || ''}</td>
+            <td>
+              <button class="editar" onclick="editar(${i}, ${fila})">Editar</button>
+              <button class="eliminar" onclick="eliminar(${fila})">Eliminar</button>
+            </td>
+          </tr>`;
       });
-    }
+    });
+}
 
-    function editarCampo(index, campo, valor) {
-      tratamientos[index][campo] = valor;
-    }
+function agregarTratamiento() {
+  filaEditando = null;
+  document.getElementById("popupTitulo").innerText = "Nuevo Tratamiento";
+  document.getElementById("rubroInput").value = "";
+  document.getElementById("subrubroInput").value = "";
+  document.getElementById("duracionInput").value = "";
+  document.getElementById("precioInput").value = "";
+  document.getElementById("popup").style.display = "flex";
+}
 
-    async function guardarEdicion(index) {
-      const tratamiento = tratamientos[index];
-      tratamiento.indice = index + 2; // +2 porque empieza en fila 2 en la hoja
-      await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ accion: 'editar', tratamiento }),
-      });
-      alert('Tratamiento actualizado');
-      cargarTratamientos();
-    }
+function editar(i, fila) {
+  filaEditando = fila;
+  const t = tratamientos[i];
+  document.getElementById("popupTitulo").innerText = "Editar Tratamiento";
+  document.getElementById("rubroInput").value = t.Rubro;
+  document.getElementById("subrubroInput").value = t.Subrubro;
+  document.getElementById("duracionInput").value = t['Duración'];
+  document.getElementById("precioInput").value = t.Precio;
+  document.getElementById("popup").style.display = "flex";
+}
 
-    async function eliminarTratamiento(index) {
-      if (!confirm('¿Estás seguro de eliminar este tratamiento?')) return;
-      await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ accion: 'eliminar', indice: index + 2 }),
-      });
-      alert('Tratamiento eliminado');
-      cargarTratamientos();
-    }
+function guardarCambios() {
+  const data = {
+    rubro: document.getElementById("rubroInput").value,
+    subrubro: document.getElementById("subrubroInput").value,
+    duracion: document.getElementById("duracionInput").value,
+    precio: document.getElementById("precioInput").value
+  };
 
-    async function agregarTratamiento() {
-      const nuevo = {
-        rubro: document.getElementById('nuevoRubro').value,
-        subrubro: document.getElementById('nuevoSubrubro').value,
-        nombre: document.getElementById('nuevoNombre').value,
-        detalle: document.getElementById('nuevoDetalle').value,
-        duracion: document.getElementById('nuevaDuracion').value,
-        precio: document.getElementById('nuevoPrecio').value
-      };
+  let url = apiUrl;
+  if (filaEditando !== null) {
+    data.id = filaEditando;
+    data._method = "PUT";
+    url += '?_method=PUT';
+  }
 
-      await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ accion: 'agregar', tratamiento: nuevo }),
-      });
-      alert('Tratamiento agregado');
-      document.querySelectorAll('input').forEach(i => i.value = '');
-      cargarTratamientos();
-    }
-
+  fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(r => r.text())
+  .then(() => {
+    cerrarPopup();
     cargarTratamientos();
-  </script>
+    mostrarNotificacion("✅ Tratamiento guardado exitosamente", "green");
+  });
+}
+
+function eliminar(fila) {
+  if (!confirm("¿Eliminar este tratamiento?")) return;
+
+  const data = {
+    id: fila,
+    _method: "DELETE"
+  };
+
+  fetch(apiUrl + '?_method=DELETE', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(r => r.text())
+  .then(() => {
+    cargarTratamientos();
+    mostrarNotificacion("🗑️ Tratamiento eliminado exitosamente", "red");
+  });
+}
+
+function cerrarPopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+function mostrarNotificacion(mensaje, color) {
+  const notif = document.getElementById("notificacion");
+  notif.style.backgroundColor = (color === "red") ? "#e53935" : "#43a047";
+  notif.innerText = mensaje;
+  notif.style.display = "block";
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 2000);
+}
+
+document.addEventListener("DOMContentLoaded", cargarTratamientos);
+</script>
+
 </body>
 </html>
