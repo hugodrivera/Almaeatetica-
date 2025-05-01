@@ -69,16 +69,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    #detalleTratamiento {
-      display: none;
-      background-color: #fff;
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: left;
-    }
-
     #gracias {
       display: none;
       text-align: center;
@@ -96,7 +86,7 @@
 <div class="container">
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Alma Estética</h1>
-  <h3>Belleza y Bienestar a tu Medida</h3>
+  <h3>Belleza y Bienestar a tu medida</h3>
 
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required>
@@ -115,11 +105,6 @@
     <select id="servicio" required>
       <option value="">Seleccioná un tratamiento</option>
     </select>
-
-    <div id="detalleTratamiento">
-      <p><strong>Duración:</strong> <span id="duracionInfo"></span></p>
-      <p><strong>Precio:</strong> <span id="precioInfo"></span></p>
-    </div>
 
     <input type="date" id="fecha" required>
     <input type="time" id="hora" required>
@@ -143,47 +128,36 @@
 </div>
 
 <script>
-  const endpoint = 'https://script.google.com/macros/s/AKfycbxSr9EkbiiKzWPTxvYFyUeco6cB46RY4dTU4e3ugodD30wHw3cSNSZ-Oua_KiZaKuVI/exec';
+  const endpoint = 'https://script.google.com/macros/s/AKfycbx6EaQH2m-BENOtGSidJ6JAwCh8riGixlfQJFbCavca5P8jvppgtGNY3chTLnSO9o2g/exec';
 
   fetch(endpoint + '?hoja=2')
     .then(res => res.json())
     .then(tratamientos => {
       const select = document.getElementById("servicio");
       const grupos = {};
-      const dataMap = {};
 
       tratamientos.forEach(t => {
-        const rubro = t["Rubro"] || "Sin rubro";
-        const subrubro = t["Subrubro"] || "Sin subrubro";
-        const duracion = t["Duración"] || "-";
-        const precio = t["Precio"] || "-";
+        const rubro = t["Rubro"] || t["rubro"] || "Sin rubro";
+        const subrubro = t["Subrubro"] || t["subrubro"] || "Sin subrubro";
+        const duracion = t["Duración"] || t["duración"] || "";
+        const precio = t["Precio"] || t["precio"] || "";
 
         if (!grupos[rubro]) grupos[rubro] = [];
-        grupos[rubro].push(subrubro);
-        dataMap[subrubro] = { duracion, precio };
+        grupos[rubro].push({ subrubro, duracion, precio });
       });
 
       Object.keys(grupos).forEach(rubro => {
         const optgroup = document.createElement("optgroup");
         optgroup.label = rubro;
-        grupos[rubro].forEach(subrubro => {
+
+        grupos[rubro].forEach(t => {
           const opcion = document.createElement("option");
-          opcion.value = subrubro;
-          opcion.textContent = subrubro;
+          opcion.value = t.subrubro;
+          opcion.textContent = `${t.subrubro} (${t.duracion}, $${t.precio})`;
           optgroup.appendChild(opcion);
         });
-        select.appendChild(optgroup);
-      });
 
-      select.addEventListener("change", e => {
-        const valor = e.target.value;
-        if (dataMap[valor]) {
-          document.getElementById("duracionInfo").textContent = dataMap[valor].duracion;
-          document.getElementById("precioInfo").textContent = dataMap[valor].precio;
-          document.getElementById("detalleTratamiento").style.display = "block";
-        } else {
-          document.getElementById("detalleTratamiento").style.display = "none";
-        }
+        select.appendChild(optgroup);
       });
     })
     .catch(err => console.error("Error cargando tratamientos:", err));
@@ -208,7 +182,6 @@
         document.getElementById('reservaForm').reset();
         document.getElementById('reservaForm').style.display = 'none';
         document.getElementById('gracias').style.display = 'block';
-        document.getElementById('detalleTratamiento').style.display = 'none';
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
       }
