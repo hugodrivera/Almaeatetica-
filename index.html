@@ -137,10 +137,11 @@
       const grupos = {};
 
       tratamientos.forEach(t => {
-        const rubro = t["Rubro"] || t["rubro"] || "Sin rubro";
-        const subrubro = t["Subrubro"] || t["subrubro"] || "Sin subrubro";
-        const duracion = t["Duración"] || t["duración"] || "";
-        const precio = t["Precio"] || t["precio"] || "";
+        const rubro = (t["Rubro"] || "Sin rubro").trim();
+        const subrubro = (t["Subrubro"] || "Sin subrubro").trim();
+        const duracion = (t["Duración"] || "").trim();
+        let precio = (t["Precio"] || "").trim();
+        precio = precio.replace(/\$/g, '').replace(/,/g, '').trim();
 
         if (!grupos[rubro]) grupos[rubro] = [];
         grupos[rubro].push({ subrubro, duracion, precio });
@@ -153,7 +154,7 @@
         grupos[rubro].forEach(t => {
           const opcion = document.createElement("option");
           opcion.value = t.subrubro;
-          opcion.textContent = `${t.subrubro} (${t.duracion}, $${t.precio})`;
+          opcion.textContent = `${t.subrubro} (${t.duracion} - $${t.precio})`;
           optgroup.appendChild(opcion);
         });
 
