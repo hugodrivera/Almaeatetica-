@@ -69,6 +69,16 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    #detalleTratamiento {
+      display: none;
+      background-color: #fff;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
     #gracias {
       display: none;
       text-align: center;
@@ -106,6 +116,11 @@
       <option value="">Seleccioná un tratamiento</option>
     </select>
 
+    <div id="detalleTratamiento">
+      <p><strong>Duración:</strong> <span id="duracionInfo"></span></p>
+      <p><strong>Precio:</strong> <span id="precioInfo"></span></p>
+    </div>
+
     <input type="date" id="fecha" required>
     <input type="time" id="hora" required>
 
@@ -135,29 +150,40 @@
     .then(tratamientos => {
       const select = document.getElementById("servicio");
       const grupos = {};
+      const dataMap = {};
 
       tratamientos.forEach(t => {
         const rubro = t["Rubro"] || "Sin rubro";
         const subrubro = t["Subrubro"] || "Sin subrubro";
-        const duracion = t["Duración"] || "";
-        const precio = t["Precio"] || "";
+        const duracion = t["Duración"] || "-";
+        const precio = t["Precio"] || "-";
 
         if (!grupos[rubro]) grupos[rubro] = [];
-        grupos[rubro].push({ subrubro, duracion, precio });
+        grupos[rubro].push(subrubro);
+        dataMap[subrubro] = { duracion, precio };
       });
 
       Object.keys(grupos).forEach(rubro => {
         const optgroup = document.createElement("optgroup");
         optgroup.label = rubro;
-
-        grupos[rubro].forEach(t => {
+        grupos[rubro].forEach(subrubro => {
           const opcion = document.createElement("option");
-          opcion.value = t.subrubro;
-          opcion.textContent = t.subrubro + (t.duracion && t.precio ? ` (${t.duracion}, ${t.precio})` : "");
+          opcion.value = subrubro;
+          opcion.textContent = subrubro;
           optgroup.appendChild(opcion);
         });
-
         select.appendChild(optgroup);
+      });
+
+      select.addEventListener("change", e => {
+        const valor = e.target.value;
+        if (dataMap[valor]) {
+          document.getElementById("duracionInfo").textContent = dataMap[valor].duracion;
+          document.getElementById("precioInfo").textContent = dataMap[valor].precio;
+          document.getElementById("detalleTratamiento").style.display = "block";
+        } else {
+          document.getElementById("detalleTratamiento").style.display = "none";
+        }
       });
     })
     .catch(err => console.error("Error cargando tratamientos:", err));
@@ -182,6 +208,7 @@
         document.getElementById('reservaForm').reset();
         document.getElementById('reservaForm').style.display = 'none';
         document.getElementById('gracias').style.display = 'block';
+        document.getElementById('detalleTratamiento').style.display = 'none';
       } else {
         alert("❌ Hubo un problema enviando tu reserva.");
       }
