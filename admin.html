@@ -1,4 +1,3 @@
-<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,31 +81,22 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
-      text-align: left;
-      text-indent: 0;
       box-sizing: border-box;
     }
     .modal-card button {
       padding: 10px;
       font-size: 14px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; } to { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body>
   <h1>Administración de Turnos y Tratamientos</h1>
-
   <div id="tablaTurnos"></div>
   <h2>Lista de Tratamientos</h2>
   <div id="tablaTratamientos"></div>
   <div id="modalContainer"></div>
-
   <footer>Design by Hugo Rivera</footer>
 
   <script>
@@ -117,20 +107,15 @@
       const datos = await res.json();
       let html = `<table><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Profesional</th><th>Servicio</th><th>Fecha</th><th>Hora</th><th>Acciones</th></tr>`;
       datos.forEach((fila, i) => {
-        if (i === 0) return;
-        const fecha = fila[4] ? new Date(fila[4]) : "";
-        const hora = fila[5] ? new Date(fila[5]) : "";
-        const fechaFormateada = fecha ? fecha.toLocaleDateString("es-AR") : "";
-        const horaFormateada = hora ? hora.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' }) : "";
-
+        if (i === 0) return; // saltar encabezado
         html += `<tr>
           <td>${i + 1}</td>
-          <td>${fila[0]}</td>
-          <td>${fila[1]}</td>
-          <td>${fila[2]}</td>
-          <td>${fila[3]}</td>
-          <td>${fechaFormateada}</td>
-          <td>${horaFormateada}</td>
+          <td>${fila.nombre || ''}</td>
+          <td>${fila.telefono || ''}</td>
+          <td>${fila.profesional || ''}</td>
+          <td>${fila.servicio || ''}</td>
+          <td>${fila.fecha || ''}</td>
+          <td>${fila.hora || ''}</td>
           <td>
             <button class="editar" onclick="mostrarModalEditarTurno(${i + 1})">Editar</button>
             <button class="eliminar" onclick="eliminarTurno(${i + 1})">Eliminar</button>
@@ -149,10 +134,10 @@
         if (i === 0) return;
         html += `<tr>
           <td>${i + 1}</td>
-          <td>${fila[0]}</td>
-          <td>${fila[1]}</td>
-          <td>${fila[2]}</td>
-          <td>${fila[3]}</td>
+          <td>${fila.Rubro || ''}</td>
+          <td>${fila.Subrubro || ''}</td>
+          <td>${fila.Duración || ''}</td>
+          <td>${fila.Precio || ''}</td>
           <td>
             <button class="editar" onclick="mostrarModalEditarTratamiento(${i + 1})">Editar</button>
             <button class="eliminar" onclick="eliminarTratamiento(${i + 1})">Eliminar</button>
@@ -175,80 +160,6 @@
         method: "POST",
         body: JSON.stringify({ _method: "DELETE", id })
       }).then(() => cargarTratamientos());
-    }
-
-    async function mostrarModalEditarTurno(id) {
-      const res = await fetch(API_URL + "?hoja=1");
-      const datos = await res.json();
-      const fila = datos[id - 1] || ["", "", "", "", "", ""];
-      const fecha = fila[4] ? new Date(fila[4]).toISOString().split('T')[0] : "";
-      const hora = fila[5] ? new Date(fila[5]).toTimeString().slice(0,5) : "";
-
-      const html = `
-      <div class="modal" onclick="this.remove()">
-        <div class="modal-card" onclick="event.stopPropagation()">
-          <input id="editNombre" value="${fila[0]}" placeholder="Nombre">
-          <input id="editTelefono" value="${fila[1]}" placeholder="Teléfono">
-          <input id="editProfesional" value="${fila[2]}" placeholder="Profesional">
-          <input id="editServicio" value="${fila[3]}" placeholder="Servicio">
-          <input id="editFecha" type="date" value="${fecha}">
-          <input id="editHora" type="time" value="${hora}">
-          <button onclick="guardarEdicionTurno(${id})">Guardar</button>
-          <button onclick="document.querySelector('.modal').remove()">Cancelar</button>
-        </div>
-      </div>`;
-      document.getElementById("modalContainer").innerHTML = html;
-    }
-
-    function guardarEdicionTurno(id) {
-      const nombre = document.getElementById("editNombre").value;
-      const telefono = document.getElementById("editTelefono").value;
-      const profesional = document.getElementById("editProfesional").value;
-      const servicio = document.getElementById("editServicio").value;
-      const fecha = document.getElementById("editFecha").value;
-      const hora = document.getElementById("editHora").value;
-
-      fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ _method: "PUT", id, nombre, telefono, profesional, servicio, fecha, hora })
-      }).then(() => {
-        cargarTurnos();
-        document.querySelector(".modal").remove();
-      });
-    }
-
-    async function mostrarModalEditarTratamiento(id) {
-      const res = await fetch(API_URL + "?hoja=2");
-      const datos = await res.json();
-      const fila = datos[id - 1] || ["", "", "", ""];
-
-      const html = `
-      <div class="modal" onclick="this.remove()">
-        <div class="modal-card" onclick="event.stopPropagation()">
-          <input id="editRubro" value="${fila[0]}" placeholder="Rubro">
-          <input id="editSubrubro" value="${fila[1]}" placeholder="Subrubro">
-          <input id="editDuracion" value="${fila[2]}" placeholder="Duración">
-          <input id="editPrecio" value="${fila[3]}" placeholder="Precio">
-          <button onclick="guardarEdicionTratamiento(${id})">Guardar</button>
-          <button onclick="document.querySelector('.modal').remove()">Cancelar</button>
-        </div>
-      </div>`;
-      document.getElementById("modalContainer").innerHTML = html;
-    }
-
-    function guardarEdicionTratamiento(id) {
-      const rubro = document.getElementById("editRubro").value;
-      const subrubro = document.getElementById("editSubrubro").value;
-      const duracion = document.getElementById("editDuracion").value;
-      const precio = document.getElementById("editPrecio").value;
-
-      fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ _method: "PUT", id, rubro, subrubro, duracion, precio })
-      }).then(() => {
-        cargarTratamientos();
-        document.querySelector(".modal").remove();
-      });
     }
 
     cargarTurnos();
