@@ -7,14 +7,14 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: #fce4ec;
+      background: #e0f7fa;
       margin: 0;
       padding: 20px;
       text-align: center;
     }
-    h1 { color: #c2185b; }
+    h1 { color: #007c91; }
     button {
-      background-color: #c2185b;
+      background-color: #007c91;
       color: white;
       padding: 10px 20px;
       border: none;
@@ -35,8 +35,8 @@
       border: 1px solid #ddd;
     }
     th {
-      background-color: #f8bbd0;
-      color: #880e4f;
+      background-color: #b2ebf2;
+      color: #007c91;
     }
     .editar, .eliminar {
       padding: 6px 12px;
@@ -44,8 +44,8 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .editar { background: #c2185b; color: white; }
-    .eliminar { background: #b71c1c; color: white; }
+    .editar { background: #007c91; color: white; }
+    .eliminar { background: #0097a7; color: white; }
     footer {
       margin-top: 40px;
       color: #888;
@@ -60,7 +60,6 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      animation: fadeIn 0.3s ease-in-out;
     }
     .modal-card {
       background: white;
@@ -69,32 +68,22 @@
       width: 90%;
       max-width: 400px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      animation: slideUp 0.3s ease;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
       gap: 10px;
     }
     .modal-card input {
-      width: 100%;
       padding: 10px;
+      font-size: 14px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 14px;
-      box-sizing: border-box;
     }
-    .modal-card button {
-      padding: 10px;
-      font-size: 14px;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body>
   <h1>Administración de Turnos y Tratamientos</h1>
   <div id="tablaTurnos"></div>
-  <h2>Lista de Tratamientos</h2>
+  <h2 style="color: #007c91;">Lista de Tratamientos</h2>
   <div id="tablaTratamientos"></div>
   <div id="modalContainer"></div>
   <footer>Design by Hugo Rivera</footer>
@@ -107,15 +96,15 @@
       const datos = await res.json();
       let html = `<table><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Profesional</th><th>Servicio</th><th>Fecha</th><th>Hora</th><th>Acciones</th></tr>`;
       datos.forEach((fila, i) => {
-        if (i === 0) return; // saltar encabezado
+        if (i === 0) return;
         html += `<tr>
           <td>${i + 1}</td>
           <td>${fila.nombre || ''}</td>
           <td>${fila.telefono || ''}</td>
           <td>${fila.profesional || ''}</td>
           <td>${fila.servicio || ''}</td>
-          <td>${fila.fecha || ''}</td>
-          <td>${fila.hora || ''}</td>
+          <td>${formatearFecha(fila.fecha)}</td>
+          <td>${formatearHora(fila.hora)}</td>
           <td>
             <button class="editar" onclick="mostrarModalEditarTurno(${i + 1})">Editar</button>
             <button class="eliminar" onclick="eliminarTurno(${i + 1})">Eliminar</button>
@@ -136,7 +125,7 @@
           <td>${i + 1}</td>
           <td>${fila.Rubro || ''}</td>
           <td>${fila.Subrubro || ''}</td>
-          <td>${fila.Duración || ''}</td>
+          <td>${fila['Duración'] || ''}</td>
           <td>${fila.Precio || ''}</td>
           <td>
             <button class="editar" onclick="mostrarModalEditarTratamiento(${i + 1})">Editar</button>
@@ -148,11 +137,42 @@
       document.getElementById("tablaTratamientos").innerHTML = html;
     }
 
-    function eliminarTurno(id) {
+    function mostrarModalEditarTratamiento(id) {
+      fetch(API_URL + "?hoja=2")
+        .then(res => res.json())
+        .then(datos => {
+          const fila = datos[id - 1];
+          const modalHTML = `
+            <div class="modal" onclick="cerrarModal(event)">
+              <div class="modal-card">
+                <h3 style="color:#007c91;">Editar Tratamiento</h3>
+                <input type="text" id="rubroEdit" placeholder="Rubro" value="${fila.Rubro || ''}">
+                <input type="text" id="subrubroEdit" placeholder="Subrubro" value="${fila.Subrubro || ''}">
+                <input type="text" id="duracionEdit" placeholder="Duración" value="${fila['Duración'] || ''}">
+                <input type="text" id="precioEdit" placeholder="Precio" value="${fila.Precio || ''}">
+                <button onclick="guardarEdicionTratamiento(${id})">Guardar</button>
+              </div>
+            </div>`;
+          document.getElementById("modalContainer").innerHTML = modalHTML;
+        });
+    }
+
+    function guardarEdicionTratamiento(id) {
+      const data = {
+        _method: "PUT",
+        id,
+        rubro: document.getElementById("rubroEdit").value,
+        subrubro: document.getElementById("subrubroEdit").value,
+        duracion: document.getElementById("duracionEdit").value,
+        precio: document.getElementById("precioEdit").value
+      };
       fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({ _method: "DELETE", id, fecha: true })
-      }).then(() => cargarTurnos());
+        body: JSON.stringify(data)
+      }).then(() => {
+        cerrarModal();
+        cargarTratamientos();
+      });
     }
 
     function eliminarTratamiento(id) {
@@ -160,6 +180,31 @@
         method: "POST",
         body: JSON.stringify({ _method: "DELETE", id })
       }).then(() => cargarTratamientos());
+    }
+
+    function eliminarTurno(id) {
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ _method: "DELETE", id, fecha: true })
+      }).then(() => cargarTurnos());
+    }
+
+    function cerrarModal(e) {
+      if (!e || e.target.classList.contains("modal")) {
+        document.getElementById("modalContainer").innerHTML = "";
+      }
+    }
+
+    function formatearFecha(fecha) {
+      if (!fecha) return '';
+      const f = new Date(fecha);
+      return isNaN(f) ? fecha : f.toISOString().slice(0, 10);
+    }
+
+    function formatearHora(hora) {
+      if (!hora) return '';
+      const h = new Date(hora);
+      return isNaN(h) ? hora : h.toTimeString().slice(0, 5);
     }
 
     cargarTurnos();
