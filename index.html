@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: 'Poppins', Arial, sans-serif;
-      background-color: #fbe9f0;
+      background-color: #e0f7fa;
       margin: 0;
       padding: 0;
       display: flex;
@@ -48,18 +48,27 @@
       animation: fadeInDown 1.5s ease;
     }
     h1 {
-      color: #c2185b;
+      color: #00838f;
       font-size: 28px;
       margin: 10px 0;
     }
     h3 {
-      color: #ad1457;
+      color: #007c91;
       font-weight: normal;
       font-size: 20px;
     }
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
+    #detalleTratamiento {
+      display: none;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    #detalleTratamiento h4 {
+      color: #007c91;
+      margin-bottom: 10px;
     }
     #gracias {
       display: none;
@@ -71,13 +80,17 @@
       margin-top: 30px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <img src="logo.jpg" alt="Logo Alma Estética">
   <h1>Alma Estética</h1>
-  <h3>Belleza y Bienestar a tu medida</h3>
+  <h3>Belleza y Bienestar a tu Medida</h3>
 
   <form id="reservaForm">
     <input type="text" id="nombre" placeholder="Tu nombre" required>
@@ -99,27 +112,43 @@
     <button type="submit">Reservar Turno</button>
   </form>
 
+  <div id="detalleTratamiento">
+    <h4>Detalle del Tratamiento</h4>
+    <p><strong>Profesional:</strong> <span id="infoProfesional"></span></p>
+    <p><strong>Duración:</strong> <span id="infoDuracion"></span></p>
+    <p><strong>Precio:</strong> <span id="infoPrecio"></span></p>
+  </div>
+
   <div id="gracias">
-    <h1 style="color: #c2185b; font-size: 30px;">¡Gracias por reservar!</h1>
+    <h1 style="color: #007c91; font-size: 30px;">¡Gracias por reservar!</h1>
     <p style="font-size: 18px; color: #555;">Te esperamos en Alma Estética 💖</p>
-    <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #c2185b; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <button onclick="volverFormulario()" style="margin-top: 20px; padding: 12px 20px; background-color: #007c91; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
       Reservar otro turno
     </button>
   </div>
 
-  <div style="margin-top: 40px;">
-    <h3 style="color: #c2185b;">¿Dónde estamos?</h3>
-    <p style="color: #555;">Sarmiento 407, Concepción, Tucumán</p>
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3575.333828796655!2d-65.5951935849649!3d-27.347803982916014" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <div style="margin-top: 40px; padding: 20px; background: #fff; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <h3 style="color: #007c91; margin-bottom: 10px;">¿Dónde estamos?</h3>
+    <p style="color: #555; margin-bottom: 15px;">Sarmiento 407, Concepción, Tucumán</p>
+    <iframe 
+      src="https://www.google.com/maps?q=Sarmiento+407,+Concepción,+Tucumán,+Argentina&output=embed" 
+      width="100%" 
+      height="250" 
+      style="border:0; border-radius: 12px;" 
+      allowfullscreen="" 
+      loading="lazy">
+    </iframe>
   </div>
 </div>
 
 <script>
   const endpoint = 'https://script.google.com/macros/s/AKfycbyVu4QS606lJZY-vLxBp29EGuRyGpWaNSjzkJZY_XosiOlGteOrEOmsqVngYvf2J49p/exec';
+  let tratamientos = [];
 
   fetch(endpoint + '?hoja=2')
     .then(res => res.json())
     .then(data => {
+      tratamientos = data;
       const select = document.getElementById("servicio");
       const grupos = {};
 
@@ -140,7 +169,7 @@
         grupos[rubro].forEach(t => {
           const opcion = document.createElement("option");
           opcion.value = t.subrubro;
-          opcion.textContent = `${t.subrubro} (${t.duracion}, ${t.precio})`;
+          opcion.textContent = t.subrubro;
           optgroup.appendChild(opcion);
         });
 
@@ -148,6 +177,17 @@
       });
     })
     .catch(err => console.error("Error cargando tratamientos:", err));
+
+  document.getElementById('servicio').addEventListener('change', function () {
+    const tratamiento = tratamientos.find(t => t.Subrubro === this.value);
+    const profesional = document.getElementById("profesional").value;
+    if (tratamiento) {
+      document.getElementById("infoProfesional").textContent = profesional;
+      document.getElementById("infoDuracion").textContent = tratamiento["Duración"];
+      document.getElementById("infoPrecio").textContent = tratamiento["Precio"];
+      document.getElementById("detalleTratamiento").style.display = 'block';
+    }
+  });
 
   document.getElementById('reservaForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -167,6 +207,7 @@
     .then(response => {
       if (response.ok) {
         document.getElementById('reservaForm').reset();
+        document.getElementById('detalleTratamiento').style.display = 'none';
         document.getElementById('reservaForm').style.display = 'none';
         document.getElementById('gracias').style.display = 'block';
       } else {
