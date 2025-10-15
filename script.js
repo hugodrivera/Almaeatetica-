@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const resultsTableBody = document.querySelector('#results-table');
     const tableHead = document.querySelector('thead tr');
-    // Nuevas referencias para el visor de imagen
     const imageViewerBar = document.getElementById('image-viewer-bar');
     const imageDisplay = document.getElementById('image-display');
     const itemCode = document.getElementById('item-code');
@@ -22,10 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingState = document.getElementById('loading-state');
     const addArticleModal = new bootstrap.Modal(document.getElementById('addArticleModal'));
     const editArticleModal = new bootstrap.Modal(document.getElementById('editArticleModal'));
-    // Nueva modal para la imagen ampliada
     const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
     const modalImage = document.getElementById('modal-image');
-
     const addArticleForm = document.getElementById('add-article-form');
     const saveArticleBtn = document.getElementById('save-article-btn');
     const updateArticleBtn = document.getElementById('update-article-btn');
@@ -69,9 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (header !== 'id') {
                     const cell = document.createElement('td');
                     if (header === 'imagen' && article[header]) {
-                        cell.textContent = '✓';
+                        cell.innerHTML = '✓';
                     } else if (header === 'imagen' && !article[header]) {
-                        cell.textContent = '✗';
+                        cell.innerHTML = '<span class="text-danger">✗</span>';
                     }
                     else {
                         cell.textContent = article[header] || '';
@@ -126,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 addArticleForm.reset(); addArticleModal.hide(); performSearch();
             }
         }
-        saveArticleBtn.disabled = false; saveArticleBtn.textContent = 'Guardar Artículo';
+        saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
     };
 
     const openEditModal = (article) => {
@@ -162,15 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
             Swal.fire('¡Éxito!', 'Artículo actualizado correctamente.', 'success');
             editArticleModal.hide(); performSearch();
         }
-        updateArticleBtn.disabled = false; updateArticleBtn.textContent = 'Actualizar Cambios';
+        updateArticleBtn.disabled = false; updateArticleBtn.innerHTML = 'Actualizar Cambios';
     };
 
     const deleteArticle = async (article) => {
         const result = await Swal.fire({
-            title: '¿Estás seguro?',
-            text: `Vas a eliminar "${article.DESCRIPCION}". ¡No podrás revertir esto!`,
-            icon: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33', confirmButtonText: 'Sí, ¡bórralo!', cancelButtonText: 'Cancelar'
+            title: '¿Estás seguro?', text: `Vas a eliminar "${article.DESCRIPCION}". ¡No podrás revertir esto!`,
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, ¡bórralo!', cancelButtonText: 'Cancelar'
         });
         if (result.isConfirmed) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
@@ -188,28 +184,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleFileImport = (event) => {
         const file = event.target.files[0];
         if (!file) return;
-        loadingState.textContent = 'Importando datos, por favor espera...';
-        loadingState.style.display = 'block';
+        importBtn.disabled = true;
+        importBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Importando...';
         Papa.parse(file, {
             header: true, skipEmptyLines: true,
             complete: async (results) => {
                 const articlesToInsert = results.data;
                 if (articlesToInsert.length === 0) {
-                    return Swal.fire('Archivo vacío', 'El archivo CSV está vacío o no tiene el formato correcto.', 'info');
-                }
-                const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
-                if (error) {
-                    console.error('Error en la importación masiva:', error);
-                    Swal.fire('Error de importación', `Error: ${error.message}. Asegúrate de que los nombres de las columnas coincidan.`, 'error');
+                    Swal.fire('Archivo vacío', 'El archivo CSV está vacío o no tiene el formato correcto.', 'info');
                 } else {
-                    Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
-                    performSearch();
+                    const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
+                    if (error) {
+                        Swal.fire('Error de importación', `Error: ${error.message}. Asegúrate de que las columnas coincidan.`, 'error');
+                    } else {
+                        Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
+                        performSearch();
+                    }
                 }
                 csvFileInput.value = '';
-            },
-            error: (err) => {
-                Swal.fire('Error de lectura', "No se pudo leer el archivo CSV.", 'error');
-                console.error(err); csvFileInput.value = '';
+                importBtn.disabled = false;
+                importBtn.innerHTML = '📤 Importar desde CSV';
             }
         });
     };
@@ -234,9 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // ===== NUEVO EVENTO DE DOBLE CLIC EN LA IMAGEN =====
     imageDisplay.addEventListener('dblclick', () => {
-        // Si la imagen actual no es la de por defecto, la muestra en la modal
         if (imageDisplay.src && imageDisplay.src !== DEFAULT_IMAGE_URL) {
             modalImage.src = imageDisplay.src;
             imageModal.show();
