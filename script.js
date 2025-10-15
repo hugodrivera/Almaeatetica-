@@ -232,10 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ===== BÚSQUEDA CORREGIDA Y OPTIMIZADA =====
     let searchTimeout;
     searchInput.addEventListener('keyup', (e) => {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => performSearch(e.target.value.trim()), 300);
+        // Espera 300ms después de que el usuario deja de teclear para buscar
+        searchTimeout = setTimeout(() => {
+            performSearch(e.target.value.trim().toLowerCase());
+        }, 300);
     });
 
     saveArticleBtn.addEventListener('click', saveNewArticle);
