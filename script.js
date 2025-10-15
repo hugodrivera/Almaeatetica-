@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncImagesBtn = document.getElementById('sync-images-btn');
 
     let tableHeaders = [];
+    
+    // PASO 3: Pega la URL de tu imagen "sin_foto.png" que subiste a Supabase
     const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg';
 
     const uploadImage = async (file) => {
@@ -137,18 +139,72 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateArticle = async () => {
-        // ... (código sin cambios)
+        const articleId = document.getElementById('edit-form-id').value;
+        const imageFile = document.getElementById('edit-form-imagen').files[0];
+        updateArticleBtn.disabled = true;
+        updateArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Actualizando...';
+        const updatedArticle = {
+            PRODUCTO: document.getElementById('edit-form-producto').value, MARCA: document.getElementById('edit-form-marca').value,
+            CODIGO: document.getElementById('edit-form-codigo').value, DESCRIPCION: document.getElementById('edit-form-descripcion').value,
+            APLICACION: document.getElementById('edit-form-aplicacion').value,
+        };
+        if (imageFile) {
+            const imageUrl = await uploadImage(imageFile);
+            if (imageUrl) { updatedArticle.imagen = imageUrl; }
+        }
+        const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
+        if (error) {
+            Swal.fire('Error', 'No se pudo actualizar el artículo.', 'error');
+        } else {
+            Swal.fire('¡Éxito!', 'Artículo actualizado correctamente.', 'success');
+            editArticleModal.hide(); performSearch();
+        }
+        updateArticleBtn.disabled = false; updateArticleBtn.innerHTML = 'Actualizar Cambios';
     };
 
     const deleteArticle = async (article) => {
-        // ... (código sin cambios)
+        const result = await Swal.fire({
+            title: '¿Estás seguro?', text: `Vas a eliminar "${article.DESCRIPCION}".`, icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, ¡bórralo!', cancelButtonText: 'Cancelar'
+        });
+        if (result.isConfirmed) {
+            const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
+            if (error) {
+                Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
+            } else {
+                Swal.fire('¡Eliminado!', 'El artículo ha sido eliminado.', 'success');
+                imageViewerBar.classList.add('d-none'); performSearch();
+            }
+        }
     };
     
     const handleFileImport = (event) => {
-        // ... (código sin cambios)
+        const file = event.target.files[0];
+        if (!file) return;
+        importBtn.disabled = true;
+        importBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
+        Papa.parse(file, {
+            header: true, skipEmptyLines: true,
+            complete: async (results) => {
+                const articlesToInsert = results.data;
+                if (articlesToInsert.length === 0) {
+                    Swal.fire('Archivo vacío', 'El archivo CSV está vacío o no tiene el formato correcto.', 'info');
+                } else {
+                    const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
+                    if (error) {
+                        Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
+                    } else {
+                        Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
+                        performSearch();
+                    }
+                }
+                csvFileInput.value = '';
+                importBtn.disabled = false; importBtn.innerHTML = '📤 Importar CSV';
+            }
+        });
     };
-
-    // ===== FUNCIÓN DE SINCRONIZACIÓN CORREGIDA =====
+    
     const syncImages = async () => {
         const result = await Swal.fire({
             title: '¿Sincronizar Imágenes?',
@@ -161,16 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
         syncImagesBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sincronizando...';
         
         try {
-            // 1. Obtener todos los archivos del bucket de una vez
             const { data: filesInBucket, error: listError } = await supabaseClient.storage.from(BUCKET_NAME).list();
             if (listError) throw listError;
 
-            // 2. Obtener artículos que tienen un nombre de imagen pero NO es una URL
             const { data: articlesToUpdate, error: selectError } = await supabaseClient
-                .from('articulos')
-                .select('id, imagen')
-                .not('imagen', 'is', null)       // Que tengan algo en la columna imagen
-                .not('imagen', 'ilike', 'http%'); // Pero que no sea una URL
+                .from('articulos').select('id, imagen').not('imagen', 'is', null).not('imagen', 'ilike', 'http%');
 
             if (selectError) throw selectError;
 
@@ -185,32 +236,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for (const article of articlesToUpdate) {
                 if (!article.imagen) continue;
-
-                // El nombre del archivo está directamente en la columna 'imagen'
                 const expectedFileName = article.imagen.trim();
-                
-                // Busca el archivo que coincida en el bucket (ignorando mayúsculas/minúsculas)
-                const matchedFile = filesInBucket.find(file => 
-                    file.name.toLowerCase() === expectedFileName.toLowerCase()
-                );
+                const matchedFile = filesInBucket.find(file => file.name.toLowerCase() === expectedFileName.toLowerCase());
                 
                 if (matchedFile) {
-                    // Si lo encuentra, genera la URL pública y la añade a la lista de actualizaciones
                     const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(matchedFile.name);
                     updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
                     matchedCount++;
                 } else {
-                    console.log(`No se encontró el archivo de imagen: '${expectedFileName}' para el artículo con ID: ${article.id}`);
+                    console.log(`No se encontró el archivo: '${expectedFileName}' para el artículo ID: ${article.id}`);
                 }
             }
             
             if (updates.length > 0) {
-                // Envía todas las actualizaciones a Supabase de una sola vez
                 const { error: updateError } = await supabaseClient.from('articulos').upsert(updates);
                 if (updateError) throw updateError;
             }
 
-            Swal.fire('¡Sincronización Completa!', `Se actualizaron las URLs de ${matchedCount} imágenes. Revisa la consola (F12) para detalles.`, 'success');
+            Swal.fire('¡Sincronización Completa!', `Se actualizaron ${matchedCount} URLs de imágenes.`, 'success');
             performSearch();
 
         } catch (error) {
@@ -223,11 +266,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     resultsTableBody.addEventListener('click', (e) => {
-        // ... (código sin cambios)
+        const target = e.target.closest('button');
+        const row = e.target.closest('tr');
+        if (!row) return;
+        const articleData = JSON.parse(row.dataset.article);
+        if (target && target.classList.contains('btn-edit')) {
+            openEditModal(articleData);
+        } else if (target && target.classList.contains('btn-delete')) {
+            deleteArticle(articleData);
+        } else {
+            document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-primary'));
+            row.classList.add('table-primary');
+            imageViewerBar.classList.remove('d-none');
+            imageDisplay.src = articleData.imagen || DEFAULT_IMAGE_URL;
+            itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
+            itemInfo.textContent = articleData.DESCRIPCION || '';
+            imageDisplay.onerror = () => { imageDisplay.src = DEFAULT_IMAGE_URL; };
+        }
     });
     
     imageDisplay.addEventListener('dblclick', () => {
-        // ... (código sin cambios)
+        if (imageDisplay.src && imageDisplay.src !== DEFAULT_IMAGE_URL) {
+            modalImage.src = imageDisplay.src;
+            imageModal.show();
+        }
     });
 
     let searchTimeout;
