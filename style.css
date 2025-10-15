@@ -1,0 +1,21 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#results-table tr {
+    cursor: pointer;
+}
+
+#image-container {
+    min-height: 400px;
+}
+
+#image-display {
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.table-responsive {
+    max-height: 70vh;
+    overflow-y: auto;
+}
