@@ -3,71 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscador de Artículos Web</title>
+    <title>Buscador de Artículos Marpla (Supabase)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-light">
-    <div class="modal fade" id="addArticleModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Agregar Nuevo Artículo</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="add-article-form">
-                <div class="mb-3"><label class="form-label">PRODUCTO</label><input type="text" class="form-control" id="form-producto"></div>
-                <div class="mb-3"><label class="form-label">MARCA</label><input type="text" class="form-control" id="form-marca"></div>
-                <div class="mb-3"><label class="form-label">CODIGO</label><input type="text" class="form-control" id="form-codigo" required></div>
-                <div class="mb-3"><label class="form-label">DESCRIPCION</label><input type="text" class="form-control" id="form-descripcion" required></div>
-                <div class="mb-3"><label class="form-label">APLICACIÓN</label><input type="text" class="form-control" id="form-aplicacion"></div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Imagen</label>
-                    <input type="file" class="form-control" id="form-imagen" accept="image/*">
-                </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary" id="save-article-btn">Guardar Artículo</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="modal fade" id="editArticleModal" tabindex="-1" aria-hidden="true">
-         <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Editar Artículo</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="edit-article-form">
-                <input type="hidden" id="edit-form-id">
-                <div class="mb-3"><label class="form-label">PRODUCTO</label><input type="text" class="form-control" id="edit-form-producto"></div>
-                <div class="mb-3"><label class="form-label">MARCA</label><input type="text" class="form-control" id="edit-form-marca"></div>
-                <div class="mb-3"><label class="form-label">CODIGO</label><input type="text" class="form-control" id="edit-form-codigo" required></div>
-                <div class="mb-3"><label class="form-label">DESCRIPCION</label><input type="text" class="form-control" id="edit-form-descripcion" required></div>
-                <div class="mb-3"><label class="form-label">APLICACIÓN</label><input type="text" class="form-control" id="edit-form-aplicacion"></div>
-
-                <div class="mb-3">
-                    <label class="form-label">Cargar nueva imagen (opcional)</label>
-                    <input type="file" class="form-control" id="edit-form-imagen" accept="image/*">
-                </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-success" id="update-article-btn">Actualizar Cambios</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <div class="container mt-4">
         <header class="text-center mb-4">
             <h1>Buscador de Artículos Marpla (Supabase)</h1>
@@ -102,6 +44,46 @@
             </div>
         </main>
     </div>
+
+    <div class="modal fade" id="addArticleModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">Agregar Nuevo Artículo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <form id="add-article-form">
+                <div class="mb-3"><label class="form-label">PRODUCTO</label><input type="text" class="form-control" id="form-producto"></div>
+                <div class="mb-3"><label class="form-label">MARCA</label><input type="text" class="form-control" id="form-marca"></div>
+                <div class="mb-3"><label class="form-label">CODIGO</label><input type="text" class="form-control" id="form-codigo" required></div>
+                <div class="mb-3"><label class="form-label">DESCRIPCION</label><input type="text" class="form-control" id="form-descripcion" required></div>
+                <div class="mb-3"><label class="form-label">APLICACIÓN</label><input type="text" class="form-control" id="form-aplicacion"></div>
+                <div class="mb-3"><label class="form-label">Imagen</label><input type="file" class="form-control" id="form-imagen" accept="image/*"></div>
+            </form>
+          </div>
+          <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="save-article-btn">Guardar Artículo</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editArticleModal" tabindex="-1" aria-hidden="true">
+         <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">Editar Artículo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <form id="edit-article-form">
+                <input type="hidden" id="edit-form-id">
+                <div class="mb-3"><label class="form-label">PRODUCTO</label><input type="text" class="form-control" id="edit-form-producto"></div>
+                <div class="mb-3"><label class="form-label">MARCA</label><input type="text" class="form-control" id="edit-form-marca"></div>
+                <div class="mb-3"><label class="form-label">CODIGO</label><input type="text" class="form-control" id="edit-form-codigo" required></div>
+                <div class="mb-3"><label class="form-label">DESCRIPCION</label><input type="text" class="form-control" id="edit-form-descripcion" required></div>
+                <div class="mb-3"><label class="form-label">APLICACIÓN</label><input type="text" class="form-control" id="edit-form-aplicacion"></div>
+                <div class="mb-3"><label class="form-label">Cargar nueva imagen (opcional)</label><input type="file" class="form-control" id="edit-form-imagen" accept="image/*"></div>
+            </form>
+          </div>
+          <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-success" id="update-article-btn">Actualizar Cambios</button></div>
+        </div>
+      </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
