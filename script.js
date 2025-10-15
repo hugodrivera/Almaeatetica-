@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const resultsTableBody = document.querySelector('#results-table');
     const tableHead = document.querySelector('thead tr');
+    // Nuevas referencias para el visor de imagen
+    const imageViewerBar = document.getElementById('image-viewer-bar');
     const imageDisplay = document.getElementById('image-display');
     const itemCode = document.getElementById('item-code');
     const itemInfo = document.getElementById('item-info');
@@ -28,17 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tableHeaders = [];
     
-    // PASO 3: Pega la URL de tu imagen "sin_foto.png" que subiste a Supabase
+    // ===== PASO 3: Pega aquí la URL de tu imagen "sin_foto.png" =====
     const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg';
 
     const uploadImage = async (file) => {
         if (!file) return null;
         const fileName = `${Date.now()}-${file.name}`;
         const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(fileName, file);
-        if (error) {
-            console.error('Error subiendo imagen:', error);
-            return null;
-        }
+        if (error) { console.error('Error subiendo imagen:', error); return null; }
         const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fileName);
         return data.publicUrl;
     };
@@ -47,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsTableBody.innerHTML = '';
         tableHead.innerHTML = '';
         if (articles.length > 0) {
-            tableHeaders = Object.keys(articles[0]).filter(h => h !== 'fts'); // Ocultar la columna fts
+            tableHeaders = Object.keys(articles[0]).filter(h => h !== 'fts');
             tableHeaders.forEach(header => {
                 if (header !== 'id') {
                     const th = document.createElement('th');
@@ -65,11 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             row.dataset.article = JSON.stringify(article);
             tableHeaders.forEach(header => {
-                 if (header !== 'id') {
+                if (header !== 'id') {
                     const cell = document.createElement('td');
                     if (header === 'imagen' && article[header]) {
-                        cell.textContent = 'Imagen en la nube';
-                    } else {
+                        cell.textContent = '✓';
+                    } else if (header === 'imagen' && !article[header]) {
+                        cell.textContent = '✗';
+                    }
+                    else {
                         cell.textContent = article[header] || '';
                     }
                     row.appendChild(cell);
@@ -82,19 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ===== FUNCIÓN DE BÚSQUEDA CORREGIDA (BUSCA PARTES DE TODAS LAS PALABRAS) =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
-
             if (query) {
-                // Formatea la búsqueda: "buji bos" se convierte en "buji:* & bos:*"
                 const formattedQuery = query.trim().split(' ').filter(term => term).map(term => term + ':*').join(' & ');
                 supabaseQuery = supabaseQuery.textSearch('fts', formattedQuery);
             }
-
             const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
@@ -107,32 +105,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveNewArticle = async () => {
         const imageFile = document.getElementById('form-imagen').files[0];
         saveArticleBtn.disabled = true;
-        saveArticleBtn.textContent = 'Guardando...';
+        saveArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
         const imageUrl = await uploadImage(imageFile);
         const newArticle = {
-            PRODUCTO: document.getElementById('form-producto').value,
-            MARCA: document.getElementById('form-marca').value,
-            CODIGO: document.getElementById('form-codigo').value,
-            DESCRIPCION: document.getElementById('form-descripcion').value,
-            APLICACION: document.getElementById('form-aplicacion').value,
-            imagen: imageUrl,
+            PRODUCTO: document.getElementById('form-producto').value, MARCA: document.getElementById('form-marca').value,
+            CODIGO: document.getElementById('form-codigo').value, DESCRIPCION: document.getElementById('form-descripcion').value,
+            APLICACION: document.getElementById('form-aplicacion').value, imagen: imageUrl,
         };
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
-            alert('El CODIGO y la DESCRIPCION son obligatorios.');
+            Swal.fire('Campos incompletos', 'El CODIGO y la DESCRIPCION son obligatorios.', 'warning');
         } else {
             const { error } = await supabaseClient.from('articulos').insert([newArticle]);
             if (error) {
                 console.error('Error al guardar:', error);
-                alert('No se pudo guardar el artículo.');
+                Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
             } else {
-                alert('¡Artículo guardado!');
-                addArticleForm.reset();
-                addArticleModal.hide();
-                performSearch();
+                Swal.fire('¡Éxito!', 'Artículo guardado correctamente.', 'success');
+                addArticleForm.reset(); addArticleModal.hide(); performSearch();
             }
         }
-        saveArticleBtn.disabled = false;
-        saveArticleBtn.textContent = 'Guardar Artículo';
+        saveArticleBtn.disabled = false; saveArticleBtn.textContent = 'Guardar Artículo';
     };
 
     const openEditModal = (article) => {
@@ -150,41 +142,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const articleId = document.getElementById('edit-form-id').value;
         const imageFile = document.getElementById('edit-form-imagen').files[0];
         updateArticleBtn.disabled = true;
-        updateArticleBtn.textContent = 'Actualizando...';
+        updateArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Actualizando...';
         const updatedArticle = {
-            PRODUCTO: document.getElementById('edit-form-producto').value,
-            MARCA: document.getElementById('edit-form-marca').value,
-            CODIGO: document.getElementById('edit-form-codigo').value,
-            DESCRIPCION: document.getElementById('edit-form-descripcion').value,
+            PRODUCTO: document.getElementById('edit-form-producto').value, MARCA: document.getElementById('edit-form-marca').value,
+            CODIGO: document.getElementById('edit-form-codigo').value, DESCRIPCION: document.getElementById('edit-form-descripcion').value,
             APLICACION: document.getElementById('edit-form-aplicacion').value,
         };
         if (imageFile) {
             const imageUrl = await uploadImage(imageFile);
-            if (imageUrl) {
-                updatedArticle.imagen = imageUrl;
-            }
+            if (imageUrl) { updatedArticle.imagen = imageUrl; }
         }
         const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
         if (error) {
             console.error('Error al actualizar:', error);
-            alert('No se pudo actualizar el artículo.');
+            Swal.fire('Error', 'No se pudo actualizar el artículo.', 'error');
         } else {
-            alert('¡Artículo actualizado!');
-            editArticleModal.hide();
-            performSearch();
+            Swal.fire('¡Éxito!', 'Artículo actualizado correctamente.', 'success');
+            editArticleModal.hide(); performSearch();
         }
-        updateArticleBtn.disabled = false;
-        updateArticleBtn.textContent = 'Actualizar Cambios';
+        updateArticleBtn.disabled = false; updateArticleBtn.textContent = 'Actualizar Cambios';
     };
 
     const deleteArticle = async (article) => {
-        if (confirm(`¿Estás seguro de que quieres eliminar "${article.DESCRIPCION}"?`)) {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Vas a eliminar "${article.DESCRIPCION}". ¡No podrás revertir esto!`,
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33', confirmButtonText: 'Sí, ¡bórralo!', cancelButtonText: 'Cancelar'
+        });
+        if (result.isConfirmed) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
             if (error) {
                 console.error('Error al eliminar:', error);
-                alert('No se pudo eliminar el artículo.');
+                Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
             } else {
-                alert('¡Artículo eliminado!');
+                Swal.fire('¡Eliminado!', 'El artículo ha sido eliminado.', 'success');
+                imageViewerBar.classList.add('d-none'); // Ocultar barra si se borra el item seleccionado
                 performSearch();
             }
         }
@@ -196,27 +189,25 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingState.textContent = 'Importando datos, por favor espera...';
         loadingState.style.display = 'block';
         Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
+            header: true, skipEmptyLines: true,
             complete: async (results) => {
                 const articlesToInsert = results.data;
                 if (articlesToInsert.length === 0) {
-                    return alert("El archivo CSV está vacío o no tiene el formato correcto.");
+                    return Swal.fire('Archivo vacío', 'El archivo CSV está vacío o no tiene el formato correcto.', 'info');
                 }
                 const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
                 if (error) {
                     console.error('Error en la importación masiva:', error);
-                    alert(`Error al importar: ${error.message}\n\nAsegúrate de que los nombres de las columnas en el CSV coincidan EXACTAMENTE con los de la base de datos.`);
+                    Swal.fire('Error de importación', `Error: ${error.message}. Asegúrate de que los nombres de las columnas coincidan.`, 'error');
                 } else {
-                    alert(`¡Importación completada! Se procesaron ${articlesToInsert.length} artículos.`);
+                    Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
                     performSearch();
                 }
                 csvFileInput.value = '';
             },
             error: (err) => {
-                alert("Error al leer el archivo CSV.");
-                console.error(err);
-                csvFileInput.value = '';
+                Swal.fire('Error de lectura', "No se pudo leer el archivo CSV.", 'error');
+                console.error(err); csvFileInput.value = '';
             }
         });
     };
@@ -231,8 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (target && target.classList.contains('btn-delete')) {
             deleteArticle(articleData);
         } else {
-            document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
-            row.classList.add('active');
+            document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-primary'));
+            row.classList.add('table-primary');
+            imageViewerBar.classList.remove('d-none');
             imageDisplay.src = articleData.imagen || DEFAULT_IMAGE_URL;
             itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
             itemInfo.textContent = articleData.DESCRIPCION || '';
