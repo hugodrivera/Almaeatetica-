@@ -6,7 +6,6 @@ const BUCKET_NAME = 'imagenes-productos';
 // ------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (Referencias a elementos se mantienen igual)
     const searchInput = document.getElementById('search-input');
     const resultsTableBody = document.querySelector('#results-table');
     const tableHead = document.querySelector('thead tr');
@@ -21,26 +20,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateArticleBtn = document.getElementById('update-article-btn');
 
     let tableHeaders = [];
-    
-    // Función para subir una imagen y devolver la URL pública
+
     const uploadImage = async (file) => {
         if (!file) return null;
-
         const fileName = `${Date.now()}-${file.name}`;
-        const { data, error } = await supabaseClient.storage
-            .from(BUCKET_NAME)
-            .upload(fileName, file);
-
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(fileName, file);
         if (error) {
             console.error('Error subiendo imagen:', error);
             return null;
         }
+        const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fileName);
+        return data.publicUrl;
+    };
 
-        const { data: publicUrlData } = supabaseClient.storage
-            .from(BUCKET_NAME)
-            .getPublicUrl(fileName);
-        
-        return publicUrlData.publicUrl;
+    const displayResults = (articles) => {
+        resultsTableBody.innerHTML = '';
+        tableHead.innerHTML = '';
+        if (articles.length > 0) {
+            tableHeaders = Object.keys(articles[0]);
+            tableHeaders.filter(h => h !== 'id').forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header.toUpperCase();
+                tableHead.appendChild(th);
+            });
+            const thActions = document.createElement('th');
+            thActions.textContent = 'ACCIONES';
+            tableHead.appendChild(thActions);
+        }
+        loadingState.style.display = articles.length === 0 ? 'block' : 'none';
+        loadingState.textContent = 'No se encontraron resultados.';
+
+        articles.forEach(article => {
+            const row = document.createElement('tr');
+            row.dataset.article = JSON.stringify(article);
+            tableHeaders.filter(h => h !== 'id').forEach(header => {
+                const cell = document.createElement('td');
+                cell.textContent = article[header] || '';
+                row.appendChild(cell);
+            });
+            const actionsCell = document.createElement('td');
+            actionsCell.innerHTML = `<button class="btn btn-sm btn-warning btn-edit" title="Editar">✏️</button> <button class="btn btn-sm btn-danger btn-delete" title="Eliminar">🗑️</button>`;
+            row.appendChild(actionsCell);
+            resultsTableBody.appendChild(row);
+        });
+    };
+
+    const performSearch = async (query = '') => {
+        loadingState.textContent = 'Buscando...';
+        loadingState.style.display = 'block';
+        try {
+            let supabaseQuery = supabaseClient.from('articulos').select();
+            if (query) {
+                const searchQuery = `%${query}%`;
+                supabaseQuery = supabaseQuery.or(`CODIGO.ilike.${searchQuery},DESCRIPCION.ilike.${searchQuery},APLICACIÓN.ilike.${searchQuery},MARCA.ilike.${searchQuery},PRODUCTO.ilike.${searchQuery}`);
+            }
+            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(100);
+            if (error) throw error;
+            displayResults(articles);
+        } catch (error) {
+            console.error('Error al buscar:', error);
+            loadingState.textContent = 'Error al conectar.';
+        }
     };
 
     const saveNewArticle = async () => {
@@ -56,27 +96,36 @@ document.addEventListener('DOMContentLoaded', () => {
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
             APLICACIÓN: document.getElementById('form-aplicacion').value,
-            imagen: imageUrl, // Guardamos la URL de la imagen o null
+            imagen: imageUrl,
         };
+
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
-             saveArticleBtn.disabled = false;
-             saveArticleBtn.textContent = 'Guardar Artículo';
-            return alert('El CODIGO y la DESCRIPCION son obligatorios.');
-        }
-
-        const { error } = await supabaseClient.from('articulos').insert([newArticle]);
-
-        if (error) {
-            console.error('Error al guardar:', error);
-            alert('No se pudo guardar el artículo.');
+            alert('El CODIGO y la DESCRIPCION son obligatorios.');
         } else {
-            alert('¡Artículo guardado!');
-            addArticleForm.reset();
-            addArticleModal.hide();
-            performSearch('');
+            const { error } = await supabaseClient.from('articulos').insert([newArticle]);
+            if (error) {
+                console.error('Error al guardar:', error);
+                alert('No se pudo guardar el artículo.');
+            } else {
+                alert('¡Artículo guardado!');
+                addArticleForm.reset();
+                addArticleModal.hide();
+                performSearch();
+            }
         }
         saveArticleBtn.disabled = false;
         saveArticleBtn.textContent = 'Guardar Artículo';
+    };
+
+    const openEditModal = (article) => {
+        document.getElementById('edit-form-id').value = article.id;
+        document.getElementById('edit-form-producto').value = article.PRODUCTO || '';
+        document.getElementById('edit-form-marca').value = article.MARCA || '';
+        document.getElementById('edit-form-codigo').value = article.CODIGO || '';
+        document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
+        document.getElementById('edit-form-aplicacion').value = article.APLICACIÓN || '';
+        document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
+        editArticleModal.show();
     };
 
     const updateArticle = async () => {
@@ -84,11 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageFile = document.getElementById('edit-form-imagen').files[0];
         updateArticleBtn.disabled = true;
         updateArticleBtn.textContent = 'Actualizando...';
-
-        let imageUrl;
-        if (imageFile) {
-            imageUrl = await uploadImage(imageFile);
-        }
 
         const updatedArticle = {
             PRODUCTO: document.getElementById('edit-form-producto').value,
@@ -98,136 +142,67 @@ document.addEventListener('DOMContentLoaded', () => {
             APLICACIÓN: document.getElementById('edit-form-aplicacion').value,
         };
 
-        // Solo añadimos la imagen al objeto si se cargó una nueva
-        if (imageUrl) {
-            updatedArticle.imagen = imageUrl;
+        if (imageFile) {
+            const imageUrl = await uploadImage(imageFile);
+            if (imageUrl) {
+                updatedArticle.imagen = imageUrl;
+            }
         }
 
         const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
-
         if (error) {
             console.error('Error al actualizar:', error);
             alert('No se pudo actualizar el artículo.');
         } else {
             alert('¡Artículo actualizado!');
             editArticleModal.hide();
-            performSearch('');
+            performSearch();
         }
         updateArticleBtn.disabled = false;
         updateArticleBtn.textContent = 'Actualizar Cambios';
     };
 
-    // La lógica de mostrar imagen ahora usa la URL directamente
-     resultsTableBody.addEventListener('click', (e) => {
-        const row = e.target.closest('tr');
-        if (!row) return;
-
-        const articleData = JSON.parse(row.dataset.article);
-
-        if (e.target.classList.contains('btn-edit')) {
-            openEditModal(articleData);
-            return;
-        }
-        if (e.target.classList.contains('btn-delete')) {
-            deleteArticle(articleData);
-            return;
-        }
-        
-        document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
-        row.classList.add('table-active');
-        
-        // AHORA "articleData.imagen" ES UNA URL COMPLETA
-        imageDisplay.src = articleData.imagen || 'imagenes/sin_foto.png';
-        itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
-        itemInfo.textContent = articleData.DESCRIPCION || '';
-        imageDisplay.onerror = () => { imageDisplay.src = 'imagenes/sin_foto.png'; };
-    });
-    
-    // El resto de las funciones (performSearch, deleteArticle, openEditModal, etc.) no necesitan grandes cambios.
-    // Pega el código completo para asegurar que todo esté bien conectado.
-    const displayResults = (articles) => {
-        resultsTableBody.innerHTML = '';
-        tableHead.innerHTML = ''; 
-        if (articles.length > 0) {
-            tableHeaders = Object.keys(articles[0]);
-            tableHeaders.filter(h => h !== 'id').forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header.toUpperCase();
-                tableHead.appendChild(th);
-            });
-            const thActions = document.createElement('th');
-            thActions.textContent = 'ACCIONES';
-            tableHead.appendChild(thActions);
-        }
-        if (articles.length === 0) {
-            loadingState.textContent = 'No se encontraron resultados.';
-            loadingState.style.display = 'block';
-            return;
-        }
-        loadingState.style.display = 'none';
-        articles.forEach(article => {
-            const row = document.createElement('tr');
-            row.dataset.article = JSON.stringify(article);
-            tableHeaders.filter(h => h !== 'id').forEach(header => {
-                const cell = document.createElement('td');
-                cell.textContent = article[header] || '';
-                row.appendChild(cell);
-            });
-            const actionsCell = document.createElement('td');
-            actionsCell.innerHTML = `
-                <button class="btn btn-sm btn-warning btn-edit" title="Editar">✏️</button>
-                <button class="btn btn-sm btn-danger btn-delete" title="Eliminar">🗑️</button>
-            `;
-            row.appendChild(actionsCell);
-            resultsTableBody.appendChild(row);
-        });
-    };
-    const performSearch = async (query) => {
-        loadingState.textContent = 'Buscando...';
-        try {
-            let supabaseQuery = supabaseClient.from('articulos').select();
-            if (query) {
-                const searchQuery = `%${query}%`;
-                supabaseQuery = supabaseQuery.or(`CODIGO.ilike.${searchQuery},DESCRIPCION.ilike.${searchQuery},APLICACIÓN.ilike.${searchQuery},MARCA.ilike.${searchQuery},PRODUCTO.ilike.${searchQuery}`);
-            }
-            supabaseQuery = supabaseQuery.limit(100).order('id', { ascending: false });
-            const { data: articles, error } = await supabaseQuery;
-            if (error) throw error;
-            displayResults(articles);
-        } catch (error) {
-            console.error('Error al buscar:', error);
-            loadingState.textContent = 'Error al conectar.';
-        }
-    };
-    const openEditModal = (article) => {
-        document.getElementById('edit-form-id').value = article.id;
-        document.getElementById('edit-form-producto').value = article.PRODUCTO || '';
-        document.getElementById('edit-form-marca').value = article.MARCA || '';
-        document.getElementById('edit-form-codigo').value = article.CODIGO || '';
-        document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
-        document.getElementById('edit-form-aplicacion').value = article.APLICACIÓN || '';
-        document.getElementById('edit-article-form').reset(); // Limpia el campo de archivo
-        editArticleModal.show();
-    };
     const deleteArticle = async (article) => {
-        const isConfirmed = confirm(`¿Estás seguro de que quieres eliminar "${article.DESCRIPCION}"?`);
-        if (isConfirmed) {
+        if (confirm(`¿Estás seguro de que quieres eliminar "${article.DESCRIPCION}"?`)) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
             if (error) {
                 console.error('Error al eliminar:', error);
                 alert('No se pudo eliminar el artículo.');
             } else {
                 alert('¡Artículo eliminado!');
-                performSearch('');
+                performSearch();
             }
         }
     };
+
+    resultsTableBody.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        const row = e.target.closest('tr');
+        if (!row) return;
+
+        const articleData = JSON.parse(row.dataset.article);
+        if (target && target.classList.contains('btn-edit')) {
+            openEditModal(articleData);
+        } else if (target && target.classList.contains('btn-delete')) {
+            deleteArticle(articleData);
+        } else {
+            document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
+            row.classList.add('table-active');
+            imageDisplay.src = articleData.imagen || 'imagenes/sin_foto.png';
+            itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
+            itemInfo.textContent = articleData.DESCRIPCION || '';
+            imageDisplay.onerror = () => { imageDisplay.src = 'imagenes/sin_foto.png'; };
+        }
+    });
+
     let searchTimeout;
     searchInput.addEventListener('keyup', (e) => {
         clearTimeout(searchTimeout);
-        performSearch(e.target.value.trim());
+        searchTimeout = setTimeout(() => performSearch(e.target.value.trim()), 300);
     });
+
     saveArticleBtn.addEventListener('click', saveNewArticle);
     updateArticleBtn.addEventListener('click', updateArticle);
-    performSearch('');
+
+    performSearch();
 });
