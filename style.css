@@ -1,6 +1,6 @@
 /* Espacio adicional en el body para que la barra inferior no tape el contenido */
 body {
-    padding-bottom: 120px; 
+    padding-bottom: 150px; /* Aumentamos el espacio para la barra más grande */
 }
 
 /* Estilo para las filas de la tabla */
@@ -8,13 +8,13 @@ body {
     cursor: pointer;
 }
 
-/* ===== NUEVA BARRA INFERIOR PARA LA IMAGEN ===== */
+/* ===== BARRA INFERIOR PARA LA IMAGEN (TAMAÑO MODIFICADO) ===== */
 #image-viewer-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100px;
+    height: 140px; /* Aumentamos la altura de la barra */
     background-color: #ffffff;
     border-top: 1px solid #dee2e6;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -30,12 +30,13 @@ body {
 }
 
 #image-viewer-bar img {
-    height: 80px;
-    width: 80px;
+    height: 120px; /* Aumentamos la altura de la imagen */
+    width: 120px;  /* Aumentamos el ancho de la imagen */
     object-fit: contain;
     margin-right: 20px;
     border-radius: 5px;
     background-color: #f8f9fa;
+    cursor: pointer; /* Cambia el cursor para indicar que es clickeable */
 }
 
 #image-viewer-bar .info-container {
@@ -45,4 +46,14 @@ body {
 
 #image-viewer-bar h5 {
     margin-bottom: 0.25rem;
+}
+
+/* Estilo para la ventana modal de la imagen ampliada */
+#imageModal .modal-dialog {
+    max-width: 90vw; /* La ventana puede ocupar hasta el 90% del ancho de la pantalla */
+}
+
+#modal-image {
+    width: 100%;
+    height: auto;
 }
