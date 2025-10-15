@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
             } else {
                 Swal.fire('¡Eliminado!', 'El artículo ha sido eliminado.', 'success');
-                imageViewerBar.classList.add('d-none'); // Ocultar barra si se borra el item seleccionado
+                imageViewerBar.classList.add('d-none');
                 performSearch();
             }
         }
@@ -229,6 +229,15 @@ document.addEventListener('DOMContentLoaded', () => {
             itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
             itemInfo.textContent = articleData.DESCRIPCION || '';
             imageDisplay.onerror = () => { imageDisplay.src = DEFAULT_IMAGE_URL; };
+        }
+    });
+    
+    // ===== NUEVO EVENTO DE DOBLE CLIC EN LA IMAGEN =====
+    imageDisplay.addEventListener('dblclick', () => {
+        // Si la imagen actual no es la de por defecto, la muestra en la modal
+        if (imageDisplay.src && imageDisplay.src !== DEFAULT_IMAGE_URL) {
+            modalImage.src = imageDisplay.src;
+            imageModal.show();
         }
     });
 
