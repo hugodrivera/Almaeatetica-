@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ===== FUNCIÓN DE BÚSQUEDA PROFESIONAL MEJORADA =====
+    // ===== FUNCIÓN DE BÚSQUEDA CORREGIDA (BUSCA PARTES DE TODAS LAS PALABRAS) =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
@@ -90,16 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let supabaseQuery = supabaseClient.from('articulos').select();
 
             if (query) {
-                // Formatea la búsqueda para que entienda palabras parciales
-                const terms = query.trim().split(' ').filter(term => term); // Divide y elimina espacios extra
-                const formattedQuery = terms.map((term, index) => {
-                    // Si es la última palabra, permite que sea parcial (prefijo)
-                    if (index === terms.length - 1) {
-                        return term + ':*';
-                    }
-                    return term;
-                }).join(' & '); // Une las palabras con "Y"
-
+                // Formatea la búsqueda: "buji bos" se convierte en "buji:* & bos:*"
+                const formattedQuery = query.trim().split(' ').filter(term => term).map(term => term + ':*').join(' & ');
                 supabaseQuery = supabaseQuery.textSearch('fts', formattedQuery);
             }
 
