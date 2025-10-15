@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 supabaseQuery = supabaseQuery.or(
                     `CODIGO.ilike.${searchQuery},` +
                     `DESCRIPCION.ilike.${searchQuery},` +
-                    `APLICACION.ilike.${searchQuery},` +
+                    `APLICACIóN.ilike.${searchQuery},` +
                     `MARCA.ilike.${searchQuery},` +
                     `PRODUCTO.ilike.${searchQuery}`
                 );
@@ -143,3 +143,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     performSearch('');
 });
+
