@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemCode = document.getElementById('item-code');
     const itemInfo = document.getElementById('item-info');
     const loadingState = document.getElementById('loading-state');
-    
+
     // Referencias a los elementos de la ventana modal
     const saveArticleBtn = document.getElementById('save-article-btn');
     const addArticleForm = document.getElementById('add-article-form');
@@ -57,21 +57,26 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsTableBody.innerHTML = '';
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
-            
+
             if (query) {
                 const searchQuery = `%${query}%`;
                 supabaseQuery = supabaseQuery.or(
                     `CODIGO.ilike.${searchQuery},` +
                     `DESCRIPCION.ilike.${searchQuery},` +
-                    `APLICACIóN.ilike.${searchQuery},` +
+                    `APLICACIÓN.ilike.${searchQuery},` + // CORREGIDO CON TILDE
                     `MARCA.ilike.${searchQuery},` +
                     `PRODUCTO.ilike.${searchQuery}`
                 );
             }
-            
-            supabaseQuery = supabaseQuery.limit(100).order('id', { ascending: false });
 
-            const { data: articles, error } = await supabaseQuery;
+            supabaseQuery = supabaseQuery.limit(100).order('id', {
+                ascending: false
+            });
+
+            const {
+                data: articles,
+                error
+            } = await supabaseQuery;
             if (error) throw error;
             displayResults(articles);
         } catch (error) {
@@ -88,30 +93,30 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('form-marca').value,
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
-            APLICACION: document.getElementById('form-aplicacion').value,
+            APLICACIÓN: document.getElementById('form-aplicacion').value, // CORREGIDO CON TILDE
             imagen: document.getElementById('form-imagen').value
-            // Agrega aquí cualquier otra columna que tengas en el formulario
         };
 
-        // Validar que los campos obligatorios no estén vacíos
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
             alert('El CODIGO y la DESCRIPCION son obligatorios.');
             return;
         }
 
-        // Enviar los datos a Supabase
-        const { data, error } = await supabaseClient
+        const {
+            data,
+            error
+        } = await supabaseClient
             .from('articulos')
-            .insert([newArticle]); // La función 'insert' ya existe, no es necesario .select()
+            .insert([newArticle]);
 
         if (error) {
             console.error('Error al guardar:', error);
             alert('No se pudo guardar el artículo. Revisa la consola para más detalles.');
         } else {
             alert('¡Artículo guardado con éxito!');
-            addArticleForm.reset(); // Limpiar el formulario
-            addArticleModal.hide(); // Ocultar la ventana modal
-            performSearch(''); // Recargar la tabla para ver el nuevo artículo
+            addArticleForm.reset();
+            addArticleModal.hide();
+            performSearch('');
         }
     };
     // =================================================
@@ -131,16 +136,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
         row.classList.add('table-active');
         const articleData = JSON.parse(row.dataset.article);
-        
+
         const imageName = articleData.imagen || 'sin_foto.png';
         imageDisplay.src = `imagenes/${imageName}`;
         itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
         itemInfo.textContent = articleData.DESCRIPCION || '';
-        imageDisplay.onerror = () => { imageDisplay.src = 'imagenes/sin_foto.png'; };
+        imageDisplay.onerror = () => {
+            imageDisplay.src = 'imagenes/sin_foto.png';
+        };
     });
-    
+
     saveArticleBtn.addEventListener('click', saveNewArticle);
-    
+
     performSearch('');
 });
-
