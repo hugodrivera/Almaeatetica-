@@ -48,10 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tableHead.innerHTML = '';
         if (articles.length > 0) {
             tableHeaders = Object.keys(articles[0]).filter(h => h !== 'fts'); // Ocultar la columna fts
-            tableHeaders.filter(h => h !== 'id').forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header.toUpperCase();
-                tableHead.appendChild(th);
+            tableHeaders.forEach(header => {
+                if (header !== 'id') {
+                    const th = document.createElement('th');
+                    th.textContent = header.toUpperCase();
+                    tableHead.appendChild(th);
+                }
             });
             const thActions = document.createElement('th');
             thActions.textContent = 'ACCIONES';
@@ -62,14 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
         articles.forEach(article => {
             const row = document.createElement('tr');
             row.dataset.article = JSON.stringify(article);
-            tableHeaders.filter(h => h !== 'id').forEach(header => {
-                const cell = document.createElement('td');
-                if (header === 'imagen' && article[header]) {
-                    cell.textContent = 'Imagen en la nube';
-                } else {
-                    cell.textContent = article[header] || '';
+            tableHeaders.forEach(header => {
+                 if (header !== 'id') {
+                    const cell = document.createElement('td');
+                    if (header === 'imagen' && article[header]) {
+                        cell.textContent = 'Imagen en la nube';
+                    } else {
+                        cell.textContent = article[header] || '';
+                    }
+                    row.appendChild(cell);
                 }
-                row.appendChild(cell);
             });
             const actionsCell = document.createElement('td');
             actionsCell.innerHTML = `<button class="btn btn-sm btn-warning btn-edit" title="Editar">✏️</button> <button class="btn btn-sm btn-danger btn-delete" title="Eliminar">🗑️</button>`;
@@ -78,17 +82,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ===== FUNCIÓN DE BÚSQUEDA PROFESIONAL =====
+    // ===== FUNCIÓN DE BÚSQUEDA PROFESIONAL MEJORADA =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
 
-            // Si hay un texto de búsqueda, usamos la nueva Búsqueda de Texto Completo
             if (query) {
-                // Formatea la búsqueda: convierte "filtro aire" en "filtro & aire"
-                const formattedQuery = query.trim().split(' ').join(' & ');
+                // Formatea la búsqueda para que entienda palabras parciales
+                const terms = query.trim().split(' ').filter(term => term); // Divide y elimina espacios extra
+                const formattedQuery = terms.map((term, index) => {
+                    // Si es la última palabra, permite que sea parcial (prefijo)
+                    if (index === terms.length - 1) {
+                        return term + ':*';
+                    }
+                    return term;
+                }).join(' & '); // Une las palabras con "Y"
+
                 supabaseQuery = supabaseQuery.textSearch('fts', formattedQuery);
             }
 
@@ -229,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteArticle(articleData);
         } else {
             document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
-            row.classList.add('table-active');
+            row.classList.add('active');
             imageDisplay.src = articleData.imagen || DEFAULT_IMAGE_URL;
             itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
             itemInfo.textContent = articleData.DESCRIPCION || '';
