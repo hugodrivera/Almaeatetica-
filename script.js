@@ -68,11 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
             tableHeaders.forEach(header => {
                 if (header !== 'id') {
                     const cell = document.createElement('td');
-                    if (header === 'imagen' && article[header]) {
+                    if (header === 'imagen' && article[header] && article[header].startsWith('http')) {
                         cell.innerHTML = '✓';
-                    } else if (header === 'imagen' && !article[header]) {
-                        cell.innerHTML = '<span class="text-danger">✗</span>';
+                    } else if (header === 'imagen' && article[header]) {
+                        cell.innerHTML = '<span class="text-warning">✗ (Sincronizar)</span>';
                     } else {
+                        cell.innerHTML = '<span class="text-danger">✗</span>';
+                    }
+                    if(header !== 'imagen') {
                         cell.textContent = article[header] || '';
                     }
                     row.appendChild(cell);
@@ -117,8 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Swal.fire('Campos incompletos', 'El CODIGO y la DESCRIPCION son obligatorios.', 'warning');
         } else {
             const { error } = await supabaseClient.from('articulos').insert([newArticle]);
-            if (error) {
-                Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
+            if (error) { Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
             } else {
                 Swal.fire('¡Éxito!', 'Artículo guardado correctamente.', 'success');
                 addArticleForm.reset(); addArticleModal.hide(); performSearch();
@@ -153,8 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (imageUrl) { updatedArticle.imagen = imageUrl; }
         }
         const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
-        if (error) {
-            Swal.fire('Error', 'No se pudo actualizar el artículo.', 'error');
+        if (error) { Swal.fire('Error', 'No se pudo actualizar el artículo.', 'error');
         } else {
             Swal.fire('¡Éxito!', 'Artículo actualizado correctamente.', 'success');
             editArticleModal.hide(); performSearch();
@@ -170,8 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (result.isConfirmed) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
-            if (error) {
-                Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
+            if (error) { Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
             } else {
                 Swal.fire('¡Eliminado!', 'El artículo ha sido eliminado.', 'success');
                 imageViewerBar.classList.add('d-none'); performSearch();
@@ -192,8 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     Swal.fire('Archivo vacío', 'El archivo CSV está vacío o no tiene el formato correcto.', 'info');
                 } else {
                     const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
-                    if (error) {
-                        Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
+                    if (error) { Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
                     } else {
                         Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
                         performSearch();
@@ -205,10 +204,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
+    // ===== FUNCIÓN DE SINCRONIZACIÓN CORREGIDA Y ROBUSTA =====
     const syncImages = async () => {
         const result = await Swal.fire({
-            title: '¿Sincronizar Imágenes?',
-            text: 'Se actualizarán las URLs de las imágenes basado en los nombres de archivo de tu base de datos.',
+            title: '¿Sincronizar Imágenes?', text: 'Se actualizarán las URLs de las imágenes. Esto puede tardar unos minutos.',
             icon: 'info', showCancelButton: true, confirmButtonText: 'Sí, ¡sincronizar!', cancelButtonText: 'Cancelar'
         });
         if (!result.isConfirmed) return;
@@ -219,6 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const { data: filesInBucket, error: listError } = await supabaseClient.storage.from(BUCKET_NAME).list();
             if (listError) throw listError;
+            
+            // Creamos un mapa para buscar archivos rápidamente y sin importar mayúsculas/minúsculas
+            const fileMap = new Map(filesInBucket.map(file => [file.name.toLowerCase(), file.name]));
 
             const { data: articlesToUpdate, error: selectError } = await supabaseClient
                 .from('articulos').select('id, imagen').not('imagen', 'is', null).not('imagen', 'ilike', 'http%');
@@ -235,16 +237,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Iniciando sincronización...");
 
             for (const article of articlesToUpdate) {
-                if (!article.imagen) continue;
-                const expectedFileName = article.imagen.trim();
-                const matchedFile = filesInBucket.find(file => file.name.toLowerCase() === expectedFileName.toLowerCase());
+                const imageNameInDb = article.imagen.trim().toLowerCase();
                 
-                if (matchedFile) {
-                    const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(matchedFile.name);
+                if (fileMap.has(imageNameInDb)) {
+                    const realFileName = fileMap.get(imageNameInDb);
+                    const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(realFileName);
                     updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
                     matchedCount++;
                 } else {
-                    console.log(`No se encontró el archivo: '${expectedFileName}' para el artículo ID: ${article.id}`);
+                    console.log(`No se encontró el archivo en la nube: '${article.imagen}' (para el artículo ID: ${article.id})`);
                 }
             }
             
@@ -253,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (updateError) throw updateError;
             }
 
-            Swal.fire('¡Sincronización Completa!', `Se actualizaron ${matchedCount} URLs de imágenes.`, 'success');
+            Swal.fire('¡Sincronización Completa!', `Se actualizaron ${matchedCount} URLs de imágenes. Revisa la consola (F12) para detalles.`, 'success');
             performSearch();
 
         } catch (error) {
