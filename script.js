@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let supabaseQuery = supabaseClient.from('articulos').select();
             if (query) {
                 const searchQuery = `%${query}%`;
-                supabaseQuery = supabaseQuery.or(`CODIGO.ilike.${searchQuery},DESCRIPCION.ilike.${searchQuery},APLICACIÓN.ilike.${searchQuery},MARCA.ilike.${searchQuery},PRODUCTO.ilike.${searchQuery}`);
+                // CORREGIDO: Usamos "APLICACION" sin acento
+                supabaseQuery = supabaseQuery.or(`CODIGO.ilike.${searchQuery},DESCRIPCION.ilike.${searchQuery},APLICACION.ilike.${searchQuery},MARCA.ilike.${searchQuery},PRODUCTO.ilike.${searchQuery}`);
             }
             const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
@@ -106,7 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('form-marca').value,
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
-            APLICACIÓN: document.getElementById('form-aplicacion').value,
+            // CORREGIDO: Usamos "APLICACION" sin acento
+            APLICACION: document.getElementById('form-aplicacion').value,
             imagen: imageUrl,
         };
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
@@ -133,7 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-form-marca').value = article.MARCA || '';
         document.getElementById('edit-form-codigo').value = article.CODIGO || '';
         document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
-        document.getElementById('edit-form-aplicacion').value = article.APLICACIÓN || '';
+        // CORREGIDO: Usamos "APLICACION" sin acento
+        document.getElementById('edit-form-aplicacion').value = article.APLICACION || '';
         document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
         editArticleModal.show();
     };
@@ -148,7 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('edit-form-marca').value,
             CODIGO: document.getElementById('edit-form-codigo').value,
             DESCRIPCION: document.getElementById('edit-form-descripcion').value,
-            APLICACIÓN: document.getElementById('edit-form-aplicacion').value,
+            // CORREGIDO: Usamos "APLICACION" sin acento
+            APLICACION: document.getElementById('edit-form-aplicacion').value,
         };
         if (imageFile) {
             const imageUrl = await uploadImage(imageFile);
@@ -232,11 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===== BÚSQUEDA CORREGIDA Y OPTIMIZADA =====
     let searchTimeout;
     searchInput.addEventListener('keyup', (e) => {
         clearTimeout(searchTimeout);
-        // Espera 300ms después de que el usuario deja de teclear para buscar
         searchTimeout = setTimeout(() => {
             performSearch(e.target.value.trim().toLowerCase());
         }, 300);
