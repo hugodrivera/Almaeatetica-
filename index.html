@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>El Marplatense - Catálogo</title>
-
     <link rel="icon" type="image/png" href="logo.png">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,83 +14,19 @@
 
     <div class="container-fluid mt-4">
         <header class="text-center mb-4">
-            <h1>El Marplatense - Catálogo de Artículos</h1> </header>
+            <h1>El Marplatense - Catálogo de Artículos</h1>
+        </header>
         <main>
             <div class="input-group mb-3">
                 <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Buscar por código, descripción, etc...">
                 <button class="btn btn-primary" type="button" id="add-new-btn" data-bs-toggle="modal" data-bs-target="#addArticleModal">➕ Agregar</button>
-                <button class="btn btn-success" type="button" id="import-btn">📤 Importar desde CSV</button>
+                <button class="btn btn-success" type="button" id="import-btn">📤 Importar CSV</button>
+                <button class="btn btn-info" type="button" id="sync-images-btn">🔄 Sincronizar Imágenes</button>
             </div>
             <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
-
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered bg-white table-striped">
-                    <thead class="table-dark">
-                        <tr></tr>
-                    </thead>
-                    <tbody id="results-table"></tbody>
-                </table>
-                 <p id="loading-state" class="text-center">Cargando...</p>
-            </div>
-        </main>
+            
+            </main>
     </div>
-
-    <div id="image-viewer-bar" class="d-none">
-        <img src="" id="image-display" alt="Imagen del artículo">
-        <div class="info-container">
-             <h5 id="item-code" class="card-title mt-2">Selecciona un artículo</h5>
-             <p id="item-info" class="card-text"></p>
-        </div>
-    </div>
-    <div class="modal fade" id="addArticleModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title">Agregar Nuevo Artículo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-          <div class="modal-body">
-            <form id="add-article-form">
-                <div class="mb-3"><label class="form-label">PRODUCTO</label><input type="text" class="form-control" id="form-producto"></div>
-                <div class="mb-3"><label class="form-label">MARCA</label><input type="text" class="form-control" id="form-marca"></div>
-                <div class="mb-3"><label class="form-label">CODIGO</label><input type="text" class="form-control" id="form-codigo" required></div>
-                <div class="mb-3"><label class="form-label">DESCRIPCION</label><input type="text" class="form-control" id="form-descripcion" required></div>
-                <div class="mb-3"><label class="form-label">APLICACION</label><input type="text" class="form-control" id="form-aplicacion"></div>
-                <div class="mb-3"><label class="form-label">Imagen</label><input type="file" class="form-control" id="form-imagen" accept="image/*"></div>
-            </form>
-          </div>
-          <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="save-article-btn">Guardar Artículo</button></div>
-        </div>
-      </div>
-    </div>
-    <div class="modal fade" id="editArticleModal" tabindex="-1" aria-hidden="true">
-         <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title">Editar Artículo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-          <div class="modal-body">
-            <form id="edit-article-form">
-                <input type="hidden" id="edit-form-id">
-                <div class="mb-3"><label class="form-label">PRODUCTO</label><input type="text" class="form-control" id="edit-form-producto"></div>
-                <div class="mb-3"><label class="form-label">MARCA</label><input type="text" class="form-control" id="edit-form-marca"></div>
-                <div class="mb-3"><label class="form-label">CODIGO</label><input type="text" class="form-control" id="edit-form-codigo" required></div>
-                <div class="mb-3"><label class="form-label">DESCRIPCION</label><input type="text" class="form-control" id="edit-form-descripcion" required></div>
-                <div class="mb-3"><label class="form-label">APLICACION</label><input type="text" class="form-control" id="edit-form-aplicacion"></div>
-                <div class="mb-3"><label class="form-label">Cargar nueva imagen (opcional)</label><input type="file" class="form-control" id="edit-form-imagen" accept="image/*"></div>
-            </form>
-          </div>
-          <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-success" id="update-article-btn">Actualizar Cambios</button></div>
-        </div>
-      </div>
-    </div>
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-body text-center">
-            <img src="" id="modal-image" class="img-fluid" alt="Imagen ampliada">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="script.js"></script>
-</body>
+    
+    </body>
 </html>
