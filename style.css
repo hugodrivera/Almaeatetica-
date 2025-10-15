@@ -1,6 +1,7 @@
-/* Espacio adicional en el body para la barra inferior */
+/* Espacio adicional en el body para que la barra inferior no tape el contenido */
 body {
-    padding-bottom: 150px;
+    background-color: #f0f2f5; /* <-- ¡NUEVO COLOR DE FONDO! */
+    padding-bottom: 150px; 
 }
 
 /* Estilo para las filas de la tabla */
@@ -8,7 +9,7 @@ body {
     cursor: pointer;
 }
 
-/* ===== NUEVO: Cabeceras de la tabla fijas ===== */
+/* Cabeceras de la tabla fijas */
 .table-responsive {
     max-height: 65vh; /* Altura máxima antes de que aparezca el scroll */
     overflow-y: auto;
