@@ -3,7 +3,8 @@
 const SUPABASE_URL = "https://etlfxwjsklyywuopwnxw.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0bGZ4d2pza2x5eXd1b3B3bnh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0ODE3MjMsImV4cCI6MjA3NjA1NzcyM30.k8zu-CYOZK3T6Xj6qTVjlL1nS-vjhC-uWAd2JkJNlUM";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// LÍNEA CORREGIDA: Usamos 'supabase' (de la librería) para crear nuestro cliente, que llamaremos 'supabaseClient'.
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (articles.length > 0 && tableHeaders.length === 0) {
             tableHead.innerHTML = '';
             tableHeaders = Object.keys(articles[0]);
-            // Excluimos la columna 'id' de la cabecera, es interna de Supabase
             tableHeaders.filter(h => h !== 'id').forEach(header => {
                 const th = document.createElement('th');
                 th.textContent = header.toUpperCase();
@@ -56,10 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsTableBody.innerHTML = '';
 
         try {
-            // Construimos la consulta a Supabase
-            let supabaseQuery = supabase.from('articulos').select();
+            // CORREGIDO: Usamos 'supabaseClient' para hacer la consulta
+            let supabaseQuery = supabaseClient.from('articulos').select();
             
-            // Si hay un término de búsqueda, lo aplicamos a varias columnas
             if (query) {
                 const searchQuery = `%${query}%`;
                 supabaseQuery = supabaseQuery.or(
@@ -71,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             supabaseQuery = supabaseQuery.limit(100).order('codigo', { ascending: true });
 
-            // Ejecutamos la consulta
             const { data: articles, error } = await supabaseQuery;
 
             if (error) throw error;
@@ -80,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error al buscar en Supabase:', error);
-            loadingState.textContent = 'Error al conectar con la base de datos.';
+            loadingState.textContent = 'Error al conectar con la base de datos. Revisa la política RLS.';
         }
     };
 
@@ -112,6 +110,5 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
     
-    // Carga inicial de datos al abrir la página
     performSearch('');
 });
