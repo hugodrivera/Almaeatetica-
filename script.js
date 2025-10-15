@@ -22,6 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingState = document.getElementById('loading-state');
     const addArticleModal = new bootstrap.Modal(document.getElementById('addArticleModal'));
     const editArticleModal = new bootstrap.Modal(document.getElementById('editArticleModal'));
+    // Nueva modal para la imagen ampliada
+    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const modalImage = document.getElementById('modal-image');
+
     const addArticleForm = document.getElementById('add-article-form');
     const saveArticleBtn = document.getElementById('save-article-btn');
     const updateArticleBtn = document.getElementById('update-article-btn');
@@ -29,8 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const csvFileInput = document.getElementById('csv-file-input');
 
     let tableHeaders = [];
-    
-    // ===== PASO 3: Pega aquí la URL de tu imagen "sin_foto.png" =====
     const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg';
 
     const uploadImage = async (file) => {
