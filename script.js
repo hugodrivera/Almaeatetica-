@@ -55,7 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
             row.dataset.article = JSON.stringify(article);
             tableHeaders.filter(h => h !== 'id').forEach(header => {
                 const cell = document.createElement('td');
-                cell.textContent = article[header] || '';
+                // Para que la tabla se vea limpia, si es la columna de imagen, muestra un texto genérico
+                if (header === 'imagen' && article[header]) {
+                    cell.textContent = 'Imagen en la nube';
+                } else {
+                    cell.textContent = article[header] || '';
+                }
                 row.appendChild(cell);
             });
             const actionsCell = document.createElement('td');
@@ -179,6 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target.closest('button');
         const row = e.target.closest('tr');
         if (!row) return;
+        
+        // ===== CAMBIO IMPORTANTE AQUÍ =====
+        // Pega la URL pública de tu imagen "sin_foto.png" que subiste a Supabase
+        const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg'; 
+        // ===================================
 
         const articleData = JSON.parse(row.dataset.article);
         if (target && target.classList.contains('btn-edit')) {
@@ -188,10 +198,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
             row.classList.add('table-active');
-            imageDisplay.src = articleData.imagen || 'imagenes/sin_foto.png';
+            
+            // Lógica corregida para mostrar la imagen desde la URL o la imagen por defecto
+            imageDisplay.src = articleData.imagen || DEFAULT_IMAGE_URL;
             itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
             itemInfo.textContent = articleData.DESCRIPCION || '';
-            imageDisplay.onerror = () => { imageDisplay.src = 'imagenes/sin_foto.png'; };
+            imageDisplay.onerror = () => { imageDisplay.src = DEFAULT_IMAGE_URL; };
         }
     });
 
