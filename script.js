@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('form-marca').value,
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
-            APLICACIÓN: document.getElementById('form-aplicacion').value,
+            APLICACION: document.getElementById('form-aplicacion').value,
             imagen: imageUrl,
         };
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
@@ -252,3 +252,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     performSearch(); // Carga inicial
 });
+
