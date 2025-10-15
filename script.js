@@ -1,6 +1,10 @@
 // --- CONFIGURACIÓN DE SUPABASE ---
+// PASO 1: Pega tu URL de Supabase entre las comillas
 const SUPABASE_URL = "https://etlfxwjsklyywuopwnxw.supabase.co";
+
+// PASO 2: Pega tu Key "anon public" de Supabase entre las comillas
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0bGZ4d2pza2x5eXd1b3B3bnh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0ODE3MjMsImV4cCI6MjA3NjA1NzcyM30.k8zu-CYOZK3T6Xj6qTVjlL1nS-vjhC-uWAd2JkJNlUM";
+
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const BUCKET_NAME = 'imagenes-productos';
 // ------------------------------------
@@ -19,15 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const addArticleForm = document.getElementById('add-article-form');
     const saveArticleBtn = document.getElementById('save-article-btn');
     const updateArticleBtn = document.getElementById('update-article-btn');
-    // Nuevos elementos para la importación
     const importBtn = document.getElementById('import-btn');
     const csvFileInput = document.getElementById('csv-file-input');
 
     let tableHeaders = [];
+    
+    // PASO 3: Pega la URL de tu imagen "sin_foto.png" que subiste a Supabase
     const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg';
 
-    // Todas las funciones que ya teníamos (uploadImage, displayResults, etc.) se mantienen
-    // ... (copia y pega todas las funciones desde tu script.js funcional aquí) ...
     const uploadImage = async (file) => {
         if (!file) return null;
         const fileName = `${Date.now()}-${file.name}`;
@@ -39,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fileName);
         return data.publicUrl;
     };
+
     const displayResults = (articles) => {
         resultsTableBody.innerHTML = '';
         tableHead.innerHTML = '';
@@ -73,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsTableBody.appendChild(row);
         });
     };
+
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
@@ -82,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const searchQuery = `%${query}%`;
                 supabaseQuery = supabaseQuery.or(`CODIGO.ilike.${searchQuery},DESCRIPCION.ilike.${searchQuery},APLICACIÓN.ilike.${searchQuery},MARCA.ilike.${searchQuery},PRODUCTO.ilike.${searchQuery}`);
             }
-            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(100);
+            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
         } catch (error) {
@@ -90,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingState.textContent = 'Error al conectar.';
         }
     };
+
     const saveNewArticle = async () => {
         const imageFile = document.getElementById('form-imagen').files[0];
         saveArticleBtn.disabled = true;
@@ -100,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('form-marca').value,
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
-            APLICACION: document.getElementById('form-aplicacion').value,
+            APLICACIÓN: document.getElementById('form-aplicacion').value,
             imagen: imageUrl,
         };
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
@@ -120,16 +126,18 @@ document.addEventListener('DOMContentLoaded', () => {
         saveArticleBtn.disabled = false;
         saveArticleBtn.textContent = 'Guardar Artículo';
     };
+
     const openEditModal = (article) => {
         document.getElementById('edit-form-id').value = article.id;
         document.getElementById('edit-form-producto').value = article.PRODUCTO || '';
         document.getElementById('edit-form-marca').value = article.MARCA || '';
         document.getElementById('edit-form-codigo').value = article.CODIGO || '';
         document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
-        document.getElementById('edit-form-aplicacion').value = article.APLICACION || '';
+        document.getElementById('edit-form-aplicacion').value = article.APLICACIÓN || '';
         document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
         editArticleModal.show();
     };
+
     const updateArticle = async () => {
         const articleId = document.getElementById('edit-form-id').value;
         const imageFile = document.getElementById('edit-form-imagen').files[0];
@@ -140,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('edit-form-marca').value,
             CODIGO: document.getElementById('edit-form-codigo').value,
             DESCRIPCION: document.getElementById('edit-form-descripcion').value,
-            APLICACION: document.getElementById('edit-form-aplicacion').value,
+            APLICACIÓN: document.getElementById('edit-form-aplicacion').value,
         };
         if (imageFile) {
             const imageUrl = await uploadImage(imageFile);
@@ -160,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateArticleBtn.disabled = false;
         updateArticleBtn.textContent = 'Actualizar Cambios';
     };
+
     const deleteArticle = async (article) => {
         if (confirm(`¿Estás seguro de que quieres eliminar "${article.DESCRIPCION}"?`)) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
@@ -172,41 +181,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-
-    // ===== NUEVA FUNCIÓN PARA IMPORTAR DATOS DESDE CSV =====
+    
     const handleFileImport = (event) => {
         const file = event.target.files[0];
-        if (!file) {
-            return;
-        }
-
+        if (!file) return;
         loadingState.textContent = 'Importando datos, por favor espera...';
         loadingState.style.display = 'block';
-
         Papa.parse(file, {
-            header: true, // ¡Importante! Trata la primera fila como la cabecera
+            header: true,
             skipEmptyLines: true,
             complete: async (results) => {
                 const articlesToInsert = results.data;
-                
                 if (articlesToInsert.length === 0) {
-                    alert("El archivo CSV está vacío o no tiene el formato correcto.");
-                    return;
+                    return alert("El archivo CSV está vacío o no tiene el formato correcto.");
                 }
-
-                // Insertar los datos en Supabase
-                const { error } = await supabaseClient
-                    .from('articulos')
-                    .insert(articlesToInsert);
-
+                const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
                 if (error) {
                     console.error('Error en la importación masiva:', error);
                     alert(`Error al importar: ${error.message}\n\nAsegúrate de que los nombres de las columnas en el CSV coincidan EXACTAMENTE con los de la base de datos.`);
                 } else {
                     alert(`¡Importación completada! Se procesaron ${articlesToInsert.length} artículos.`);
-                    performSearch(); // Recargar la tabla
+                    performSearch();
                 }
-                // Limpiar el valor del input para poder subir el mismo archivo otra vez
                 csvFileInput.value = '';
             },
             error: (err) => {
@@ -217,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Event Listeners ---
     resultsTableBody.addEventListener('click', (e) => {
         const target = e.target.closest('button');
         const row = e.target.closest('tr');
@@ -245,12 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveArticleBtn.addEventListener('click', saveNewArticle);
     updateArticleBtn.addEventListener('click', updateArticle);
-
-    // Conectar los nuevos botones a sus funciones
     importBtn.addEventListener('click', () => csvFileInput.click());
     csvFileInput.addEventListener('change', handleFileImport);
 
     performSearch(); // Carga inicial
 });
-
-
