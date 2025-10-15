@@ -1,28 +1,20 @@
-/* Espacio adicional en el body para que la barra inferior no tape el contenido */
 body {
     background-color: #f0f2f5;
     padding-bottom: 150px; 
 }
-
-/* Estilo para las filas de la tabla */
 #results-table tr {
     cursor: pointer;
 }
-
-/* Cabeceras de la tabla fijas */
 .table-responsive {
     max-height: 65vh;
     overflow-y: auto;
 }
-
 thead th {
     position: sticky;
     top: 0;
     z-index: 1;
     background-color: #212529;
 }
-
-/* Barra inferior para la imagen */
 #image-viewer-bar {
     position: fixed;
     bottom: 0;
@@ -38,11 +30,9 @@ thead th {
     z-index: 1030;
     transition: transform 0.3s ease-in-out;
 }
-
 #image-viewer-bar.d-none {
     transform: translateY(100%);
 }
-
 #image-viewer-bar img {
     height: 120px;
     width: 120px;
@@ -52,21 +42,16 @@ thead th {
     background-color: #f8f9fa;
     cursor: pointer;
 }
-
 #image-viewer-bar .info-container {
     display: flex;
     flex-direction: column;
 }
-
 #image-viewer-bar h5 {
     margin-bottom: 0.25rem;
 }
-
-/* Ventana modal de la imagen ampliada */
 #imageModal .modal-dialog {
     max-width: 90vw;
 }
-
 #modal-image {
     width: 100%;
     height: auto;
