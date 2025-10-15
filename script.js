@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 th.textContent = header.toUpperCase();
                 tableHead.appendChild(th);
             });
-            // Añadir cabecera para la columna de acciones
             const thActions = document.createElement('th');
             thActions.textContent = 'ACCIONES';
             tableHead.appendChild(thActions);
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         articles.forEach(article => {
             const row = document.createElement('tr');
-            row.dataset.article = JSON.stringify(article); // Guardamos todos los datos en la fila
+            row.dataset.article = JSON.stringify(article);
 
             tableHeaders.filter(h => h !== 'id').forEach(header => {
                 const cell = document.createElement('td');
@@ -59,11 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.appendChild(cell);
             });
 
-            // Añadir celda con los botones de acciones
             const actionsCell = document.createElement('td');
             actionsCell.innerHTML = `
-                <button class="btn btn-sm btn-warning btn-edit">✏️</button>
-                <button class="btn btn-sm btn-danger btn-delete">🗑️</button>
+                <button class="btn btn-sm btn-warning btn-edit" title="Editar">✏️</button>
+                <button class="btn btn-sm btn-danger btn-delete" title="Eliminar">🗑️</button>
             `;
             row.appendChild(actionsCell);
 
@@ -112,10 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
             performSearch('');
         }
     };
-
-    // ===== NUEVA LÓGICA PARA EDITAR =====
+    
     const openEditModal = (article) => {
-        // Rellenar el formulario de edición con los datos del artículo
         document.getElementById('edit-form-id').value = article.id;
         document.getElementById('edit-form-producto').value = article.PRODUCTO || '';
         document.getElementById('edit-form-marca').value = article.MARCA || '';
@@ -123,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
         document.getElementById('edit-form-aplicacion').value = article.APLICACIÓN || '';
         document.getElementById('edit-form-imagen').value = article.imagen || '';
-        
         editArticleModal.show();
     };
 
@@ -137,12 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             APLICACIÓN: document.getElementById('edit-form-aplicacion').value,
             imagen: document.getElementById('edit-form-imagen').value,
         };
-
-        const { error } = await supabaseClient
-            .from('articulos')
-            .update(updatedArticle)
-            .eq('id', articleId); // Condición: actualizar solo la fila con este ID
-
+        const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
         if (error) {
             console.error('Error al actualizar:', error);
             alert('No se pudo actualizar el artículo.');
@@ -153,30 +143,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ===== NUEVA FUNCIÓN PARA BORRAR ARTÍCULO =====
+    const deleteArticle = async (article) => {
+        // Ventana de confirmación
+        const isConfirmed = confirm(`¿Estás seguro de que quieres eliminar "${article.DESCRIPCION}"?`);
+
+        if (isConfirmed) {
+            const { error } = await supabaseClient
+                .from('articulos')
+                .delete()
+                .eq('id', article.id); // Condición: borrar solo la fila con este ID
+
+            if (error) {
+                console.error('Error al eliminar:', error);
+                alert('No se pudo eliminar el artículo.');
+            } else {
+                alert('¡Artículo eliminado!');
+                performSearch(''); // Recargar la tabla
+            }
+        }
+    };
+
     // --- Delegación de Eventos ---
-    // Un solo listener en la tabla para manejar clics en filas, botones de editar y borrar
     resultsTableBody.addEventListener('click', (e) => {
         const row = e.target.closest('tr');
         if (!row) return;
 
+        const articleData = JSON.parse(row.dataset.article);
+
         // Si se hizo clic en el botón de editar
         if (e.target.classList.contains('btn-edit')) {
-            const articleData = JSON.parse(row.dataset.article);
             openEditModal(articleData);
             return;
         }
 
-        // Si se hizo clic en el botón de borrar (lo implementaremos después)
+        // Si se hizo clic en el botón de borrar
         if (e.target.classList.contains('btn-delete')) {
-            console.log("Borrar");
-            // Aquí irá la lógica para borrar
+            deleteArticle(articleData); // Llamar a la nueva función de borrado
             return;
         }
 
-        // Lógica para seleccionar fila y mostrar imagen (como antes)
+        // Lógica para seleccionar fila y mostrar imagen
         document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
         row.classList.add('table-active');
-        const articleData = JSON.parse(row.dataset.article);
         imageDisplay.src = `imagenes/${articleData.imagen || 'sin_foto.png'}`;
         itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
         itemInfo.textContent = articleData.DESCRIPCION || '';
