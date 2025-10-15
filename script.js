@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateArticleBtn = document.getElementById('update-article-btn');
     const importBtn = document.getElementById('import-btn');
     const csvFileInput = document.getElementById('csv-file-input');
+    // Nueva referencia al botón de sincronizar
+    const syncImagesBtn = document.getElementById('sync-images-btn');
 
     let tableHeaders = [];
     const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg';
@@ -69,8 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         cell.innerHTML = '✓';
                     } else if (header === 'imagen' && !article[header]) {
                         cell.innerHTML = '<span class="text-danger">✗</span>';
-                    }
-                    else {
+                    } else {
                         cell.textContent = article[header] || '';
                     }
                     row.appendChild(cell);
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveNewArticle = async () => {
         const imageFile = document.getElementById('form-imagen').files[0];
         saveArticleBtn.disabled = true;
-        saveArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+        saveArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...';
         const imageUrl = await uploadImage(imageFile);
         const newArticle = {
             PRODUCTO: document.getElementById('form-producto').value, MARCA: document.getElementById('form-marca').value,
@@ -116,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const { error } = await supabaseClient.from('articulos').insert([newArticle]);
             if (error) {
-                console.error('Error al guardar:', error);
                 Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
             } else {
                 Swal.fire('¡Éxito!', 'Artículo guardado correctamente.', 'success');
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const articleId = document.getElementById('edit-form-id').value;
         const imageFile = document.getElementById('edit-form-imagen').files[0];
         updateArticleBtn.disabled = true;
-        updateArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Actualizando...';
+        updateArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Actualizando...';
         const updatedArticle = {
             PRODUCTO: document.getElementById('edit-form-producto').value, MARCA: document.getElementById('edit-form-marca').value,
             CODIGO: document.getElementById('edit-form-codigo').value, DESCRIPCION: document.getElementById('edit-form-descripcion').value,
@@ -153,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
         if (error) {
-            console.error('Error al actualizar:', error);
             Swal.fire('Error', 'No se pudo actualizar el artículo.', 'error');
         } else {
             Swal.fire('¡Éxito!', 'Artículo actualizado correctamente.', 'success');
@@ -164,19 +163,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const deleteArticle = async (article) => {
         const result = await Swal.fire({
-            title: '¿Estás seguro?', text: `Vas a eliminar "${article.DESCRIPCION}". ¡No podrás revertir esto!`,
-            icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+            title: '¿Estás seguro?', text: `Vas a eliminar "${article.DESCRIPCION}".`, icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
             confirmButtonText: 'Sí, ¡bórralo!', cancelButtonText: 'Cancelar'
         });
         if (result.isConfirmed) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
             if (error) {
-                console.error('Error al eliminar:', error);
                 Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
             } else {
                 Swal.fire('¡Eliminado!', 'El artículo ha sido eliminado.', 'success');
-                imageViewerBar.classList.add('d-none');
-                performSearch();
+                imageViewerBar.classList.add('d-none'); performSearch();
             }
         }
     };
@@ -185,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = event.target.files[0];
         if (!file) return;
         importBtn.disabled = true;
-        importBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Importando...';
+        importBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
         Papa.parse(file, {
             header: true, skipEmptyLines: true,
             complete: async (results) => {
@@ -195,19 +192,74 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
                     if (error) {
-                        Swal.fire('Error de importación', `Error: ${error.message}. Asegúrate de que las columnas coincidan.`, 'error');
+                        Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
                     } else {
                         Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
                         performSearch();
                     }
                 }
                 csvFileInput.value = '';
-                importBtn.disabled = false;
-                importBtn.innerHTML = '📤 Importar desde CSV';
+                importBtn.disabled = false; importBtn.innerHTML = '📤 Importar CSV';
             }
         });
     };
 
+    const syncImages = async () => {
+        const result = await Swal.fire({
+            title: '¿Sincronizar Imágenes?',
+            text: 'Se buscarán imágenes para los artículos que no tienen una. Esto puede tardar unos minutos.',
+            icon: 'info', showCancelButton: true, confirmButtonText: 'Sí, ¡sincronizar!', cancelButtonText: 'Cancelar'
+        });
+        if (!result.isConfirmed) return;
+
+        syncImagesBtn.disabled = true;
+        syncImagesBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sincronizando...';
+        
+        try {
+            const { data: filesInBucket, error: listError } = await supabaseClient.storage.from(BUCKET_NAME).list();
+            if (listError) throw listError;
+
+            const { data: articlesToUpdate, error: selectError } = await supabaseClient
+                .from('articulos').select('id, CODIGO').is('imagen', null);
+            if (selectError) throw selectError;
+
+            if (articlesToUpdate.length === 0) {
+                Swal.fire('¡Todo listo!', 'No se encontraron artículos que necesiten una imagen.', 'info');
+                return;
+            }
+
+            const updates = [];
+            let matchedCount = 0;
+
+            for (const article of articlesToUpdate) {
+                if (!article.CODIGO) continue;
+                const expectedFileNameBase = article.CODIGO.replace(/\//g, '-');
+                const matchedFile = filesInBucket.find(file => file.name.startsWith(expectedFileNameBase));
+                
+                if (matchedFile) {
+                    const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(matchedFile.name);
+                    updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
+                    matchedCount++;
+                }
+            }
+            
+            if (updates.length > 0) {
+                const { error: updateError } = await supabaseClient.from('articulos').upsert(updates);
+                if (updateError) throw updateError;
+            }
+
+            Swal.fire('¡Sincronización Completa!', `Se asignaron ${matchedCount} imágenes a los artículos.`, 'success');
+            performSearch();
+
+        } catch (error) {
+            Swal.fire('Error', 'Ocurrió un error durante la sincronización.', 'error');
+        } finally {
+            syncImagesBtn.disabled = false;
+            syncImagesBtn.innerHTML = '🔄 Sincronizar Imágenes';
+        }
+    };
+
+    // --- Event Listeners ---
     resultsTableBody.addEventListener('click', (e) => {
         const target = e.target.closest('button');
         const row = e.target.closest('tr');
@@ -247,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateArticleBtn.addEventListener('click', updateArticle);
     importBtn.addEventListener('click', () => csvFileInput.click());
     csvFileInput.addEventListener('change', handleFileImport);
+    syncImagesBtn.addEventListener('click', syncImages);
 
     performSearch(); // Carga inicial
 });
