@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsTableBody.innerHTML = '';
         tableHead.innerHTML = '';
         if (articles.length > 0) {
-            tableHeaders = Object.keys(articles[0]);
+            tableHeaders = Object.keys(articles[0]).filter(h => h !== 'fts'); // Ocultar la columna fts
             tableHeaders.filter(h => h !== 'id').forEach(header => {
                 const th = document.createElement('th');
                 th.textContent = header.toUpperCase();
@@ -78,16 +78,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // ===== FUNCIÓN DE BÚSQUEDA PROFESIONAL =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
+
+            // Si hay un texto de búsqueda, usamos la nueva Búsqueda de Texto Completo
             if (query) {
-                const searchQuery = `%${query}%`;
-                // CORREGIDO: Usamos "APLICACION" sin acento
-                supabaseQuery = supabaseQuery.or(`CODIGO.ilike.${searchQuery},DESCRIPCION.ilike.${searchQuery},APLICACION.ilike.${searchQuery},MARCA.ilike.${searchQuery},PRODUCTO.ilike.${searchQuery}`);
+                // Formatea la búsqueda: convierte "filtro aire" en "filtro & aire"
+                const formattedQuery = query.trim().split(' ').join(' & ');
+                supabaseQuery = supabaseQuery.textSearch('fts', formattedQuery);
             }
+
             const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
@@ -107,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('form-marca').value,
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
-            // CORREGIDO: Usamos "APLICACION" sin acento
             APLICACION: document.getElementById('form-aplicacion').value,
             imagen: imageUrl,
         };
@@ -135,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-form-marca').value = article.MARCA || '';
         document.getElementById('edit-form-codigo').value = article.CODIGO || '';
         document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
-        // CORREGIDO: Usamos "APLICACION" sin acento
         document.getElementById('edit-form-aplicacion').value = article.APLICACION || '';
         document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
         editArticleModal.show();
@@ -151,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('edit-form-marca').value,
             CODIGO: document.getElementById('edit-form-codigo').value,
             DESCRIPCION: document.getElementById('edit-form-descripcion').value,
-            // CORREGIDO: Usamos "APLICACION" sin acento
             APLICACION: document.getElementById('edit-form-aplicacion').value,
         };
         if (imageFile) {
