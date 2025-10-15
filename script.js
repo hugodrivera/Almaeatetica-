@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Referencias a los elementos de la ventana modal
     const saveArticleBtn = document.getElementById('save-article-btn');
     const addArticleForm = document.getElementById('add-article-form');
-    // Asegúrate de que el index.html tenga el script de Bootstrap JS para que esto funcione
     const addArticleModal = new bootstrap.Modal(document.getElementById('addArticleModal'));
 
     let tableHeaders = [];
@@ -59,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
             
-            // CORREGIDO: Usamos los nombres de columna de tu tabla
             if (query) {
                 const searchQuery = `%${query}%`;
                 supabaseQuery = supabaseQuery.or(
@@ -71,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
             }
             
-            // CORREGIDO: Ordenamos por la columna 'id' que siempre existe
             supabaseQuery = supabaseQuery.limit(100).order('id', { ascending: false });
 
             const { data: articles, error } = await supabaseQuery;
@@ -83,38 +80,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ===== FUNCIÓN CORREGIDA PARA GUARDAR ARTÍCULO =====
     const saveNewArticle = async () => {
-        // CORREGIDO: Recolecta datos del formulario y los asigna a las columnas correctas
+        // Recolecta los datos de TODOS los campos del formulario
         const newArticle = {
+            PRODUCTO: document.getElementById('form-producto').value,
+            MARCA: document.getElementById('form-marca').value,
             CODIGO: document.getElementById('form-codigo').value,
             DESCRIPCION: document.getElementById('form-descripcion').value,
             APLICACION: document.getElementById('form-aplicacion').value,
-            // Asumimos que no tienes stock y precio en el form, si los tienes, descomenta
-            // stock: document.getElementById('form-stock').value,
-            // precio: document.getElementById('form-precio').value,
             imagen: document.getElementById('form-imagen').value
-            // Agrega aquí las demás columnas si tienes campos en el formulario para ellas
+            // Agrega aquí cualquier otra columna que tengas en el formulario
         };
 
+        // Validar que los campos obligatorios no estén vacíos
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
-            alert('El código y la descripción son obligatorios.');
+            alert('El CODIGO y la DESCRIPCION son obligatorios.');
             return;
         }
 
+        // Enviar los datos a Supabase
         const { data, error } = await supabaseClient
             .from('articulos')
-            .insert([newArticle]);
+            .insert([newArticle]); // La función 'insert' ya existe, no es necesario .select()
 
         if (error) {
             console.error('Error al guardar:', error);
-            alert('No se pudo guardar el artículo. Revisa la consola.');
+            alert('No se pudo guardar el artículo. Revisa la consola para más detalles.');
         } else {
             alert('¡Artículo guardado con éxito!');
-            addArticleForm.reset();
-            addArticleModal.hide();
-            performSearch('');
+            addArticleForm.reset(); // Limpiar el formulario
+            addArticleModal.hide(); // Ocultar la ventana modal
+            performSearch(''); // Recargar la tabla para ver el nuevo artículo
         }
     };
+    // =================================================
 
     let searchTimeout;
     searchInput.addEventListener('keyup', (e) => {
@@ -132,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         row.classList.add('table-active');
         const articleData = JSON.parse(row.dataset.article);
         
-        // CORREGIDO: Usamos los nombres correctos para mostrar los detalles
         const imageName = articleData.imagen || 'sin_foto.png';
         imageDisplay.src = `imagenes/${imageName}`;
         itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
