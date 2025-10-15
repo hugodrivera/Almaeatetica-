@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-form-marca').value = article.MARCA || '';
         document.getElementById('edit-form-codigo').value = article.CODIGO || '';
         document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
-        document.getElementById('edit-form-aplicacion').value = article.APLICACIÓN || '';
+        document.getElementById('edit-form-aplicacion').value = article.APLICACION || '';
         document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
         editArticleModal.show();
     };
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             MARCA: document.getElementById('edit-form-marca').value,
             CODIGO: document.getElementById('edit-form-codigo').value,
             DESCRIPCION: document.getElementById('edit-form-descripcion').value,
-            APLICACIÓN: document.getElementById('edit-form-aplicacion').value,
+            APLICACION: document.getElementById('edit-form-aplicacion').value,
         };
         if (imageFile) {
             const imageUrl = await uploadImage(imageFile);
@@ -252,4 +252,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     performSearch(); // Carga inicial
 });
+
 
