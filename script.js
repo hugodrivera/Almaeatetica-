@@ -6,6 +6,7 @@ const BUCKET_NAME = 'imagenes-productos';
 // ------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Referencias a elementos
     const searchInput = document.getElementById('search-input');
     const resultsTableBody = document.querySelector('#results-table');
     const tableHead = document.querySelector('thead tr');
@@ -18,9 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const addArticleForm = document.getElementById('add-article-form');
     const saveArticleBtn = document.getElementById('save-article-btn');
     const updateArticleBtn = document.getElementById('update-article-btn');
+    // Nuevos elementos para la importación
+    const importBtn = document.getElementById('import-btn');
+    const csvFileInput = document.getElementById('csv-file-input');
 
     let tableHeaders = [];
+    const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg';
 
+    // Todas las funciones que ya teníamos (uploadImage, displayResults, etc.) se mantienen
+    // ... (copia y pega todas las funciones desde tu script.js funcional aquí) ...
     const uploadImage = async (file) => {
         if (!file) return null;
         const fileName = `${Date.now()}-${file.name}`;
@@ -32,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fileName);
         return data.publicUrl;
     };
-
     const displayResults = (articles) => {
         resultsTableBody.innerHTML = '';
         tableHead.innerHTML = '';
@@ -49,13 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         loadingState.style.display = articles.length === 0 ? 'block' : 'none';
         loadingState.textContent = 'No se encontraron resultados.';
-
         articles.forEach(article => {
             const row = document.createElement('tr');
             row.dataset.article = JSON.stringify(article);
             tableHeaders.filter(h => h !== 'id').forEach(header => {
                 const cell = document.createElement('td');
-                // Para que la tabla se vea limpia, si es la columna de imagen, muestra un texto genérico
                 if (header === 'imagen' && article[header]) {
                     cell.textContent = 'Imagen en la nube';
                 } else {
@@ -69,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsTableBody.appendChild(row);
         });
     };
-
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
@@ -87,14 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingState.textContent = 'Error al conectar.';
         }
     };
-
     const saveNewArticle = async () => {
         const imageFile = document.getElementById('form-imagen').files[0];
         saveArticleBtn.disabled = true;
         saveArticleBtn.textContent = 'Guardando...';
-
         const imageUrl = await uploadImage(imageFile);
-
         const newArticle = {
             PRODUCTO: document.getElementById('form-producto').value,
             MARCA: document.getElementById('form-marca').value,
@@ -103,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
             APLICACIÓN: document.getElementById('form-aplicacion').value,
             imagen: imageUrl,
         };
-
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
             alert('El CODIGO y la DESCRIPCION son obligatorios.');
         } else {
@@ -121,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveArticleBtn.disabled = false;
         saveArticleBtn.textContent = 'Guardar Artículo';
     };
-
     const openEditModal = (article) => {
         document.getElementById('edit-form-id').value = article.id;
         document.getElementById('edit-form-producto').value = article.PRODUCTO || '';
@@ -132,13 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
         editArticleModal.show();
     };
-
     const updateArticle = async () => {
         const articleId = document.getElementById('edit-form-id').value;
         const imageFile = document.getElementById('edit-form-imagen').files[0];
         updateArticleBtn.disabled = true;
         updateArticleBtn.textContent = 'Actualizando...';
-
         const updatedArticle = {
             PRODUCTO: document.getElementById('edit-form-producto').value,
             MARCA: document.getElementById('edit-form-marca').value,
@@ -146,14 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
             DESCRIPCION: document.getElementById('edit-form-descripcion').value,
             APLICACIÓN: document.getElementById('edit-form-aplicacion').value,
         };
-
         if (imageFile) {
             const imageUrl = await uploadImage(imageFile);
             if (imageUrl) {
                 updatedArticle.imagen = imageUrl;
             }
         }
-
         const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
         if (error) {
             console.error('Error al actualizar:', error);
@@ -166,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateArticleBtn.disabled = false;
         updateArticleBtn.textContent = 'Actualizar Cambios';
     };
-
     const deleteArticle = async (article) => {
         if (confirm(`¿Estás seguro de que quieres eliminar "${article.DESCRIPCION}"?`)) {
             const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
@@ -180,16 +173,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ===== NUEVA FUNCIÓN PARA IMPORTAR DATOS DESDE CSV =====
+    const handleFileImport = (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        loadingState.textContent = 'Importando datos, por favor espera...';
+        loadingState.style.display = 'block';
+
+        Papa.parse(file, {
+            header: true, // ¡Importante! Trata la primera fila como la cabecera
+            skipEmptyLines: true,
+            complete: async (results) => {
+                const articlesToInsert = results.data;
+                
+                if (articlesToInsert.length === 0) {
+                    alert("El archivo CSV está vacío o no tiene el formato correcto.");
+                    return;
+                }
+
+                // Insertar los datos en Supabase
+                const { error } = await supabaseClient
+                    .from('articulos')
+                    .insert(articlesToInsert);
+
+                if (error) {
+                    console.error('Error en la importación masiva:', error);
+                    alert(`Error al importar: ${error.message}\n\nAsegúrate de que los nombres de las columnas en el CSV coincidan EXACTAMENTE con los de la base de datos.`);
+                } else {
+                    alert(`¡Importación completada! Se procesaron ${articlesToInsert.length} artículos.`);
+                    performSearch(); // Recargar la tabla
+                }
+                // Limpiar el valor del input para poder subir el mismo archivo otra vez
+                csvFileInput.value = '';
+            },
+            error: (err) => {
+                alert("Error al leer el archivo CSV.");
+                console.error(err);
+                csvFileInput.value = '';
+            }
+        });
+    };
+
+    // --- Event Listeners ---
     resultsTableBody.addEventListener('click', (e) => {
         const target = e.target.closest('button');
         const row = e.target.closest('tr');
         if (!row) return;
-        
-        // ===== CAMBIO IMPORTANTE AQUÍ =====
-        // Pega la URL pública de tu imagen "sin_foto.png" que subiste a Supabase
-        const DEFAULT_IMAGE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co/storage/v1/object/public/imagenes-productos/sin_foto.jpg'; 
-        // ===================================
-
         const articleData = JSON.parse(row.dataset.article);
         if (target && target.classList.contains('btn-edit')) {
             openEditModal(articleData);
@@ -198,8 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-active'));
             row.classList.add('table-active');
-            
-            // Lógica corregida para mostrar la imagen desde la URL o la imagen por defecto
             imageDisplay.src = articleData.imagen || DEFAULT_IMAGE_URL;
             itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
             itemInfo.textContent = articleData.DESCRIPCION || '';
@@ -216,5 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
     saveArticleBtn.addEventListener('click', saveNewArticle);
     updateArticleBtn.addEventListener('click', updateArticle);
 
-    performSearch();
+    // Conectar los nuevos botones a sus funciones
+    importBtn.addEventListener('click', () => csvFileInput.click());
+    csvFileInput.addEventListener('change', handleFileImport);
+
+    performSearch(); // Carga inicial
 });
