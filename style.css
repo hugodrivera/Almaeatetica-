@@ -1,6 +1,6 @@
 /* Espacio adicional en el body para que la barra inferior no tape el contenido */
 body {
-    background-color: #f0f2f5; /* <-- ¡NUEVO COLOR DE FONDO! */
+    background-color: #f0f2f5;
     padding-bottom: 150px; 
 }
 
@@ -11,7 +11,7 @@ body {
 
 /* Cabeceras de la tabla fijas */
 .table-responsive {
-    max-height: 65vh; /* Altura máxima antes de que aparezca el scroll */
+    max-height: 65vh;
     overflow-y: auto;
 }
 
@@ -19,7 +19,7 @@ thead th {
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: #212529; /* Mismo color que .table-dark */
+    background-color: #212529;
 }
 
 /* Barra inferior para la imagen */
