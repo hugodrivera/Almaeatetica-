@@ -184,29 +184,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
         importBtn.disabled = true;
         importBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
+        
         Papa.parse(file, {
-            header: true, skipEmptyLines: true,
+            header: true,
+            skipEmptyLines: true,
+            delimiter: ";", // <-- ¡Corrección clave para entender tu CSV!
             complete: async (results) => {
                 const articlesToInsert = results.data;
-                if (articlesToInsert.length === 0) {
-                    Swal.fire('Archivo vacío', 'El archivo CSV está vacío o no tiene el formato correcto.', 'info');
+                
+                if (articlesToInsert.length === 0 || !results.meta.fields.includes("CODIGO")) {
+                    Swal.fire('Error de Formato', 'El archivo no parece ser un CSV válido con punto y coma (;) o no tiene las columnas correctas.', 'error');
+                    importBtn.disabled = false;
+                    importBtn.innerHTML = '📤 Importar CSV';
+                    csvFileInput.value = '';
+                    return;
+                }
+
+                const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
+                if (error) {
+                    Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
                 } else {
-                    const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
-                    if (error) { Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
-                    } else {
-                        Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
-                        performSearch();
-                    }
+                    Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
+                    performSearch();
                 }
                 csvFileInput.value = '';
-                importBtn.disabled = false; importBtn.innerHTML = '📤 Importar CSV';
+                importBtn.disabled = false;
+                importBtn.innerHTML = '📤 Importar CSV';
             }
         });
     };
     
     const syncImages = async () => {
         const result = await Swal.fire({
-            title: '¿Sincronizar Imágenes?', text: 'Se buscarán coincidencias entre la base de datos y las imágenes subidas. Esto puede tardar.',
+            title: '¿Sincronizar Imágenes?', text: 'Se actualizarán las URLs de las imágenes. Esto puede tardar unos minutos.',
             icon: 'info', showCancelButton: true, confirmButtonText: 'Sí, ¡sincronizar!', cancelButtonText: 'Cancelar'
         });
         if (!result.isConfirmed) return;
@@ -221,10 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileMap = new Map(filesInBucket.map(file => [file.name.toLowerCase(), file.name]));
 
             const { data: articlesToUpdate, error: selectError } = await supabaseClient
-                .from('articulos').select('id, CODIGO, imagen').not('imagen', 'ilike', 'http%');
+                .from('articulos').select('id, imagen').not('imagen', 'is', null).not('imagen', 'ilike', 'http%');
+
             if (selectError) throw selectError;
 
-            if (articlesToUpdate.length === 0) {
+            const articlesToProcess = articlesToUpdate.filter(a => a.imagen && a.imagen.toLowerCase() !== 'none.jpg');
+
+            if (articlesToProcess.length === 0) {
                 Swal.fire('¡Todo listo!', 'No se encontraron artículos que necesiten sincronización.', 'info');
                 return;
             }
@@ -232,40 +245,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const updates = [];
             const notFound = [];
             let matchedCount = 0;
-            console.log("Iniciando Sincronización Inteligente...");
+            console.log("Iniciando sincronización...");
 
-            for (const article of articlesToUpdate) {
-                let matchFound = false;
+            for (const article of articlesToProcess) {
+                const imageNameInDb = article.imagen.trim().toLowerCase();
                 
-                // Estrategia A: Buscar por el contenido de la columna 'imagen'
-                if (article.imagen && article.imagen.toLowerCase().trim() !== 'none.jpg') {
-                    const imageNameInDb = article.imagen.trim().toLowerCase();
-                    if (fileMap.has(imageNameInDb)) {
-                        const realFileName = fileMap.get(imageNameInDb);
-                        const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(realFileName);
-                        updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
-                        matchedCount++;
-                        matchFound = true;
-                    }
-                }
-
-                // Estrategia B: Si no se encontró, buscar por el 'CODIGO'
-                if (!matchFound && article.CODIGO) {
-                    const codeAsFileName = article.CODIGO.trim().replace(/\//g, '-').toLowerCase();
-                    const codeWithJpg = codeAsFileName + '.jpg'; // Añadir extensión para la búsqueda
-
-                    if (fileMap.has(codeWithJpg)) {
-                        const realFileName = fileMap.get(codeWithJpg);
-                        const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(realFileName);
-                        updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
-                        matchedCount++;
-                        matchFound = true;
-                    }
-                }
-
-                if (!matchFound) {
-                    const identifier = (article.imagen && article.imagen.toLowerCase().trim() !== 'none.jpg') ? article.imagen : article.CODIGO;
-                    if(identifier) notFound.push(identifier);
+                if (fileMap.has(imageNameInDb)) {
+                    const realFileName = fileMap.get(imageNameInDb);
+                    const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(realFileName);
+                    updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
+                    matchedCount++;
+                } else {
+                    notFound.push(article.imagen);
                 }
             }
             
@@ -275,10 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let message = `¡Sincronización Completa! Se actualizaron ${matchedCount} URLs de imágenes.`;
-            if (notFound.length > 0 && matchedCount < articlesToUpdate.length) {
-                message += ` No se encontraron coincidencias para ${notFound.length} artículos. Revisa la consola (F12) para ver la lista.`;
-                console.log("No se encontró coincidencia para los siguientes nombres/códigos:", notFound);
+            if (notFound.length > 0) {
+                message += ` No se encontraron ${notFound.length} archivos. Revisa la consola (F12) para ver la lista.`;
+                console.log("Archivos no encontrados en Supabase Storage:", notFound);
             }
+
             Swal.fire('Proceso Terminado', message, 'success');
             performSearch();
 
