@@ -28,8 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateArticleBtn = document.getElementById('update-article-btn');
     const importBtn = document.getElementById('import-btn');
     const csvFileInput = document.getElementById('csv-file-input');
-    const syncImagesBtn = document.getElementById('sync-images-btn');
-
+    
     let tableHeaders = [];
     
     // PASO 3: Pega la URL de tu imagen "sin_foto.png" que subiste a Supabase
@@ -62,15 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         loadingState.style.display = articles.length === 0 ? 'block' : 'none';
         loadingState.textContent = 'No se encontraron resultados.';
+
         articles.forEach(article => {
             const row = document.createElement('tr');
             row.dataset.article = JSON.stringify(article);
+            
             tableHeaders.forEach(header => {
                 if (header !== 'id') {
                     const cell = document.createElement('td');
+                    cell.setAttribute('data-label', header.toUpperCase());
+
                     if (header === 'imagen' && article[header] && article[header].startsWith('http')) {
                         cell.innerHTML = '✓';
-                    } else {
+                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase() !== 'none.jpg' && article[header].trim() !== '') {
+                        cell.innerHTML = '<span class="text-warning">✗ (Sincronizar)</span>';
+                    } else if (header === 'imagen') {
                         cell.innerHTML = '<span class="text-danger">✗</span>';
                     }
                     if(header !== 'imagen') {
@@ -79,7 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.appendChild(cell);
                 }
             });
+
             const actionsCell = document.createElement('td');
+            actionsCell.setAttribute('data-label', 'ACCIONES');
             actionsCell.innerHTML = `<button class="btn btn-sm btn-warning btn-edit" title="Editar">✏️</button> <button class="btn btn-sm btn-danger btn-delete" title="Eliminar">🗑️</button>`;
             row.appendChild(actionsCell);
             resultsTableBody.appendChild(row);
