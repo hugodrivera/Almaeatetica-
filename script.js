@@ -1,10 +1,8 @@
-// LÍNEA DE DIAGNÓSTICO: Esto se ejecutará ANTES que cualquier otra cosa.
-if (typeof supabase === 'undefined') {
-    alert("ERROR CRÍTICO: La librería de Supabase no se cargó. Revisa el archivo index.html.");
-}
-
 // --- CONFIGURACIÓN DE SUPABASE ---
+// PASO 1: Pega tu URL de Supabase entre las comillas
 const SUPABASE_URL = "https://etlfxwjsklyywuopwnxw.supabase.co";
+
+// PASO 2: Pega tu Key "anon public" de Supabase entre las comillas
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0bGZ4d2pza2x5eXd1b3B3bnh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0ODE3MjMsImV4cCI6MjA3NjA1NzcyM30.k8zu-CYOZK3T6Xj6qTVjlL1nS-vjhC-uWAd2JkJNlUM";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -113,12 +111,147 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const saveNewArticle = async () => { /* ... (código sin cambios) ... */ };
-    const openEditModal = (article) => { /* ... (código sin cambios) ... */ };
-    const updateArticle = async () => { /* ... (código sin cambios) ... */ };
-    const deleteArticle = async (article) => { /* ... (código sin cambios) ... */ };
-    const handleFileImport = (event) => { /* ... (código sin cambios) ... */ };
+    const saveNewArticle = async () => {
+        const imageFile = document.getElementById('form-imagen').files[0];
+        saveArticleBtn.disabled = true;
+        saveArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...';
+        const imageUrl = await uploadImage(imageFile);
+        const newArticle = {
+            PRODUCTO: document.getElementById('form-producto').value, MARCA: document.getElementById('form-marca').value,
+            CODIGO: document.getElementById('form-codigo').value, DESCRIPCION: document.getElementById('form-descripcion').value,
+            APLICACION: document.getElementById('form-aplicacion').value, imagen: imageUrl,
+        };
+        if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
+            Swal.fire('Campos incompletos', 'El CODIGO y la DESCRIPCION son obligatorios.', 'warning');
+            saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
+        } else {
+            const { error } = await supabaseClient.from('articulos').insert([newArticle]);
+            if (error) {
+                Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
+                saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
+            } else {
+                Swal.fire('¡Éxito!', 'Artículo guardado correctamente.', 'success');
+                addArticleForm.reset(); addArticleModal.hide(); performSearch();
+                saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
+            }
+        }
+    };
+
+    const openEditModal = (article) => {
+        document.getElementById('edit-form-id').value = article.id;
+        document.getElementById('edit-form-producto').value = article.PRODUCTO || '';
+        document.getElementById('edit-form-marca').value = article.MARCA || '';
+        document.getElementById('edit-form-codigo').value = article.CODIGO || '';
+        document.getElementById('edit-form-descripcion').value = article.DESCRIPCION || '';
+        document.getElementById('edit-form-aplicacion').value = article.APLICACION || '';
+        document.getElementById('edit-article-form').querySelector('#edit-form-imagen').value = '';
+        editArticleModal.show();
+    };
+
+    const updateArticle = async () => {
+        const articleId = document.getElementById('edit-form-id').value;
+        const imageFile = document.getElementById('edit-form-imagen').files[0];
+        updateArticleBtn.disabled = true;
+        updateArticleBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Actualizando...';
+        const updatedArticle = {
+            PRODUCTO: document.getElementById('edit-form-producto').value, MARCA: document.getElementById('edit-form-marca').value,
+            CODIGO: document.getElementById('edit-form-codigo').value, DESCRIPCION: document.getElementById('edit-form-descripcion').value,
+            APLICACION: document.getElementById('edit-form-aplicacion').value,
+        };
+        if (imageFile) {
+            const imageUrl = await uploadImage(imageFile);
+            if (imageUrl) { updatedArticle.imagen = imageUrl; }
+        }
+        const { error } = await supabaseClient.from('articulos').update(updatedArticle).eq('id', articleId);
+        if (error) { Swal.fire('Error', 'No se pudo actualizar el artículo.', 'error');
+        } else {
+            Swal.fire('¡Éxito!', 'Artículo actualizado correctamente.', 'success');
+            editArticleModal.hide(); performSearch();
+        }
+        updateArticleBtn.disabled = false; updateArticleBtn.innerHTML = 'Actualizar Cambios';
+    };
+
+    const deleteArticle = async (article) => {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?', text: `Vas a eliminar "${article.DESCRIPCION}".`, icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, ¡bórralo!', cancelButtonText: 'Cancelar'
+        });
+        if (result.isConfirmed) {
+            const { error } = await supabaseClient.from('articulos').delete().eq('id', article.id);
+            if (error) { Swal.fire('Error', 'No se pudo eliminar el artículo.', 'error');
+            } else {
+                Swal.fire('¡Eliminado!', 'El artículo ha sido eliminado.', 'success');
+                imageViewerBar.classList.add('d-none'); performSearch();
+            }
+        }
+    };
+    
+    const handleFileImport = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        importBtn.disabled = true;
+        importBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
+        Papa.parse(file, {
+            header: true, skipEmptyLines: true, delimiter: ";",
+            complete: async (results) => {
+                const articlesToInsert = results.data;
+                if (articlesToInsert.length === 0 || !results.meta.fields.includes("CODIGO")) {
+                    Swal.fire('Error de Formato', 'El archivo no es un CSV válido con punto y coma (;) o faltan columnas.', 'error');
+                } else {
+                    const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
+                    if (error) { Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
+                    } else {
+                        Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
+                        performSearch();
+                    }
+                }
+                csvFileInput.value = '';
+                importBtn.disabled = false; importBtn.innerHTML = '📤 Importar CSV';
+            }
+        });
+    };
     
     // --- Event Listeners ---
-    // ... (código sin cambios) ...
+    resultsTableBody.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        const row = e.target.closest('tr');
+        if (!row) return;
+        const articleData = JSON.parse(row.dataset.article);
+        if (target && target.classList.contains('btn-edit')) {
+            openEditModal(articleData);
+        } else if (target && target.classList.contains('btn-delete')) {
+            deleteArticle(articleData);
+        } else {
+            document.querySelectorAll('#results-table tr').forEach(r => r.classList.remove('table-primary'));
+            row.classList.add('table-primary');
+            imageViewerBar.classList.remove('d-none');
+            imageDisplay.src = articleData.imagen || DEFAULT_IMAGE_URL;
+            itemCode.textContent = `Código: ${articleData.CODIGO || 'N/A'}`;
+            itemInfo.textContent = articleData.DESCRIPCION || '';
+            imageDisplay.onerror = () => { imageDisplay.src = DEFAULT_IMAGE_URL; };
+        }
+    });
+    
+    imageDisplay.addEventListener('dblclick', () => {
+        if (imageDisplay.src && imageDisplay.src !== DEFAULT_IMAGE_URL) {
+            modalImage.src = imageDisplay.src;
+            imageModal.show();
+        }
+    });
+
+    let searchTimeout;
+    searchInput.addEventListener('keyup', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(e.target.value.trim().toLowerCase());
+        }, 300);
+    });
+
+    saveArticleBtn.addEventListener('click', saveNewArticle);
+    updateArticleBtn.addEventListener('click', updateArticle);
+    importBtn.addEventListener('click', () => csvFileInput.click());
+    csvFileInput.addEventListener('change', handleFileImport);
+
+    performSearch();
 });
