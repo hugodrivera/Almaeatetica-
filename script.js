@@ -61,21 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         loadingState.style.display = articles.length === 0 ? 'block' : 'none';
         loadingState.textContent = 'No se encontraron resultados.';
-
         articles.forEach(article => {
             const row = document.createElement('tr');
             row.dataset.article = JSON.stringify(article);
-            
             tableHeaders.forEach(header => {
                 if (header !== 'id') {
                     const cell = document.createElement('td');
-                    cell.setAttribute('data-label', header.toUpperCase());
-
                     if (header === 'imagen' && article[header] && article[header].startsWith('http')) {
                         cell.innerHTML = '✓';
-                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase() !== 'none.jpg' && article[header].trim() !== '') {
-                        cell.innerHTML = '<span class="text-warning">✗ (Sincronizar)</span>';
-                    } else if (header === 'imagen') {
+                    } else {
                         cell.innerHTML = '<span class="text-danger">✗</span>';
                     }
                     if(header !== 'imagen') {
@@ -84,30 +78,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.appendChild(cell);
                 }
             });
-
             const actionsCell = document.createElement('td');
-            actionsCell.setAttribute('data-label', 'ACCIONES');
             actionsCell.innerHTML = `<button class="btn btn-sm btn-warning btn-edit" title="Editar">✏️</button> <button class="btn btn-sm btn-danger btn-delete" title="Eliminar">🗑️</button>`;
             row.appendChild(actionsCell);
             resultsTableBody.appendChild(row);
         });
     };
 
+    // ===== FUNCIÓN DE BÚSQUEDA SIMPLE, POTENTE Y DEFINITIVA =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
+            
             if (query) {
-                const formattedQuery = query.trim().split(' ').filter(term => term).map(term => term + ':*').join(' & ');
-                supabaseQuery = supabaseQuery.textSearch('fts', formattedQuery);
+                // Divide la búsqueda en palabras. Ej: "bujia 2022" -> ["bujia", "2022"]
+                const searchTerms = query.trim().split(' ').filter(term => term);
+
+                // Construye una lista de filtros, uno por cada palabra que se busca
+                const filters = searchTerms.map(term => {
+                    const ilikeQuery = `%${term}%`;
+                    // Por cada palabra, crea un filtro que busca en TODAS las columnas
+                    return `or(PRODUCTO.ilike.${ilikeQuery},MARCA.ilike.${ilikeQuery},CODIGO.ilike.${ilikeQuery},DESCRIPCION.ilike.${ilikeQuery},EQUIVALENCIAS.ilike.${ilikeQuery},APLICACION.ilike.${ilikeQuery},INFO.ilike.${ilikeQuery})`;
+                });
+
+                // Une todos los filtros con "y" (and), para que se deban cumplir todas las condiciones
+                supabaseQuery = supabaseQuery.and(filters.join(','));
             }
+
             const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
         } catch (error) {
             console.error('Error al buscar:', error);
-            loadingState.textContent = 'Error al conectar.';
+            loadingState.textContent = 'Error al conectar con la base de datos.';
         }
     };
 
