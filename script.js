@@ -92,29 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
-            let supabaseQuery = supabaseClient.from('articulos').select();
+            // Usamos un Procedimiento Almacenado en Supabase para la búsqueda
+            // Esto es más rápido y potente que construir la consulta en JavaScript
+            const { data: articles, error } = await supabaseClient.rpc('buscar_articulos', {
+                search_term: query
+            });
 
-            if (query) {
-                // 1. Búsqueda por palabras completas y prefijos (rápida)
-                const ftsQuery = query.trim().split(' ').filter(term => term).map(term => term + ':*').join(' & ');
-                
-                // 2. Búsqueda por sub-cadena en columnas clave (más lenta pero necesaria)
-                const ilikeQuery = `%${query}%`;
-
-                // 3. Combinamos ambas búsquedas
-                supabaseQuery = supabaseQuery.or(
-                    `fts.plfts.${ftsQuery},` + 
-                    `CODIGO.ilike.${ilikeQuery},` +
-                    `EQUIVALENCIAS.ilike.${ilikeQuery}`
-                );
-            }
-
-            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
         } catch (error) {
             console.error('Error al buscar:', error);
-            loadingState.textContent = 'Error al conectar.';
+            loadingState.textContent = 'Error al conectar con la base de datos.';
         }
     };
 
