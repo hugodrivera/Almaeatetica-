@@ -84,6 +84,12 @@ thead th {
         text-align: right; /* Alineamos el dato a la derecha */
         position: relative;
         padding-left: 50%; /* Espacio para el título de la columna */
+        border-top: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    td:last-child {
+        border-bottom: none;
     }
 
     /* Creamos el título de la columna usando un pseudo-elemento */
@@ -101,6 +107,7 @@ thead th {
         margin-bottom: 1rem;
         border: 1px solid #dee2e6;
         border-radius: 0.375rem;
+        background-color: #fff;
     }
 
     /* Hacemos la barra inferior más compacta */
