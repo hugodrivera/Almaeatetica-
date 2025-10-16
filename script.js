@@ -69,9 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cell = document.createElement('td');
                     if (header === 'imagen' && article[header] && article[header].startsWith('http')) {
                         cell.innerHTML = '✓';
-                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase().trim() !== 'none.jpg' && article[header].trim() !== '') {
-                        cell.innerHTML = '<span class="text-warning">✗ (Sincronizar)</span>';
-                    } else if (header === 'imagen') {
+                    } else {
                         cell.innerHTML = '<span class="text-danger">✗</span>';
                     }
                     if(header !== 'imagen') {
@@ -87,22 +85,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ===== FUNCIÓN DE BÚSQUEDA HÍBRIDA Y DEFINITIVA =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
-            // Usamos un Procedimiento Almacenado en Supabase para la búsqueda
-            // Esto es más rápido y potente que construir la consulta en JavaScript
-            const { data: articles, error } = await supabaseClient.rpc('buscar_articulos', {
-                search_term: query
-            });
+            let supabaseQuery = supabaseClient.from('articulos').select();
+            
+            // Búsqueda simple pero robusta que busca el texto en varias columnas
+            if (query) {
+                const ilikeQuery = `%${query}%`;
+                supabaseQuery = supabaseQuery.or(
+                    `CODIGO.ilike.${ilikeQuery},` +
+                    `DESCRIPCION.ilike.${ilikeQuery},` +
+                    `EQUIVALENCIAS.ilike.${ilikeQuery},` +
+                    `APLICACION.ilike.${ilikeQuery},` +
+                    `MARCA.ilike.${ilikeQuery},` +
+                    `PRODUCTO.ilike.${ilikeQuery},` +
+                    `INFO.ilike.${ilikeQuery}`
+                );
+            }
 
+            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
         } catch (error) {
             console.error('Error al buscar:', error);
-            loadingState.textContent = 'Error al conectar con la base de datos.';
+            loadingState.textContent = 'Error al conectar.';
         }
     };
 
