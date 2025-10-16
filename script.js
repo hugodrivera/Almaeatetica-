@@ -221,8 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: filesInBucket, error: listError } = await supabaseClient.storage.from(BUCKET_NAME).list();
             if (listError) throw listError;
             
-            const fileMap = new Map(filesInBucket.map(file => [file.name.toLowerCase(), file.name]));
-            console.log(`Se encontraron ${fileMap.size} archivos en el Storage.`);
+            const fileMap = new Map(filesInBucket.map(file => {
+                const cleanName = file.name.trim().toLowerCase();
+                return [cleanName, file.name];
+            }));
+            console.log(`Se encontraron ${fileMap.size} archivos en el Storage para comparar.`);
 
             const { data: articlesToUpdate, error: selectError } = await supabaseClient
                 .from('articulos').select('id, imagen').not('imagen', 'ilike', 'http%');
@@ -241,15 +244,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`Iniciando sincronización para ${articlesToProcess.length} artículos...`);
 
             for (const article of articlesToProcess) {
-                const imageNameInDb = article.imagen.trim().toLowerCase();
+                // LÍNEA CLAVE: Limpia el nombre de la base de datos, quitando comillas y espacios
+                const cleanImageNameInDb = article.imagen.trim().replace(/['"]/g, '').toLowerCase();
                 
-                if (fileMap.has(imageNameInDb)) {
-                    const realFileName = fileMap.get(imageNameInDb);
+                if (fileMap.has(cleanImageNameInDb)) {
+                    const realFileName = fileMap.get(cleanImageNameInDb);
                     const { data: publicUrlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(realFileName);
                     updates.push({ id: article.id, imagen: publicUrlData.publicUrl });
                     matchedCount++;
+                    console.log(`COINCIDENCIA: '${cleanImageNameInDb}' -> ENCONTRADO`);
                 } else {
                     notFound.push(article.imagen);
+                    console.error(`FALLO: No se encontró el archivo '${cleanImageNameInDb}' en el Storage.`);
                 }
             }
             
@@ -261,7 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let message = `¡Sincronización Completa! Se actualizaron ${matchedCount} URLs de imágenes.`;
             if (notFound.length > 0) {
                 message += ` No se encontraron ${notFound.length} archivos. Revisa la consola (F12) para ver la lista.`;
-                console.log("Archivos no encontrados en Supabase Storage:", notFound);
             }
             Swal.fire('Proceso Terminado', message, 'success');
             performSearch();
