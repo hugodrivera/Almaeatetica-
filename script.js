@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cell = document.createElement('td');
                     if (header === 'imagen' && article[header] && article[header].startsWith('http')) {
                         cell.innerHTML = '✓';
-                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase() !== 'none.jpg') {
+                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase().trim() !== 'none.jpg' && article[header].trim() !== '') {
                         cell.innerHTML = '<span class="text-warning">✗ (Sincronizar)</span>';
                     } else if (header === 'imagen') {
                         cell.innerHTML = '<span class="text-danger">✗</span>';
@@ -118,15 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         if (!newArticle.CODIGO || !newArticle.DESCRIPCION) {
             Swal.fire('Campos incompletos', 'El CODIGO y la DESCRIPCION son obligatorios.', 'warning');
+            saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
         } else {
             const { error } = await supabaseClient.from('articulos').insert([newArticle]);
-            if (error) { Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
+            if (error) {
+                Swal.fire('Error', 'No se pudo guardar el artículo.', 'error');
+                saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
             } else {
                 Swal.fire('¡Éxito!', 'Artículo guardado correctamente.', 'success');
                 addArticleForm.reset(); addArticleModal.hide(); performSearch();
+                saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
             }
         }
-        saveArticleBtn.disabled = false; saveArticleBtn.innerHTML = 'Guardar Artículo';
     };
 
     const openEditModal = (article) => {
@@ -184,39 +187,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
         importBtn.disabled = true;
         importBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importando...';
-        
         Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            delimiter: ";", // <-- ¡Corrección clave para entender tu CSV!
+            header: true, skipEmptyLines: true, delimiter: ";",
             complete: async (results) => {
                 const articlesToInsert = results.data;
-                
                 if (articlesToInsert.length === 0 || !results.meta.fields.includes("CODIGO")) {
-                    Swal.fire('Error de Formato', 'El archivo no parece ser un CSV válido con punto y coma (;) o no tiene las columnas correctas.', 'error');
-                    importBtn.disabled = false;
-                    importBtn.innerHTML = '📤 Importar CSV';
-                    csvFileInput.value = '';
-                    return;
-                }
-
-                const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
-                if (error) {
-                    Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
+                    Swal.fire('Error de Formato', 'El archivo no es un CSV válido con punto y coma (;) o faltan columnas.', 'error');
                 } else {
-                    Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
-                    performSearch();
+                    const { error } = await supabaseClient.from('articulos').insert(articlesToInsert);
+                    if (error) { Swal.fire('Error de importación', `Error: ${error.message}.`, 'error');
+                    } else {
+                        Swal.fire('¡Importación completada!', `Se procesaron ${articlesToInsert.length} artículos.`, 'success');
+                        performSearch();
+                    }
                 }
                 csvFileInput.value = '';
-                importBtn.disabled = false;
-                importBtn.innerHTML = '📤 Importar CSV';
+                importBtn.disabled = false; importBtn.innerHTML = '📤 Importar CSV';
             }
         });
     };
     
     const syncImages = async () => {
         const result = await Swal.fire({
-            title: '¿Sincronizar Imágenes?', text: 'Se actualizarán las URLs de las imágenes. Esto puede tardar unos minutos.',
+            title: '¿Sincronizar Imágenes?', text: 'Se buscarán coincidencias entre la base de datos y las imágenes subidas. Esto puede tardar.',
             icon: 'info', showCancelButton: true, confirmButtonText: 'Sí, ¡sincronizar!', cancelButtonText: 'Cancelar'
         });
         if (!result.isConfirmed) return;
@@ -229,23 +222,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (listError) throw listError;
             
             const fileMap = new Map(filesInBucket.map(file => [file.name.toLowerCase(), file.name]));
+            console.log(`Se encontraron ${fileMap.size} archivos en el Storage.`);
 
             const { data: articlesToUpdate, error: selectError } = await supabaseClient
-                .from('articulos').select('id, imagen').not('imagen', 'is', null).not('imagen', 'ilike', 'http%');
-
+                .from('articulos').select('id, imagen').not('imagen', 'ilike', 'http%');
             if (selectError) throw selectError;
 
-            const articlesToProcess = articlesToUpdate.filter(a => a.imagen && a.imagen.toLowerCase() !== 'none.jpg');
-
+            const articlesToProcess = articlesToUpdate.filter(a => a.imagen && a.imagen.trim() !== '' && a.imagen.toLowerCase().trim() !== 'none.jpg');
             if (articlesToProcess.length === 0) {
                 Swal.fire('¡Todo listo!', 'No se encontraron artículos que necesiten sincronización.', 'info');
+                syncImagesBtn.disabled = false; syncImagesBtn.innerHTML = '🔄 Sincronizar Imágenes';
                 return;
             }
 
             const updates = [];
             const notFound = [];
             let matchedCount = 0;
-            console.log("Iniciando sincronización...");
+            console.log(`Iniciando sincronización para ${articlesToProcess.length} artículos...`);
 
             for (const article of articlesToProcess) {
                 const imageNameInDb = article.imagen.trim().toLowerCase();
@@ -270,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 message += ` No se encontraron ${notFound.length} archivos. Revisa la consola (F12) para ver la lista.`;
                 console.log("Archivos no encontrados en Supabase Storage:", notFound);
             }
-
             Swal.fire('Proceso Terminado', message, 'success');
             performSearch();
 
