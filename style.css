@@ -1,13 +1,15 @@
-/* Estilos generales */
+/* Espacio adicional en el body para que la barra inferior no tape el contenido */
 body {
     background-color: #f0f2f5;
     padding-bottom: 150px; 
 }
 
+/* Estilo para las filas de la tabla */
 #results-table tr {
     cursor: pointer;
 }
 
+/* Cabeceras de la tabla fijas */
 .table-responsive {
     max-height: 65vh;
     overflow-y: auto;
@@ -68,59 +70,4 @@ thead th {
 #modal-image {
     width: 100%;
     height: auto;
-}
-
-/* ===== INICIO DE LA MAGIA: ESTILOS SOLO PARA CELULARES ===== */
-@media (max-width: 768px) {
-    /* Ocultamos las cabeceras de la tabla tradicional */
-    thead {
-        display: none;
-    }
-    
-    /* Convertimos cada celda de la tabla en un bloque */
-    td {
-        display: block;
-        width: 100%;
-        text-align: right; /* Alineamos el dato a la derecha */
-        position: relative;
-        padding-left: 50%; /* Espacio para el título de la columna */
-        border-top: none;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    td:last-child {
-        border-bottom: none;
-    }
-
-    /* Creamos el título de la columna usando un pseudo-elemento */
-    td::before {
-        content: attr(data-label); /* Lee el título desde un atributo de la celda */
-        position: absolute;
-        left: 10px;
-        font-weight: bold;
-        text-align: left;
-    }
-    
-    /* Convertimos cada fila en una "tarjeta" */
-    tr {
-        display: block;
-        margin-bottom: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        background-color: #fff;
-    }
-
-    /* Hacemos la barra inferior más compacta */
-    #image-viewer-bar {
-        height: 100px;
-    }
-
-    #image-viewer-bar img {
-        height: 80px;
-        width: 80px;
-    }
-
-    body {
-        padding-bottom: 110px;
-    }
 }
