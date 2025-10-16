@@ -85,32 +85,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // ===== FUNCIÓN DE BÚSQUEDA DEFINITIVA =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
-            let supabaseQuery = supabaseClient.from('articulos').select();
-            
-            // Búsqueda simple pero robusta que busca el texto en varias columnas
-            if (query) {
-                const ilikeQuery = `%${query}%`;
-                supabaseQuery = supabaseQuery.or(
-                    `CODIGO.ilike.${ilikeQuery},` +
-                    `DESCRIPCION.ilike.${ilikeQuery},` +
-                    `EQUIVALENCIAS.ilike.${ilikeQuery},` +
-                    `APLICACION.ilike.${ilikeQuery},` +
-                    `MARCA.ilike.${ilikeQuery},` +
-                    `PRODUCTO.ilike.${ilikeQuery},` +
-                    `INFO.ilike.${ilikeQuery}`
-                );
-            }
+            // Llama a la función 'buscar_articulos' que creamos en Supabase
+            const { data: articles, error } = await supabaseClient.rpc('buscar_articulos', {
+                search_term: query
+            });
 
-            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
-            displayResults(articles);
+            
+            // Si no hay búsqueda, limita los resultados a 50
+            const resultsToShow = (query === '' && articles.length > 50) ? articles.slice(0, 50) : articles;
+            
+            displayResults(resultsToShow);
         } catch (error) {
             console.error('Error al buscar:', error);
-            loadingState.textContent = 'Error al conectar.';
+            loadingState.textContent = 'Error al conectar con la base de datos.';
         }
     };
 
