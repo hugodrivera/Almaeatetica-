@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cell = document.createElement('td');
                     if (header === 'imagen' && article[header] && article[header].startsWith('http')) {
                         cell.innerHTML = '✓';
-                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase() !== 'none.jpg' && article[header].trim() !== '') {
+                    } else if (header === 'imagen' && article[header] && article[header].toLowerCase().trim() !== 'none.jpg' && article[header].trim() !== '') {
                         cell.innerHTML = '<span class="text-warning">✗ (Sincronizar)</span>';
                     } else if (header === 'imagen') {
                         cell.innerHTML = '<span class="text-danger">✗</span>';
@@ -87,15 +87,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // ===== FUNCIÓN DE BÚSQUEDA HÍBRIDA Y DEFINITIVA =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
             let supabaseQuery = supabaseClient.from('articulos').select();
+
             if (query) {
-                const formattedQuery = query.trim().split(' ').filter(term => term).map(term => term + ':*').join(' & ');
-                supabaseQuery = supabaseQuery.textSearch('fts', formattedQuery);
+                // 1. Búsqueda por palabras completas y prefijos (rápida)
+                const ftsQuery = query.trim().split(' ').filter(term => term).map(term => term + ':*').join(' & ');
+                
+                // 2. Búsqueda por sub-cadena en columnas clave (más lenta pero necesaria)
+                const ilikeQuery = `%${query}%`;
+
+                // 3. Combinamos ambas búsquedas
+                supabaseQuery = supabaseQuery.or(
+                    `fts.plfts.${ftsQuery},` + 
+                    `CODIGO.ilike.${ilikeQuery},` +
+                    `EQUIVALENCIAS.ilike.${ilikeQuery}`
+                );
             }
+
             const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
             displayResults(articles);
