@@ -85,22 +85,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ===== FUNCIÓN DE BÚSQUEDA DEFINITIVA =====
+    // ===== FUNCIÓN DE BÚSQUEDA SIMPLE, POTENTE Y DEFINITIVA =====
     const performSearch = async (query = '') => {
         loadingState.textContent = 'Buscando...';
         loadingState.style.display = 'block';
         try {
-            // Llama a la función 'buscar_articulos' que creamos en Supabase
-            const { data: articles, error } = await supabaseClient.rpc('buscar_articulos', {
-                search_term: query
-            });
+            let supabaseQuery = supabaseClient.from('articulos').select();
+            
+            if (query) {
+                // Divide la búsqueda en palabras. Ej: "bujia 2022" -> ["bujia", "2022"]
+                const searchTerms = query.trim().split(' ').filter(term => term);
 
+                // Construye una lista de filtros, uno por cada palabra
+                const filters = searchTerms.map(term => {
+                    const ilikeQuery = `%${term}%`;
+                    // Por cada palabra, busca en TODAS las columnas
+                    return `or(PRODUCTO.ilike.${ilikeQuery},MARCA.ilike.${ilikeQuery},CODIGO.ilike.${ilikeQuery},DESCRIPCION.ilike.${ilikeQuery},EQUIVALENCIAS.ilike.${ilikeQuery},APLICACION.ilike.${ilikeQuery},INFO.ilike.${ilikeQuery})`;
+                });
+
+                // Une todos los filtros con "y" (and)
+                supabaseQuery = supabaseQuery.and(filters.join(','));
+            }
+
+            const { data: articles, error } = await supabaseQuery.order('id', { ascending: false }).limit(50);
             if (error) throw error;
-            
-            // Si no hay búsqueda, limita los resultados a 50
-            const resultsToShow = (query === '' && articles.length > 50) ? articles.slice(0, 50) : articles;
-            
-            displayResults(resultsToShow);
+            displayResults(articles);
         } catch (error) {
             console.error('Error al buscar:', error);
             loadingState.textContent = 'Error al conectar con la base de datos.';
