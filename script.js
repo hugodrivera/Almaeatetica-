@@ -1,9 +1,9 @@
 // --- CONFIGURACIÓN DE SUPABASE ---
 // PASO 1: Pega tu URL de Supabase entre las comillas
-const SUPABASE_URL = "https://ijoyktiksqxhuhjwbcbn.supabase.co";
+const SUPABASE_URL = "https://etlfxwjsklyywuopwnxw.supabase.co";
 
 // PASO 2: Pega tu Key "anon public" de Supabase entre las comillas
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqb3lrdGlrc3F4aHVoandiY2JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3MTQ0NzcsImV4cCI6MjA3NjI5MDQ3N30.0qa2P38WDyNk7OuswlHHukkbRMCuVnM4h0LRQgENKTM";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0bGZ4d2pza2x5eXd1b3B3bnh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0ODE3MjMsImV4cCI6MjA3NjA1NzcyM30.k8zu-CYOZK3T6Xj6qTVjlL1nS-vjhC-uWAd2JkJNlUM";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const BUCKET_NAME = 'imagenes-productos';
@@ -255,3 +255,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     performSearch();
 });
+
