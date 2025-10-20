@@ -1,7 +1,10 @@
+// Importa el SDK de Supabase como módulo
+import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
 // Configuración de Supabase
 const SUPABASE_URL = 'https://etlfxwjsklyywuopwnxw.supabase.co'; // Reemplaza con tu Project URL
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0bGZ4d2pza2x5eXd1b3B3bnh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0ODE3MjMsImV4cCI6MjA3NjA1NzcyM30.k8zu-CYOZK3T6Xj6qTVjlL1nS-vjhC-uWAd2JkJNlUM'; // Reemplaza con tu Anon Key
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let allArticles = []; // Cache para los artículos
 
