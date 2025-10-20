@@ -7,11 +7,11 @@ body {
 }
 
 #image-container {
-    min-height: 300px; /* Reducido un poco ya que ahora está abajo */
+    min-height: 300px;
 }
 
 #image-display {
-    max-height: 200px; /* Más pequeña inicialmente */
+    max-height: 200px;
     object-fit: contain;
 }
 
@@ -41,6 +41,26 @@ body {
 
 .btn-primary:hover {
     background-color: #0056b3;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #e0a800;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #c82333;
 }
 
 /* Estilos para el modal */
