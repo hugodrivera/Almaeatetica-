@@ -108,7 +108,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadingState.textContent = 'Escribe algo para buscar...';
             loadingState.style.display = '';
             // Resetear panel de imagen
-            imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/IMAGENES-PRODUCTOS/sin_foto.png`;
+            const fallbackUrl = `${SUPABASE_URL}/storage/v1/object/public/imagenes-productos/sin_foto.jpg`;
+            console.log('Reseteando a fallback:', fallbackUrl);
+            imageDisplay.src = fallbackUrl;
             itemCode.textContent = 'Selecciona un artículo';
             itemInfo.textContent = '';
             return;
@@ -147,16 +149,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const articleData = JSON.parse(row.dataset.article);
         
         // Actualizar el panel de la imagen
-        const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/IMAGENES-PRODUCTOS/${articleData.imagen || 'sin_foto.png'}`;
-        console.log('Intentando cargar imagen:', imageUrl); // Para depurar
+        const imageName = articleData.imagen || 'sin_foto.jpg'; // Nota el .jpg en lugar de .png
+        const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/imagenes-productos/${imageName}`;
+        console.log('Intentando cargar imagen:', imageUrl);
+        console.log('Nombre de imagen en DB:', imageName);
         imageDisplay.src = imageUrl;
 
         itemCode.textContent = `Código: ${articleData.codigo}`;
         itemInfo.textContent = articleData.descripcion;
 
-        imageDisplay.onerror = () => {
-            console.error('Error cargando imagen:', imageUrl);
-            imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/IMAGENES-PRODUCTOS/sin_foto.png`;
+        imageDisplay.onerror = (err) => {
+            console.error('Error cargando imagen:', imageUrl, 'Detalles:', err);
+            const fallbackUrl = `${SUPABASE_URL}/storage/v1/object/public/imagenes-productos/sin_foto.jpg`;
+            console.log('Cayendo a fallback:', fallbackUrl);
+            imageDisplay.src = fallbackUrl;
         };
     });
 
