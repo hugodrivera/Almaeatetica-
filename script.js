@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const itemInfo = document.getElementById('item-info');
     const loadingState = document.getElementById('loading-state');
     const addNewBtn = document.getElementById('add-new-btn');
+    const modalImage = document.getElementById('modal-image');
+    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
     
     // 1. Cargar artículos desde Supabase y generar encabezados
     async function loadArticles() {
@@ -76,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     };
 
-    // 3. Evento al escribir en el campo de búsqueda
+    // 3. Evento al escribir en el campo de búsqueda (búsqueda parcial con términos separados)
     const handleSearch = debounce((query) => {
         if (query === '') {
             resultsTableBody.innerHTML = '';
@@ -89,10 +91,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Filtrar artículos localmente
+        // Dividir el query en términos separados por espacios
+        const terms = query.split(' ').filter(term => term.length > 0);
+
+        // Filtrar artículos donde cada término aparezca en al menos una columna
         const filteredArticles = allArticles.filter(article => {
-            return Object.values(article).some(value =>
-                String(value).toLowerCase().includes(query)
+            return terms.every(term =>
+                Object.values(article).some(value =>
+                    String(value).toLowerCase().includes(term)
+                )
             );
         });
 
@@ -126,7 +133,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     });
 
-    // 5. Evento para el botón "Agregar"
+    // 5. Evento para agrandar la imagen con doble click
+    imageDisplay.addEventListener('dblclick', () => {
+        if (imageDisplay.src) {
+            modalImage.src = imageDisplay.src;
+            imageModal.show();
+        }
+    });
+
+    // 6. Evento para el botón "Agregar"
     addNewBtn.addEventListener('click', () => {
         alert('Función de agregar nuevo artículo. Implementa aquí tu lógica (por ejemplo, un modal para ingresar datos).');
     });
