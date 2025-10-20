@@ -18,7 +18,7 @@
                 <button class="btn btn-primary" type="button" id="add-new-btn">➕ Agregar</button>
             </div>
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered bg-white">
                             <thead class="table-dark">
@@ -29,13 +29,15 @@
                         <p id="loading-state" class="text-center">Escribe algo para buscar...</p>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div id="image-container" class="card sticky-top">
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div id="image-container" class="card">
                         <div class="card-header text-center">
                             Visor de Imagen
                         </div>
                         <div class="card-body text-center">
-                            <img src="" id="image-display" class="img-fluid mb-2" alt="Imagen del artículo">
+                            <img src="" id="image-display" class="img-fluid mb-2" alt="Imagen del artículo" style="cursor: pointer;">
                             <h5 id="item-code" class="card-title mt-2">Selecciona un artículo</h5>
                             <p id="item-info" class="card-text"></p>
                         </div>
@@ -44,6 +46,23 @@
             </div>
         </main>
     </div>
+
+    <!-- Modal para imagen agrandada -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Imagen Ampliada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" id="modal-image" class="img-fluid" alt="Imagen ampliada">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 </html>
