@@ -20,15 +20,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalImage = document.getElementById('modal-image');
     const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
     
-    // 1. Cargar artículos desde Supabase y generar encabezados
+    // 1. Cargar artículos desde Supabase con paginación para obtener todos
     async function loadArticles() {
-        const { data, error } = await supabase.from('articulos').select('*');
-        if (error) {
-            console.error('Error cargando artículos:', error);
-            loadingState.textContent = 'Error al cargar los datos';
-            return;
+        let offset = 0;
+        const limit = 1000; // Batch size
+        allArticles = [];
+
+        while (true) {
+            const { data, error } = await supabase
+                .from('articulos')
+                .select('*')
+                .range(offset, offset + limit - 1);
+
+            if (error) {
+                console.error('Error cargando batch de artículos:', error);
+                loadingState.textContent = 'Error al cargar los datos';
+                return;
+            }
+
+            allArticles.push(...data);
+            console.log(`Batch cargado: ${data.length} artículos (total hasta ahora: ${allArticles.length})`);
+
+            if (data.length < limit) {
+                break; // No hay más datos
+            }
+
+            offset += limit;
         }
-        allArticles = data;
+
+        console.log(`Total artículos cargados: ${allArticles.length}`);
+
         if (allArticles.length > 0) {
             const headers = Object.keys(allArticles[0]).filter(key => key !== 'imagen');
             headers.forEach(header => {
@@ -36,6 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 th.textContent = header.toUpperCase();
                 tableHead.appendChild(th);
             });
+        } else {
+            loadingState.textContent = 'No se cargaron artículos. Verifica Supabase.';
         }
     }
 
@@ -85,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadingState.textContent = 'Escribe algo para buscar...';
             loadingState.style.display = '';
             // Resetear panel de imagen
-            imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/imagenes/sin_foto.png`;
+            imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/IMAGENES-PRODUCTOS/sin_foto.png`;
             itemCode.textContent = 'Selecciona un artículo';
             itemInfo.textContent = '';
             return;
@@ -124,12 +147,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const articleData = JSON.parse(row.dataset.article);
         
         // Actualizar el panel de la imagen
-        imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/imagenes/${articleData.imagen || 'sin_foto.png'}`;
+        const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/IMAGENES-PRODUCTOS/${articleData.imagen || 'sin_foto.png'}`;
+        console.log('Intentando cargar imagen:', imageUrl); // Para depurar
+        imageDisplay.src = imageUrl;
+
         itemCode.textContent = `Código: ${articleData.codigo}`;
         itemInfo.textContent = articleData.descripcion;
 
         imageDisplay.onerror = () => {
-            imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/imagenes/sin_foto.png`;
+            console.error('Error cargando imagen:', imageUrl);
+            imageDisplay.src = `${SUPABASE_URL}/storage/v1/object/public/IMAGENES-PRODUCTOS/sin_foto.png`;
         };
     });
 
