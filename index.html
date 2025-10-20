@@ -47,6 +47,38 @@
         </main>
     </div>
 
+    <!-- Modal para editar/eliminar -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Artículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="edit-id">
+                        <div class="mb-3">
+                            <label for="edit-code" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="edit-code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-description" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="edit-description" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-image" class="form-label">Subir Imagen</label>
+                            <input type="file" class="form-control" id="edit-image" accept="image/*">
+                            <small id="image-help" class="form-text text-muted">Deje en blanco para no cambiar.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" id="delete-btn" data-bs-dismiss="modal">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para imagen agrandada -->
     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
