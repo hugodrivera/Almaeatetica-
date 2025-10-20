@@ -201,8 +201,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     upsert: true // Sobrescribe si existe
                 });
             if (uploadError) {
-                console.error('Error subiendo imagen:', uploadError);
-                alert('Error al subir la imagen.');
+                console.error('Error subiendo imagen:', uploadError.message);
+                alert(`Error al subir la imagen: ${uploadError.message}`);
                 return;
             }
         }
