@@ -7,11 +7,11 @@ body {
 }
 
 #image-container {
-    min-height: 400px;
+    min-height: 300px; /* Reducido un poco ya que ahora está abajo */
 }
 
 #image-display {
-    max-height: 300px;
+    max-height: 200px; /* Más pequeña inicialmente */
     object-fit: contain;
 }
 
@@ -41,4 +41,10 @@ body {
 
 .btn-primary:hover {
     background-color: #0056b3;
+}
+
+/* Estilos para el modal */
+.modal-img {
+    max-height: 80vh;
+    object-fit: contain;
 }
