@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const articleData = JSON.parse(row.dataset.article);
         
         // Actualizar el panel de la imagen
-        const imageName = articleData.imagen || 'sin_foto.jpg'; // Nota el .jpg en lugar de .png
+        const imageName = articleData.imagen || 'sin_foto.jpg'; // Nombre desde la DB o fallback
         const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/imagenes-productos/${imageName}`;
         console.log('Intentando cargar imagen:', imageUrl);
         console.log('Nombre de imagen en DB:', imageName);
